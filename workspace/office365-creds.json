@@ -1,0 +1,60 @@
+{
+  "accounts": {
+    "credologi": {
+      "email": "faisal@credologi.com",
+      "clientId": "de70d95f-6f8c-4f39-8259-1c579090f401",
+      "objectId": "46d8fe48-9b03-411d-8090-54d89babf06b",
+      "tenantId": "98affaa8-8af4-4134-8378-efa5d337284d",
+      "secretId": "db83be3c-69d8-4a73-a61c-568a1e671beb",
+      "secretValue": "UNH8Q~b4D_A3eImt0mBsBCSTQ_ba6DlOLpXRfc8k"
+    },
+    "flobase": {
+      "email": "faisal@flobase.ai",
+      "clientId": "de70d95f-6f8c-4f39-8259-1c579090f401",
+      "objectId": "46d8fe48-9b03-411d-8090-54d89babf06b",
+      "tenantId": "98affaa8-8af4-4134-8378-efa5d337284d",
+      "secretId": "db83be3c-69d8-4a73-a61c-568a1e671beb",
+      "secretValue": "UNH8Q~b4D_A3eImt0mBsBCSTQ_ba6DlOLpXRfc8k"
+    },
+    "fcrpcapital": {
+      "email": "faisal@fcrpcapital.com",
+      "clientId": "de70d95f-6f8c-4f39-8259-1c579090f401",
+      "objectId": "46d8fe48-9b03-411d-8090-54d89babf06b",
+      "tenantId": "98affaa8-8af4-4134-8378-efa5d337284d",
+      "secretId": "db83be3c-69d8-4a73-a61c-568a1e671beb",
+      "secretValue": "UNH8Q~b4D_A3eImt0mBsBCSTQ_ba6DlOLpXRfc8k"
+    },
+    "utilityvalet": {
+      "email": "faisal@utilityvalet.io",
+      "clientId": "f9da90a6-046c-410d-95c6-6dcb1d5d6523",
+      "objectId": "11f66676-bd59-42a9-be96-17230ee7b002",
+      "tenantId": "fd036b44-5db1-45c7-a55a-711bee087e49",
+      "secretId": "5993f5cd-e229-40d6-b295-369de6f3908d",
+      "secretValue": "1L.8Q~yq0qsTMGmZBlc91Tp.qDklPDUkIakHhdna"
+    },
+    "starship": {
+      "email": "faisal@starshipresidential.com",
+      "clientId": "9e0e77d8-f8a4-4ecc-8467-36bdb6c95a94",
+      "objectId": "e31ef690-14cb-4651-a0eb-2916b8082647",
+      "tenantId": "d2acd1fb-6f18-45a4-8585-659506e4c5b4",
+      "secretId": "6cff2a5f-c4ab-474c-aa1b-ed52cc8209a0",
+      "secretValue": "Xg98Q~Z-sZa-YJx2gznFrI4kQtIy8jpiYUdaYagP"
+    },
+    "dallaspartners": {
+      "email": "faisal@dallaspartners.us",
+      "clientId": "c1d6e45d-4546-4227-aab9-b6c600841e01",
+      "objectId": "62250b2a-0e34-46cc-9f45-ba51437a03d8",
+      "tenantId": "5ea31e0b-d45a-4d55-b590-333c3d9aa345",
+      "secretId": "175dba63-3af4-42aa-ad40-c5d3ee179b34",
+      "secretValue": "TrA8Q~oaUDQeRcOqjjUKdQ8Wr2qh2.bwk2BVKcUj"
+    },
+    "spearhead": {
+      "email": "faisal@spearhead.io",
+      "clientId": "6b40a3e9-eca9-4d42-8aea-67d234eec93e",
+      "objectId": "bad99fec-d6aa-41a0-92d1-3f82fa28120c",
+      "tenantId": "68a1289f-441e-4447-8a20-81b7bd47ab19",
+      "secretId": "df36a61b-6c04-41c5-85a6-d401294d9fbc",
+      "secretValue": "KeO8Q~uPctD1g3rQLFAx8lmPLhf2_vBU2WkUVceQ"
+    }
+  }
+}
