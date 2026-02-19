@@ -117,7 +117,7 @@
 
 ---
 
-## Current Setup (Feb 17, 2026)
+## Current Setup (Feb 19, 2026)
 
 ### What's Running
 - **OpenClaw** 2026.2.15 on Mac mini (Darwin arm64)
@@ -125,6 +125,32 @@
 - **ClawVault** installed at ~/memory (vault: optimus-brain)
 - **ClawVault Add-ons** at ~/memory/addons/ (topics, retention, digest)
 - **Daily Digest cron** at 7:00 AM CST
+
+### Data Lake Portal - NEW (Feb 19, 2026)
+- **Portal URL**: https://d13ermioqnr3qb.cloudfront.net
+- **Tech Stack**: React + TypeScript + Vite + AWS Amplify + Cognito
+- **Features**:
+  - Real-time API health monitoring (30s auto-refresh)
+  - CloudWatch metrics dashboard (requests, errors, latency)
+  - Data volume tracking by source
+  - Full user management (create, enable/disable, reset password, delete)
+  - Alert configuration (SNS + Slack)
+  - Remote test runner (pytest)
+- **Monitoring API**: https://o6whnf80tb.execute-api.us-east-1.amazonaws.com/Prod
+- **Main API**: https://pe6rxp3vtd.execute-api.us-east-1.amazonaws.com/Prod
+- **User Pool**: us-east-1_M6lTgVQaw (credologi-users)
+- **S3 Bucket**: portal.credologi.com
+- **CloudFront**: d13ermioqnr3qb.cloudfront.net
+
+### Git Commits (Feb 18-19, 2026)
+- `061bae4` - Fixed test_application_webhook schema
+- `8bcf3a6` - Standardized test mocking
+- `70dd0e9` - New admin portal with Cognito auth
+- `d60b0e7` - Fixed portal Cognito config
+- `6583065` - Comprehensive operations dashboard
+- `822ed4d` - Monitoring API Lambda
+- `5af2ae8` - Deployed monitoring API stack
+- `0b12775` - Complete user management + alerting
 
 ### What's NOT Migrated Yet
 - Office 365 integration (scripts exist in `clawd old/`)
