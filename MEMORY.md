@@ -126,14 +126,17 @@
 - **ClawVault Add-ons** at ~/memory/addons/ (topics, retention, digest)
 - **Daily Digest cron** at 7:00 AM CST
 
-### Data Lake Portal - NEW (Feb 19, 2026)
-- **Portal URL**: https://d13ermioqnr3qb.cloudfront.net
+### Data Lake Portal - UPDATED (Feb 19, 2026)
+- **Portal URL**: https://portal.credologi.com
 - **Tech Stack**: React + TypeScript + Vite + AWS Amplify + Cognito
 - **Features**:
   - Real-time API health monitoring (30s auto-refresh)
   - CloudWatch metrics dashboard (requests, errors, latency)
   - Data volume tracking by source
-  - Full user management (create, enable/disable, reset password, delete)
+  - **Full user management** (create, enable/disable, reset password, delete)
+  - **Snowflake database monitoring** (health, metrics, errors, security)
+  - **AWS Security monitoring** (Security Hub, GuardDuty, IAM)
+  - **Data Flow visualization** (CRM ↔ Data Lake ↔ LOS architecture)
   - Alert configuration (SNS + Slack)
   - Remote test runner (pytest)
 - **Monitoring API**: https://o6whnf80tb.execute-api.us-east-1.amazonaws.com/Prod
@@ -141,6 +144,26 @@
 - **User Pool**: us-east-1_M6lTgVQaw (credologi-users)
 - **S3 Bucket**: portal.credologi.com
 - **CloudFront**: d13ermioqnr3qb.cloudfront.net
+
+### Data Flow Architecture (NEW)
+**CRM → Data Lake → LOS → Data Lake → CRM**
+- CRMs feed customer data to Data Lake
+- Data Lake pushes to LOS for processing
+- LOS returns status to Data Lake
+- Data Lake syncs status back to CRMs
+- Benefits: Switch LOS without changing CRMs, add CRMs without changing LOS
+
+### Git Commits (Feb 18-19, 2026)
+- `5ea8645` - docs: comprehensive documentation update
+- `351805f` - test: rewrite tests to match current implementation
+- `0b12775` - feat: complete user management and alerting system
+- `5af2ae8` - deploy: monitoring API stack and updated portal
+- `822ed4d` - feat: monitoring API Lambda for portal integration
+- `6583065` - feat: comprehensive operations dashboard for data lake
+- `d60b0e7` - fix: update portal Cognito config and add test runner
+- `70dd0e9` - feat: new admin portal with Cognito auth
+- `8bcf3a6` - test: standardize test mocking with test_utils.setup_lambda_mocks
+- `061bae4` - fix: update test_application_webhook.py to match model schema
 
 ### Git Commits (Feb 18-19, 2026)
 - `061bae4` - Fixed test_application_webhook schema
