@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Data Lake Monitoring API for Portal
+
+Parameters:
+  CognitoUserPoolId:
+    Type: String
+    Default: us-east-1_M6lTgVQaw
+    Description: Cognito User Pool ID
+  AlertsEnabled:
+    Type: String
+    Default: 'true'
+    AllowedValues: ['true', 'false']
+    Description: Enable alerts
+  AlertTopicArn:
+    Type: String
+    Default: ''
+    Description: SNS Topic ARN for alerts
+  SlackWebhookUrl:
+    Type: String
+    Default: ''
+    Description: Slack Webhook URL for alerts
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: python3.9
+    Architectures:
+      - x86_64
+
+Resources:
+  MonitoringApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/monitoring_api
+      Handler: lambda_function.lambda_handler
+      MemorySize: 512
+      Environment:
+        Variables:
+          COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
+          ALERTS_ENABLED: !Ref AlertsEnabled
+          ALERT_TOPIC_ARN: !Ref AlertTopicArn
+          SLACK_WEBHOOK_URL: !Ref SlackWebhookUrl
+          SNOWFLAKE_ACCOUNT: SBUBJHD-TY50972
+          SNOWFLAKE_USER: fchaudhry
+          SNOWFLAKE_DATABASE: APPLICATIONS
+          SNOWFLAKE_SCHEMA: PUBLIC
+          SNOWFLAKE_WAREHOUSE: COMPUTE_WH
+          SNOWFLAKE_ROLE: ACCOUNTADMIN
+          TABLE_NAME: real-time-data-lake-loan-applications
+      Policies:
+        - Statement:
+          - Effect: Allow
+            Action:
+              - cognito-idp:ListUsers
+              - cognito-idp:AdminCreateUser
+              - cognito-idp:AdminDisableUser
+              - cognito-idp:AdminEnableUser
+              - cognito-idp:AdminResetUserPassword
+              - cognito-idp:AdminDeleteUser
+              - cognito-idp:AdminAddUserToGroup
+            Resource: !Sub 'arn:aws:cognito-idp:us-east-1:${AWS::AccountId}:userpool/${CognitoUserPoolId}'
+          - Effect: Allow
+            Action:
+              - cloudwatch:GetMetricData
+              - cloudwatch:ListMetrics
+              - logs:FilterLogEvents
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - dynamodb:Scan
+              - dynamodb:DescribeTable
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - sns:Publish
+            Resource: !Ref AlertTopicArn
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            RestApiId: !Ref MonitoringApi
+
+  MonitoringApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS,DELETE'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+        MaxAge: "'7200'"
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Sub 'arn:aws:cognito-idp:us-east-1:${AWS::AccountId}:userpool/${CognitoUserPoolId}'
+
+  AlertsSnsTopic:
+    Type: AWS::SNS::Topic
+    Condition: CreateAlertTopic
+    Properties:
+      TopicName: data-lake-alerts
+      DisplayName: Data Lake Alerts
+
+Conditions:
+  CreateAlertTopic: !Equals [!Ref AlertTopicArn, '']
+
+Outputs:
+  ApiGatewayEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${MonitoringApi}.execute-api.${AWS::Region}.amazonaws.com/Prod'
+  FunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt MonitoringApiFunction.Arn

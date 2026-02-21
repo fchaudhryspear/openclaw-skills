@@ -37,4 +37,13 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 
 ---
 
+### API Keys
+
+**Alibaba Qwen**
+- Key: `sk-704e...6b7` (stored securely)
+- Console: https://modelstudio.console.alibabacloud.com/us-east-1
+- Region: US-East (Virginia)
+
+---
+
 Add whatever helps you do your job. This is your cheat sheet.

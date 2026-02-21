@@ -1,0 +1,1 @@
+{"statusCode": 400, "headers": {"Content-Type": "application/json"}, "body": "{\"status\": \"error\", \"message\": \"Invalid request - please check your input data\", \"request_id\": \"db8d3a5d-e8a0-4c71-8179-cb5dbac7bbf2\", \"timestamp\": \"2026-02-20T20:53:55.493427\"}"}

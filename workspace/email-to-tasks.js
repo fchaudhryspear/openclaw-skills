@@ -28,6 +28,61 @@ function htmlToText(html) {
     .replace(/\s+/g, ' ').trim();
 }
 
+// ── Spam/Marketing Filter ────────────────────────────────────────────────────
+const SPAM_PATTERNS = {
+  // Subject line patterns that indicate spam/marketing
+  subjectKeywords: [
+    'sample message', 'template', 'campaign', 'blast', 'newsletter',
+    'unsubscribe', 'promotional', 'limited time', 'act now', 'special offer',
+    'discount', 'sale', 'promo', 'marketing', 'advertisement',
+    'join our', 'sign up today', 'click here', 'buy now', 'order now',
+    'exclusive deal', 'free trial', 'webinar invitation', 'survey'
+  ],
+  // Body patterns that indicate mass/commercial email
+  bodyPatterns: [
+    /send this (email|message) to.*committee|members|congress/i,
+    /sample (email|message|template)/i,
+    /copy and paste this/i,
+    /forward this to/i,
+    /share this with/i,
+    /\bunsubscribe\b/i,
+    /\bopt-out\b/i,
+    /this email was sent to/i,
+    /you are receiving this because/i,
+    /marketing (email|message|communication)/i,
+    /promotional (material|content)/i
+  ],
+  // Sender patterns that are likely marketing/spam
+  senderPatterns: [
+    /noreply@|no-reply@/i,
+    /marketing@|newsletter@|promotions@|offers@/i,
+    /mailchimp|constantcontact|sendgrid|mailgun/i
+  ]
+};
+
+function isSpamOrMarketing(subject, body, from) {
+  const subjectLower = (subject || '').toLowerCase();
+  const bodyLower = (body || '').toLowerCase();
+  const fromLower = (from || '').toLowerCase();
+
+  // Check subject keywords
+  for (const kw of SPAM_PATTERNS.subjectKeywords) {
+    if (subjectLower.includes(kw)) return { spam: true, reason: `Subject keyword: "${kw}"` };
+  }
+
+  // Check body patterns
+  for (const pattern of SPAM_PATTERNS.bodyPatterns) {
+    if (pattern.test(body)) return { spam: true, reason: `Body pattern: ${pattern.source.substring(0, 40)}...` };
+  }
+
+  // Check sender patterns
+  for (const pattern of SPAM_PATTERNS.senderPatterns) {
+    if (pattern.test(from)) return { spam: true, reason: `Sender pattern match` };
+  }
+
+  return { spam: false };
+}
+
 function levenshtein(a, b) {
   const m = [], al = a.length, bl = b.length;
   for (let i = 0; i <= bl; i++) m[i] = [i];
@@ -53,8 +108,19 @@ Body: ${body.substring(0, 2000)}
 Return ONLY a JSON array (or [] if none). Format:
 [{"title":"Brief task","notes":"Context","dueDate":"YYYY-MM-DD or null","priority":"high or normal"}]
 
-✅ CREATE tasks for: scheduling requests, document review, deliverables, follow-ups, client work, legal/compliance items
-❌ SKIP: cold outreach, newsletters, FYI notifications, marketing, automated alerts, "can I send you a proposal"
+✅ CREATE tasks for: scheduling requests, document review, deliverables, follow-ups, client work, legal/compliance items, personal errands, appointment scheduling
+❌ SKIP these (return []):
+   - Cold outreach, sales emails, newsletters
+   - FYI notifications, automated alerts
+   - Marketing/promotional content
+   - "Can I send you a proposal" emails
+   - Template/sample messages (e.g., "Send email to House Financial Services Committee members using sample message")
+   - Mass campaign emails asking to forward/copy messages
+   - Political action alerts asking to send pre-written messages
+   - Survey invitations, webinar promotions
+   - Any email asking to copy/paste and send a template
+
+If the email contains a SAMPLE MESSAGE or TEMPLATE to send somewhere, this is NOT a task for Faisal — it's spam/marketing.
 
 JSON only, no other text:`;
 
@@ -112,6 +178,14 @@ async function main() {
         const subject = email.subject || '(no subject)';
         const body = htmlToText(email.body?.content || email.bodyPreview || '');
         if (body.length < 50) continue;
+
+        // Pre-filter spam/marketing emails
+        const spamCheck = isSpamOrMarketing(subject, body, from);
+        if (spamCheck.spam) {
+          if (VERBOSE) console.log(`   🚫 "${subject}" | SPAM: ${spamCheck.reason}`);
+          totalEmails++;
+          continue;
+        }
 
         if (VERBOSE) console.log(`   📧 "${subject}" | ${from}`);
 

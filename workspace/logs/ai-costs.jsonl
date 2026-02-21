@@ -111,3 +111,4 @@
 {"ts":"2026-02-19T13:03:55.904Z","date":"2026-02-19","script":"ai-grok","model":"grok-4-1-fast-non-reasoning","inputTokens":517,"outputTokens":41,"cost":0.001444}
 {"ts":"2026-02-19T13:03:56.732Z","date":"2026-02-19","script":"ai-grok","model":"grok-4-1-fast-non-reasoning","inputTokens":316,"outputTokens":33,"cost":0.000962}
 {"ts":"2026-02-19T13:03:57.893Z","date":"2026-02-19","script":"ai-grok","model":"grok-4-1-fast-non-reasoning","inputTokens":637,"outputTokens":46,"cost":0.001734}
+{"ts":"2026-02-20T02:48:33.198Z","date":"2026-02-20","script":"ai-gemini","model":"gemini-2.0-flash","inputTokens":270,"outputTokens":12,"cost":0.000032}

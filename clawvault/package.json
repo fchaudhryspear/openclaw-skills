@@ -1,0 +1,43 @@
+{
+  "name": "clawvault",
+  "version": "2.0.0",
+  "description": "AI Agent Memory System with Context-Aware Search",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.ts",
+    "dev": "ts-node src/index.ts"
+  },
+  "keywords": [
+    "ai",
+    "memory",
+    "embeddings",
+    "search",
+    "agent"
+  ],
+  "author": "ClawVault Team",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^5.0.0",
+    "natural": "^8.0.0",
+    "stopword": "^3.0.0",
+    "vectra": "^0.9.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.0.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0",
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

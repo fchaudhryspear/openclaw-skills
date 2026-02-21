@@ -21,8 +21,16 @@ const INJECTION_SCHEDULE = {
 function toCST(date) {
   return new Date(date).toLocaleString('en-US', { timeZone: 'America/Chicago' });
 }
-function formatTime(dt) {
-  return new Date(dt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' });
+function formatTime(dt, timeZone = 'UTC') {
+  // Handle UTC datetimes from Graph API properly
+  // The datetime string may not have timezone info, so we explicitly treat it as UTC
+  const dateStr = dt.endsWith('Z') ? dt : dt + 'Z';
+  return new Date(dateStr).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'America/Chicago'
+  });
 }
 function formatDate(dt) {
   return new Date(dt).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/Chicago' });
@@ -32,40 +40,84 @@ function getDayOfWeek() {
 }
 
 // ── Data Collectors ───────────────────────────────────────────────────────────
+function isTodayInCST(dateTimeStr) {
+  // Check if a given ISO datetime falls on "today" in CST timezone
+  const date = new Date(dateTimeStr);
+  const now = new Date();
+
+  // Format both dates as YYYY-MM-DD in CST
+  const cstOptions = { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit' };
+  const dateStr = date.toLocaleDateString('en-US', cstOptions);
+  const todayStr = now.toLocaleDateString('en-US', cstOptions);
+
+  return dateStr === todayStr;
+}
+
 async function getTasks() {
   try {
     const client = new GraphClient(SUMMARY_ACCOUNT);
-    const tasks = await client.listTasks(50);
-    const incomplete = tasks.filter(t => t.status !== 'completed');
-    const high = incomplete.filter(t => t.importance === 'high');
-    const normal = incomplete.filter(t => t.importance !== 'high');
+    const tasks = await client.listTasks(100);
+
+    // Filter for: new tasks created today OR tasks due today
+    const todaysTasks = tasks.filter(t => {
+      if (t.status === 'completed') return false;
+
+      // Check if created today
+      const createdToday = t.createdDateTime && isTodayInCST(t.createdDateTime);
+
+      // Check if due today
+      const dueToday = t.dueDateTime?.dateTime && isTodayInCST(t.dueDateTime.dateTime);
+
+      return createdToday || dueToday;
+    });
+
     // Sort: high priority first, then by due date
-    const sorted = [
-      ...high.sort((a, b) => (a.dueDateTime?.dateTime || 'z') < (b.dueDateTime?.dateTime || 'z') ? -1 : 1),
-      ...normal.sort((a, b) => (a.dueDateTime?.dateTime || 'z') < (b.dueDateTime?.dateTime || 'z') ? -1 : 1)
-    ];
-    return { tasks: sorted, total: incomplete.length };
+    const sorted = todaysTasks.sort((a, b) => {
+      const aHigh = a.importance === 'high' ? 1 : 0;
+      const bHigh = b.importance === 'high' ? 1 : 0;
+      if (aHigh !== bHigh) return bHigh - aHigh;
+      return (a.dueDateTime?.dateTime || 'z') < (b.dueDateTime?.dateTime || 'z') ? -1 : 1;
+    });
+
+    return { tasks: sorted, total: sorted.length };
   } catch (e) {
     console.error('Tasks error:', e.message);
     return { tasks: [], total: 0 };
   }
 }
 
+function getCSTDateRange() {
+  // Query a 48-hour window to ensure we capture all of "today" in CST
+  // Then we'll filter results to only include actual "today" meetings
+  const now = new Date();
+
+  // Start: 24 hours ago
+  const start = new Date(now);
+  start.setHours(start.getHours() - 24);
+
+  // End: 24 hours from now
+  const end = new Date(now);
+  end.setHours(end.getHours() + 24);
+
+  return { start: start.toISOString(), end: end.toISOString() };
+}
+
 async function getMeetings() {
   const meetings = [];
   const accounts = listAccounts();
-  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
-  const todayEnd = new Date(); todayEnd.setHours(23,59,59,999);
+  const { start: todayStart, end: todayEnd } = getCSTDateRange();
 
   for (const acc of accounts) {
     try {
       const client = new GraphClient(acc.account);
       const result = await client.request('GET',
-        `/me/calendar/calendarView?startDateTime=${todayStart.toISOString()}&endDateTime=${todayEnd.toISOString()}&$top=20&$select=subject,start,end,location,isAllDay&$orderby=start/dateTime`
+        `/me/calendar/calendarView?startDateTime=${todayStart}&endDateTime=${todayEnd}&$top=50&$select=subject,start,end,location,isAllDay&$orderby=start/dateTime`
       );
       for (const e of (result.value || [])) {
         if (e.subject === 'X' || e.subject?.startsWith('X ')) continue; // skip busy blockers
         if (e.isAllDay) continue;
+        // Only include meetings that are actually "today" in CST
+        if (!isTodayInCST(e.start?.dateTime)) continue;
         meetings.push({ ...e, account: acc.account });
       }
     } catch (e) { /* skip failed accounts */ }
@@ -82,13 +134,26 @@ async function getMeetings() {
   return deduped.sort((a, b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
 }
 
-async function getDraftCount() {
+async function getNewDraftsToday() {
   let total = 0;
   const accounts = listAccounts();
+
+  // Get today's date range in CST for filtering
+  const now = new Date();
+  const cstDateStr = now.toLocaleDateString('en-US', { timeZone: 'America/Chicago', year: 'numeric', month: '2-digit', day: '2-digit' });
+  const [month, day, year] = cstDateStr.split('/').map(Number);
+
+  // Create start of day in CST (00:00:00) as ISO string
+  const startOfDayCST = new Date(Date.UTC(year, month - 1, day, 6, 0, 0)); // 6am UTC = midnight CST
+  const startOfDayISO = startOfDayCST.toISOString();
+
   for (const acc of accounts) {
     try {
       const client = new GraphClient(acc.account);
-      const result = await client.request('GET', `/me/mailFolders/Drafts/messages?$top=1&$count=true&$select=id`);
+      // Filter drafts created today using createdDateTime
+      const result = await client.request('GET',
+        `/me/mailFolders/Drafts/messages?$filter=createdDateTime ge ${startOfDayISO}&$count=true&$select=id&$top=50`
+      );
       total += result['@odata.count'] || (result.value?.length || 0);
     } catch (e) { /* skip */ }
   }
@@ -110,8 +175,8 @@ function buildHTML(day, tasks, meetings, draftCount) {
   }).join('');
 
   const meetingRows = meetings.map(m => {
-    const start = formatTime(m.start.dateTime);
-    const end = formatTime(m.end.dateTime);
+    const start = formatTime(m.start.dateTime, m.start.timeZone);
+    const end = formatTime(m.end.dateTime, m.end.timeZone);
     const loc = m.location?.displayName ? `<div style="color:#999;font-size:12px;margin-top:3px">📍 ${m.location.displayName}</div>` : '';
     return `<div style="padding:12px;margin:8px 0;background:white;border-left:4px solid #9b59b6;border-radius:4px">
       <div style="font-weight:bold">${m.subject || '(No subject)'}</div>
@@ -135,9 +200,9 @@ function buildHTML(day, tasks, meetings, draftCount) {
 
 <!-- TASKS -->
 <div style="background:#f8f9fa;border-radius:10px;padding:20px;margin:20px 0">
-  <h2 style="color:#34495e;margin:0 0 15px;font-size:18px;border-left:4px solid #3498db;padding-left:12px">✅ Active Tasks (${tasks.total})</h2>
-  ${tasks.tasks.length === 0 ? '<div style="color:#95a5a6;font-style:italic">No active tasks 🎉</div>' : taskRows}
-  ${tasks.total > 15 ? `<div style="color:#999;font-size:13px;margin-top:10px">+ ${tasks.total - 15} more tasks</div>` : ''}
+  <h2 style="color:#34495e;margin:0 0 15px;font-size:18px;border-left:4px solid #3498db;padding-left:12px">✅ Today's Tasks (${tasks.total})</h2>
+  <div style="color:#7f8c8d;font-size:12px;margin-bottom:10px">New today or due today</div>
+  ${tasks.tasks.length === 0 ? '<div style="color:#95a5a6;font-style:italic">No new tasks or tasks due today 🎉</div>' : taskRows}
 </div>
 
 <!-- MEETINGS -->
@@ -148,9 +213,9 @@ function buildHTML(day, tasks, meetings, draftCount) {
 
 <!-- DRAFTS -->
 <div style="background:#f8f9fa;border-radius:10px;padding:20px;margin:20px 0">
-  <h2 style="color:#34495e;margin:0 0 10px;font-size:18px;border-left:4px solid #2ecc71;padding-left:12px">✍️ Draft Emails in Mailboxes</h2>
+  <h2 style="color:#34495e;margin:0 0 10px;font-size:18px;border-left:4px solid #2ecc71;padding-left:12px">✍️ New Drafts Today</h2>
   <div style="font-size:40px;font-weight:bold;color:#3498db">${draftCount}</div>
-  <div style="color:#7f8c8d;font-size:13px">across all 7 accounts — review & send what's ready</div>
+  <div style="color:#7f8c8d;font-size:13px">draft emails created today across all accounts</div>
 </div>
 
 <div style="margin-top:30px;padding-top:15px;border-top:1px solid #ddd;color:#aaa;font-size:12px;text-align:center">
@@ -175,9 +240,9 @@ async function main() {
   const meetings = await getMeetings();
   console.log(`   ✓ ${meetings.length} meetings`);
 
-  console.log('✍️  Counting drafts...');
-  const draftCount = await getDraftCount();
-  console.log(`   ✓ ${draftCount} drafts across all accounts`);
+  console.log('✍️  Counting new drafts today...');
+  const draftCount = await getNewDraftsToday();
+  console.log(`   ✓ ${draftCount} new drafts today`);
 
   console.log('📝 Building email...');
   const html = buildHTML(day, tasks, meetings, draftCount);

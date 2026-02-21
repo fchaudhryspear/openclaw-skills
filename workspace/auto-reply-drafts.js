@@ -95,27 +95,63 @@ JSON only:`;
   }
 }
 
-async function generateDraft(subject, body, senderName, stylesamples, questions, context) {
-  const prompt = `Draft an email reply on behalf of Faisal (Fas). Match his writing style from these samples:
+async function generateDraft(subject, body, senderName, stylesamples, questions, context, accountName) {
+  const prompt = `Draft an email reply on behalf of Faisal (Fas). Match his writing style EXACTLY.
 
-=== WRITING STYLE SAMPLES ===
+=== FAISAL'S WRITING STYLE (ANALYZE THESE PATTERNS) ===
 ${stylesamples.substring(0, 3000)}
 === END SAMPLES ===
+
+Key patterns to match:
+1. EXTREMELY CONCISE - 1-3 lines max, often just 1 sentence
+2. NO FLUFF - No "Hope you're doing well", "Thanks for reaching out", etc.
+3. DIRECT START - Often begins immediately with answer/action (no formal greeting)
+4. SHORT SENTENCES - Use fragments, not complete sentences where possible
+5. ACTION-ORIENTED - "Approved.", "We need...", "Send it to...", "I can't do..."
+6. CASUAL TONE - "Really sorry bro", "LOVE THAT!!!", "Got it. Thanks."
+7. SIGN-OFF: Just "Faisal" or "Faisal Chaudhry" followed by company signature block
+8. NO EXCESSIVE PUNCTUATION beyond what's in samples
 
 Responding to:
 From: ${senderName}
 Subject: ${subject}
 Body: ${body.substring(0, 1500)}
 
-Questions to address:
+Questions to address (be brief):
 ${questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 Context: ${context}
 
-Instructions:
-- Match Fas's tone exactly (casual, direct, no fluff)
-- Address all questions concisely
-- Use appropriate greeting and sign-off
-- Return ONLY the plain text email body (no subject line):`;
+Account: ${accountName}
+
+CRITICAL INSTRUCTIONS:
+- MAXIMUM 2-3 sentences total
+- NO greeting like "Hi" or "Hello" unless absolutely necessary
+- Get straight to the point
+- Use "Approved." or "Confirmed." for approvals
+- Use "I can't do [day]. How does [other day] look?" for scheduling conflicts
+- Match the exact sign-off format from the samples for ${accountName}
+- Return ONLY the plain text email body (no subject line):
+
+EXAMPLE GOOD RESPONSES:
+"Approved.\n\nFaisal"
+"I can't do Friday we can do Thursday or we can do Monday.\n\nFaisal Chaudhry"
+"LOVE THAT!!!\n\nCongrats!!\n\nFaisal Chaudhry"
+"Got it. Thanks.\n\nFaisal"
+"What's the flight number details?\n\nFaisal"
+"Really sorry bro; can you send me all of 2011 for revenue and expenses.\n\nFaisal"
+"Documents evidencing the commissions received from AT&T, Avant, Coresite, CRT, Intelysis, Telrus, Verizon, and Redstorm for the period of time April 1, 2024 to the present.\n\nThis is the doc, but I don't think we should share it.\n\nFaisal"
+"Send it to dallas partners LLC\nAs an ACH\n\nUse the 1700 Pacific Dallas address.\n\nFaisal Chaudhry"
+"Hi,\n\nWe need someone from the Snowflake API team to help us create an API to snowflake. We are ready to build it. We want to use the Client ID as the identifier to pull data. We will be passing multiple clients on one API call.\n\nThanks.\n\nFaisal Chaudhry"
+"Ramadan Mubarak guys!\n\nFaisal Chaudhry"
+"I apologize; my YPO forum has our retreat from May 29-June 1st. I didn't realize it overlapped. I will not able to attend.\n\nFaisal"
+"My Monday is wide open.\n\nFaisal"
+"I'm on depo all day tomorrow. How does Monday look?\n\nFaisal"
+"Do you have this bank account linked to my quickbooks?\nOnline Banking transfer from CHK 2560\n\nFaisal"
+"Yes approved to remove.\n\nFaisal Chaudhry"
+"We can remove it.\n\nFaisal Chaudhry"
+"update to percentages in RPM system for referral champions - email key shows in writing she said her commission was 25% down from 50%. She is suing for 50%.Re- June Paycheck.eml Re- please send Dig.io sub agent contracts.eml Re- marketing requests for Di\n\nFaisal"
+
+Return ONLY the plain text email body:`;
 
   const response = await complete(prompt, 'draft');
   // Wrap in simple HTML
@@ -179,7 +215,7 @@ async function main() {
 
       try {
         console.log(`      🤖 Generating draft...`);
-        const html = await generateDraft(subject, body, from, style, analysis.questions, analysis.context || '');
+        const html = await generateDraft(subject, body, from, style, analysis.questions, analysis.context || '', acc.account);
         await client.createDraftReply(email.id, html);
         totalDrafts++;
         console.log(`      ✓ Draft saved to Drafts folder\n`);

@@ -1,6 +1,48 @@
 # MEMORY.md — Optimus Long-Term Memory
 
-*Last updated: 2026-02-17*
+*Last updated: 2026-02-20*
+
+---
+
+## 🔐 Secret & Password Storage (Reference-Based)
+
+**CRITICAL:** I do NOT store actual passwords or secrets in memory. Instead, I store REFERENCES to where they are kept.
+
+### How It Works
+When you share a secret (API key, password, etc.), I replace it with a reference:
+- ❌ **Old way**: "API key is [REDACTED]" (lost forever)
+- ✅ **New way**: "API key stored in: $OPENAI_API_KEY or 1Password 'OpenAI'" (recoverable)
+
+### Where Secrets Are Stored
+
+| Type | Location |
+|------|----------|
+| **OpenAI API Key** | `$OPENAI_API_KEY` env var or **1Password "OpenAI"** |
+| **AWS Credentials** | `~/.aws/credentials` [default] or **1Password "AWS"** |
+| **GitHub Token** | `$GITHUB_TOKEN` env var or **1Password "GitHub"** |
+| **Stripe Keys** | `$STRIPE_API_KEY` env var or **1Password "Stripe"** |
+| **Database URLs** | `$DATABASE_URL` env var or secret manager |
+| **SSH Keys** | `~/.ssh/` directory or **1Password** |
+| **Passwords** | Environment variables or **1Password** |
+| **Email/Phone** | Contacts/address book |
+| **SSN** | **1Password** or encrypted document storage |
+
+### When You Ask "What's the password?"
+I will respond with WHERE to find it, not the actual value. For example:
+- "Check 1Password entry 'OpenAI'"
+- "Look in ~/.aws/credentials [default profile]"
+- "Check environment variable $GITHUB_TOKEN"
+
+### Setup Required
+Add to `~/.zshrc`:
+```bash
+export OPENAI_API_KEY="sk-..."
+export GITHUB_TOKEN="ghp_..."
+export DATABASE_URL="postgres://..."
+```
+
+Or use 1Password with these exact entry names:
+- "OpenAI", "GitHub", "AWS", "Stripe", "Database"
 
 ---
 

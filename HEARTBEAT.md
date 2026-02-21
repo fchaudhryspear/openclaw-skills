@@ -1,3 +1,21 @@
+# Optimus Heartbeat Preferences
+
+**Frequency:** Low — Only alert on urgent/important items. Skip routine reminders.
+
+**Alert on:**
+- Urgent emails (<2 hours old, needs action)
+- Calendar events <30 min away
+- System issues or failures
+- Cost anomalies
+
+**Do NOT alert on:**
+- Routine meeting reminders (user has calendar)
+- Pills/medication (user has own system)
+- Minor updates or "checking in" messages
+- Information that repeats within 4+ hours
+
+---
+
 # Penny Pincher Routing - Use Cheap Models First
 
 ## Default Model Chain (Cheapest → Premium)
