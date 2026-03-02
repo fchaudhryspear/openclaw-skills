@@ -59,3 +59,10 @@ htmlcov/
 
 # Data Lake Monitoring (AWS SAM)
 data-lake-monitoring/.aws-sam/
+
+# Secret files - never commit
+workspace/api-keys.json
+box_downloads/
+*.backup
+.env
+.env.*

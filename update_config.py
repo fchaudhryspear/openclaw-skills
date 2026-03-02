@@ -36,7 +36,7 @@ new_providers = {
     "anthropic": {
         "api": "anthropic-messages",
         "baseUrl": "https://api.anthropic.com/v1",
-        "apiKey": "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",
+        "apiKey": "${ANTHROPIC_API_KEY}",
         "models": [
             {
                 "id": "claude-3-5-sonnet-latest",
@@ -52,7 +52,7 @@ new_providers = {
     # Note: Removed "api" key to fix the "Invalid Input" error you saw earlier.
     "google": {
         "baseUrl": "https://generativelanguage.googleapis.com/v1beta",
-        "apiKey": "AIzaSyCj-CqJABlMaSWbJ5HHzyWEhMn0TyYDVtg",
+        "apiKey": "${GEMINI_API_KEY}",
         "models": [
             {
                 "id": "gemini-2.5-flash",
@@ -68,7 +68,7 @@ new_providers = {
     "xai": {
         "api": "openai-completions",
         "baseUrl": "https://api.x.ai/v1",
-        "apiKey": "xai-ZrOCURTzyXMdJN8s7HwGQqAdWH6CvEpnfEjIRRjwk1B9zsuKp1v5Uxm3KBX6yJe0JAkJVC6ZlnsCr1I3",
+        "apiKey": "${XAI_API_KEY}",
         "models": [
             {
                 "id": "grok-beta", # "grok-3" is usually accessed via this ID in API currently

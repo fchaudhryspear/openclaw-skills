@@ -1,0 +1,34 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "IAMReadOnlyForCompromiseCheck",
+      "Effect": "Allow",
+      "Action": [
+        "iam:ListUsers",
+        "iam:GetUser",
+        "iam:ListGroupsForUser",
+        "iam:ListUserPolicies",
+        "iam:GetPolicy",
+        "iam:ListAttachedUserPolicies",
+        "iam:ListMFADevices",
+        "iam:GetAccountAuthorizationDetails",
+        "iam:SimulatePrincipalPolicy",
+        "iam:GetOpenIDConnectProvider",
+        "iam:ListOIDCProviders",
+        "iam:GetSAMLProvider",
+        "iam:ListSAMLProviders"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "STSTestAccess",
+      "Effect": "Allow",
+      "Action": [
+        "sts:GetCallerIdentity",
+        "sts:GetSessionToken"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

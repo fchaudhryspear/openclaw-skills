@@ -1,0 +1,37 @@
+[
+  {
+    "timestamp": "2026-03-01T23:02:06.958635",
+    "cost": {
+      "status": "ok",
+      "current": 0.0,
+      "threshold": 10.0
+    },
+    "system": {
+      "cpu": {
+        "percent": 11.1,
+        "status": "ok"
+      },
+      "memory": {
+        "used_gb": 15.64,
+        "total_gb": 32.0,
+        "percent": 54.7,
+        "status": "ok"
+      },
+      "disk": {
+        "used_gb": 11.45,
+        "free_gb": 316.13,
+        "total_gb": 460.43,
+        "percent_free": 96.5,
+        "status": "ok"
+      }
+    },
+    "security": {
+      "ssh_attempts": 2,
+      "unusual_activity": false,
+      "firewall_status": "unknown",
+      "last_check": "2026-03-01T23:02:07.984468",
+      "bytes_sent": 1365245952,
+      "bytes_recv": 1981052928
+    }
+  }
+]

@@ -1,0 +1,30 @@
+#!/bin/bash
+# ============================================================================
+# GIT PRE-COMMIT HOOK
+# Automatically scans for secrets BEFORE allowing commits
+# Install: cp security/git-precommit-hook .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+# ============================================================================
+
+echo "🔐 Scanning staged files for secrets..."
+
+python3 /Users/faisalshomemacmini/.openclaw/workspace/security/pre_commit_scanner.py staged
+
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo ""
+    echo "❌ COMMIT BLOCKED: Secrets detected in staged files"
+    echo ""
+    echo "To proceed, you must:"
+    echo "1. Remove the credentials/secrets from your files"
+    echo "2. Use environment variables instead"
+    echo "3. Re-stage the cleaned files"
+    echo ""
+    echo "OR (for testing/development only):"
+    echo "   Skip this check: git commit --no-verify"
+    echo ""
+    exit 1
+fi
+
+echo "✅ No secrets found. Proceeding with commit."
+exit 0

@@ -1,0 +1,52 @@
+# Multi-Company Switcher - Configuration
+
+```json
+{
+  "companies": [
+    {
+      "id": "credologi",
+      "name": "Credologi",
+      "email": "faisal@credologi.com",
+      "primary": true,
+      "color": "blue",
+      "aws_account_id": "386757865833",
+      "snowflake_account": "SBUBJHD-TY50972"
+    },
+    {
+      "id": "spearhead",
+      "name": "Spearhead", 
+      "email": "faisal@spearhead.io",
+      "primary": false,
+      "color": "green"
+    },
+    {
+      "id": "utilityvalet",
+      "name": "Utility Valet",
+      "email": "faisal@utilityvalet.io",
+      "primary": false,
+      "color": "yellow"
+    },
+    {
+      "id": "flobase",
+      "name": "Flobase",
+      "email": "faisal@flobase.ai",
+      "primary": false,
+      "color": "purple"
+    },
+    {
+      "id": "starshipresidential",
+      "name": "Starship Residential",
+      "email": "faisal@starshipresidential.com",
+      "primary": false,
+      "color": "red"
+    },
+    {
+      "id": "dallaspartners",
+      "name": "Dallas Partners",
+      "email": "faisal@dallaspartners.us",
+      "primary": false,
+      "color": "gray"
+    }
+  ]
+}
+```

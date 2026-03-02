@@ -1,0 +1,13 @@
+{
+  "default_company": "credologi",
+  "companies": [
+    "credologi",
+    "spearhead",
+    "utility-valet",
+    "flobase",
+    "starship",
+    "dallas-partners"
+  ],
+  "last_switched": null,
+  "switch_history": []
+}
