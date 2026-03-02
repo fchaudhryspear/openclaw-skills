@@ -1,0 +1,58 @@
+# ============================================
+# Clawdbot Automation - Dallas, TX Timezone (Existing Jobs - Retained)
+# ============================================
+
+# Calendar Sync - Every 10 minutes
+*/10 * * * * cd /Users/faisalshomemacmini/clawd/calendar-sync && /usr/bin/python3 run_sync.py --config config/config.json --once >> logs/calendar-sync.log 2>&1
+
+# Daily Summary Email - 7am CST
+0 7 * * * cd /Users/faisalshomemacmini/clawd/daily-summary && /usr/bin/python3 run_daily_summary.py --config config/config.json >> logs/daily-summary.log 2>&1
+
+# Email-to-Task - 7:05am CST
+5 7 * * * cd /Users/faisalshomemacmini/clawd/email-to-tasks && /usr/bin/python3 run_email_to_tasks.py --config config/config.json >> logs/email-to-tasks.log 2>&1
+
+# Email-to-Task - 1pm CST
+0 13 * * * cd /Users/faisalshomemacmini/clawd/email-to-tasks && /usr/bin/python3 run_email_to_tasks.py --config config/config.json >> logs/email-to-tasks.log 2>&1
+
+# Email Response Generator - 5pm CST
+0 17 * * * cd /Users/faisalshomemacmini/clawd/email-response-generator && /usr/bin/python3 run_response_generator.py --config config/config.json >> logs/response-generator.log 2>&1
+
+
+# ===========================================
+# AI Cost Tracker Automation - Dallas, TX Timezone (NEW JOBS)
+# ===========================================
+
+# Daily Cost Aggregation (Populates daily-costs.json) - 5:45am CST
+45 5 * * * /usr/bin/env node /Users/faisalshomemacmini/clawd/lib/cost-tracker.js --aggregate-daily >> /Users/faisalshomemacmini/clawd/logs/daily-aggregation.log 2>&1
+
+# Daily Token Usage Report - 6:00am CST (Generates and sends daily report)
+0 6 * * * /bin/bash /Users/faisalshomemacmini/clawd/scripts/run-daily-report.sh
+
+# Send Daily Token Report to Telegram - 6:10am CST (Sends the generated report)
+10 6 * * * /bin/bash /Users/faisalshomemacmini/clawd/scripts/send-daily-cost-report.sh
+
+# Weekly Token Usage Report (Friday) - 6:30am CST (Generates and sends weekly summary)
+30 6 * * 5 /bin/bash /Users/faisalshomemacmini/clawd/scripts/run-weekly-report.sh
+
+# Monthly Token Usage Report (1st of Month) - 7:00am CST (Generates and sends monthly summary + project breakdown)
+0 7 1 * * /bin/bash /Users/faisalshomemacmini/clawd/scripts/run-monthly-report.sh
+
+
+# ===========================================
+# Security Audit & Monitoring Automation - Dallas, TX Timezone (NEW JOBS)
+# ===========================================
+
+# Daily Comprehensive Security Audit (Parts 1, 2, 3) - 1:00am CST
+0 1 * * * /bin/bash /Users/faisalshomemacmini/clawd/scripts/security-audit-part1.sh >> /Users/faisalshomemacmini/clawd/logs/security-audit-daily.log 2>&1
+0 1 * * * /bin/bash /Users/faisalshomemacmini/clawd/scripts/security-audit-part2.sh >> /Users/faisalshomemacmini/clawd/logs/security-audit-daily.log 2>&1
+0 1 * * * /bin/bash /Users/faisalshomemacmini/clawd/scripts/security-audit-part3.sh >> /Users/faisalshomemacmini/clawd/logs/security-audit-daily.log 2>&1
+
+# Daily Security & Cost Check - 1:30am CST
+30 1 * * * /bin/bash /Users/faisalshomemacmini/clawd/scripts/security-cost-check.sh >> /Users/faisalshomemacmini/clawd/logs/security-cost-check.log 2>&1
+
+# Daily Security Monitor - 2:00am CST
+0 2 * * * /bin/bash /Users/faisalshomemacmini/clawd/scripts/security-monitor.sh >> /Users/faisalshomemacmini/clawd/logs/security-monitor.log 2>&1
+
+# Weekly Security Hardening (Sunday) - 3:00am CST
+0 3 * * 0 /bin/bash /Users/faisalshomemacmini/clawd/scripts/security-hardening.sh >> /Users/faisalshomemacmini/clawd/logs/security-hardening.log 2>&1
+EOF

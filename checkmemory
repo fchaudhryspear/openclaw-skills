@@ -1,0 +1,21 @@
+#!/bin/bash
+# Quick check if current chat is being tracked by ClawVault
+# Usage: /checkmemory or /checkmemory <chat-id>
+
+CHAT_ID="${1:-$TELEGRAM_CHAT_ID}"
+
+echo "🔍 Checking ClawVault memory for chat: ${CHAT_ID:-'current session'}"
+echo ""
+
+if [ -z "$CHAT_ID" ]; then
+    echo "⚠️  No chat ID available."
+    echo "   Run: node check-chat-memory.js <chat-id>"
+    echo ""
+    echo "Or manually check:"
+    echo "   cd ~/.openclaw/workspace/clawvault"
+    echo "   node bin/clawvault.js search 'session'"
+    exit 1
+fi
+
+cd ~/.openclaw/workspace/clawvault
+node bin/check-chat-memory.js "$CHAT_ID"

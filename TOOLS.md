@@ -44,6 +44,9 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 - Console: https://modelstudio.console.alibabacloud.com/us-east-1
 - Region: US-East (Virginia)
 
+**Brave Search API**
+- Key: `$BRAVE_API_KEY` (stored securely as environment variable or in 1Password "Brave API Key")
+
 ---
 
 Add whatever helps you do your job. This is your cheat sheet.

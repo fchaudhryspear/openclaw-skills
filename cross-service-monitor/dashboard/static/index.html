@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Service Monitor Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .status-healthy { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .status-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .status-critical { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .status-unknown { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <h1 class="text-2xl font-bold">⚡ Cross-Service Monitor</h1>
+                <span id="overall-status" class="px-3 py-1 rounded-full text-sm font-medium bg-green-500/20 text-green-400">
+                    Loading...
+                </span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span id="last-updated" class="text-gray-400 text-sm">Updating...</span>
+                <button onclick="refreshData()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
+                    🔄 Refresh
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-6">
+        <!-- Service Health Cards -->
+        <section class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Service Health</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- AWS Card -->
+                <div class="bg-gray-800 rounded-xl p-6 card-hover transition duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">☁️ AWS</h3>
+                        <div id="aws-status" class="w-4 h-4 rounded-full bg-gray-500"></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Functions</span>
+                            <span id="aws-functions" class="font-mono">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Error Rate</span>
+                            <span id="aws-error-rate" class="font-mono">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Throttles</span>
+                            <span id="aws-throttles" class="font-mono">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Snowflake Card -->
+                <div class="bg-gray-800 rounded-xl p-6 card-hover transition duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">🏔️ Snowflake</h3>
+                        <div id="sf-status" class="w-4 h-4 rounded-full bg-gray-500"></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Queries (24h)</span>
+                            <span id="sf-queries" class="font-mono">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Success Rate</span>
+                            <span id="sf-success-rate" class="font-mono">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Avg Time</span>
+                            <span id="sf-avg-time" class="font-mono">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CRM Card -->
+                <div class="bg-gray-800 rounded-xl p-6 card-hover transition duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">🤝 CRM</h3>
+                        <div id="crm-status" class="w-4 h-4 rounded-full bg-gray-500"></div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Systems</span>
+                            <span id="crm-systems" class="font-mono">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">API Status</span>
+                            <span id="crm-api-status" class="font-mono">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Data Freshness</span>
+                            <span id="crm-freshness" class="font-mono">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pipeline Status -->
+        <section class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Pipeline Status</h2>
+            <div class="bg-gray-800 rounded-xl overflow-hidden">
+                <table class="w-full">
+                    <thead class="bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Pipeline</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Lag</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Last Run</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Success Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pipeline-table" class="divide-y divide-gray-700">
+                        <tr><td colspan="5" class="px-6 py-4 text-center text-gray-400">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Active Alerts -->
+        <section class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Active Alerts</h2>
+            <div id="alerts-container" class="space-y-3">
+                <div class="bg-gray-800 rounded-lg p-4 text-center text-gray-400">Loading...</div>
+            </div>
+        </section>
+
+        <!-- Issues from Correlation Engine -->
+        <section class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Correlated Issues</h2>
+            <div id="issues-container" class="space-y-3">
+                <div class="bg-gray-800 rounded-lg p-4 text-center text-gray-400">Loading...</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = '/api/v1';
+        
+        async function fetchJSON(path) {
+            try {
+                const response = await fetch(API_BASE + path);
+                return await response.json();
+            } catch (error) {
+                console.error('Fetch error:', error);
+                return null;
+            }
+        }
+
+        function setStatusIndicator(elementId, status) {
+            const el = document.getElementById(elementId);
+            const colors = {
+                'healthy': 'bg-green-500',
+                'warning': 'bg-yellow-500',
+                'critical': 'bg-red-500',
+                'unknown': 'bg-gray-500',
+                'error': 'bg-red-600'
+            };
+            el.className = `w-4 h-4 rounded-full ${colors[status] || colors.unknown}`;
+        }
+
+        function setOverallStatus(status) {
+            const el = document.getElementById('overall-status');
+            const configs = {
+                'healthy': { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Healthy' },
+                'warning': { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'Warning' },
+                'critical': { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Critical' }
+            };
+            const cfg = configs[status] || configs.warning;
+            el.className = `px-3 py-1 rounded-full text-sm font-medium ${cfg.bg} ${cfg.text}`;
+            el.textContent = cfg.label;
+        }
+
+        function formatTimeAgo(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            
+            if (diff < 60) return `${diff}s ago`;
+            if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+            return date.toLocaleDateString();
+        }
+
+        async function loadDashboard() {
+            // Load summary
+            const summary = await fetchJSON('/dashboard/summary');
+            if (summary) {
+                setOverallStatus(summary.overall_status);
+                
+                // Services
+                if (summary.services.aws) {
+                    document.getElementById('aws-functions').textContent = summary.services.aws.function_count || 0;
+                    setStatusIndicator('aws-status', summary.services.aws.status);
+                }
+                
+                if (summary.services.snowflake) {
+                    document.getElementById('sf-queries').textContent = summary.services.snowflake.queries_24h || 0;
+                    document.getElementById('sf-success-rate').textContent = 
+                        ((summary.services.snowflake.success_rate || 0) * 100).toFixed(1) + '%';
+                    setStatusIndicator('sf-status', summary.services.snowflake.status);
+                }
+                
+                if (summary.services.crm) {
+                    document.getElementById('crm-systems').textContent = summary.services.crm.systems || 0;
+                    setStatusIndicator('crm-status', summary.services.crm.status);
+                }
+                
+                // Alerts
+                if (summary.alerts) {
+                    document.getElementById('aws-throttles').textContent = summary.alerts.critical || 0;
+                }
+            }
+
+            // Load pipelines
+            const pipelines = await fetchJSON('/pipelines/status');
+            if (pipelines && pipelines.pipelines) {
+                const tbody = document.getElementById('pipeline-table');
+                const pipelineList = Object.entries(pipelines.pipelines);
+                
+                if (pipelineList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-400">No pipelines configured</td></tr>';
+                } else {
+                    tbody.innerHTML = pipelineList.map(([name, data]) => `
+                        <tr>
+                            <td class="px-6 py-4 font-medium">${name}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 rounded text-xs font-medium ${
+                                    data.status === 'success' ? 'bg-green-500/20 text-green-400' :
+                                    data.status === 'failed' ? 'bg-red-500/20 text-red-400' :
+                                    'bg-yellow-500/20 text-yellow-400'
+                                }">${data.status}</span>
+                            </td>
+                            <td class="px-6 py-4 font-mono">${data.lag_minutes ? Math.round(data.lag_minutes) + 'm' : '-'}</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">${formatTimeAgo(data.completed_at)}</td>
+                            <td class="px-6 py-4 font-mono">${(data.recent_runs * 100).toFixed(0)}%</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+
+            // Load alerts
+            const alerts = await fetchJSON('/alerts?active=true');
+            if (alerts && alerts.alerts) {
+                const container = document.getElementById('alerts-container');
+                if (alerts.alerts.length === 0) {
+                    container.innerHTML = '<div class="bg-gray-800 rounded-lg p-4 text-center text-gray-400">No active alerts</div>';
+                } else {
+                    container.innerHTML = alerts.alerts.map(alert => `
+                        <div class="bg-gray-800 rounded-lg p-4 border-l-4 ${
+                            alert.severity === 'critical' ? 'border-red-500' :
+                            alert.severity === 'warning' ? 'border-yellow-500' :
+                            'border-blue-500'
+                        }">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-semibold">${alert.title}</h4>
+                                    <p class="text-gray-400 text-sm mt-1">${alert.message}</p>
+                                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                        <span>Source: ${alert.source}</span>
+                                        <span>Resource: ${alert.resource}</span>
+                                        <span>${formatTimeAgo(alert.timestamp)}</span>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 rounded text-xs font-medium ${
+                                    alert.severity === 'critical' ? 'bg-red-500/20 text-red-400' :
+                                    alert.severity === 'warning' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    'bg-blue-500/20 text-blue-400'
+                                }">${alert.severity.toUpperCase()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // Load issues
+            const issues = await fetchJSON('/alerts/issues');
+            if (issues && issues.issues) {
+                const container = document.getElementById('issues-container');
+                if (issues.issues.length === 0) {
+                    container.innerHTML = '<div class="bg-gray-800 rounded-lg p-4 text-center text-gray-400">No correlated issues</div>';
+                } else {
+                    container.innerHTML = issues.issues.map(issue => `
+                        <div class="bg-gray-800 rounded-lg p-4 border-l-4 ${
+                            issue.severity === 'critical' ? 'border-red-500' : 'border-yellow-500'
+                        }">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h4 class="font-semibold">${issue.title}</h4>
+                                    <p class="text-gray-400 text-sm mt-1">${issue.root_cause_hypothesis || 'Root cause being analyzed'}</p>
+                                    <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                        <span>Services: ${issue.affected_services.join(', ')}</span>
+                                        <span>${issue.events.length} events</span>
+                                        <span>ID: ${issue.issue_id}</span>
+                                    </div>
+                                </div>
+                                <span class="px-2 py-1 rounded text-xs font-medium ${
+                                    issue.severity === 'critical' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
+                                }">${issue.severity.toUpperCase()}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // Update timestamp
+            document.getElementById('last-updated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+        }
+
+        function refreshData() {
+            loadDashboard();
+        }
+
+        // Initial load
+        loadDashboard();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadDashboard, 30000);
+    </script>
+</body>
+</html>

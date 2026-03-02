@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs18.x # Change to your specific runtime
+    MemorySize: 128
+
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/ # Make sure this points to your code folder
+      Handler: index.handler
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:PutObject # If applicable
+              Resource:
+                - !Sub "arn:aws:s3:::your-data-lake-bucket-name"
+                - !Sub "arn:aws:s3:::your-data-lake-bucket-name/*"
+            - Effect: Allow
+              Action:
+                - glue:GetDatabase
+                - glue:GetTable
+                - glue:GetPartitions
+              Resource: "*" # Narrow this in production
+
+# Further configuration adjustments as needed

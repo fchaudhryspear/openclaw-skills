@@ -1,0 +1,134 @@
+# Alert Rules Configuration
+# Defines all alerting thresholds and conditions
+
+version: "1.0"
+
+groups:
+  - name: cost_alerts
+    interval: 60s
+    rules:
+      - alert: DailyCostExceeded
+        expr: daily_cost > 10.00
+        for: 5m
+        labels:
+          severity: warning
+          category: cost
+        annotations:
+          summary: "Daily AI/API costs exceeded threshold"
+          description: "Current daily spend: {{ $value }} (threshold: $10.00)"
+          
+      - alert: CostAnomalyDetected
+        expr: rate(daily_cost[1h]) > 2.0
+        for: 15m
+        labels:
+          severity: critical
+          category: cost
+        annotations:
+          summary: "Unusual cost spike detected"
+          description: "Cost rate is {{ $value }}/hour, significantly above normal"
+
+  - name: system_alerts
+    interval: 30s
+    rules:
+      - alert: HighCPUUsage
+        expr: cpu_percent > 90
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "CPU usage critically high"
+          description: "CPU at {{ $value }}% for more than 2 minutes"
+          
+      - alert: WarningCPUUsage
+        expr: cpu_percent > 75
+        for: 5m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "CPU usage elevated"
+          description: "CPU at {{ $value }}%"
+          
+      - alert: LowDiskSpace
+        expr: disk_percent_free < 10
+        for: 0m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "Disk space critically low"
+          description: "Only {{ $value }}% disk space remaining"
+          
+      - alert: WarningDiskSpace
+        expr: disk_percent_free < 20
+        for: 0m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "Disk space running low"
+          description: "{{ $value }}% disk space remaining"
+          
+      - alert: HighMemoryUsage
+        expr: memory_percent > 95
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "Memory usage critically high"
+          description: "Memory at {{ $value }}%"
+
+  - name: security_alerts
+    interval: 60s
+    rules:
+      - alert: SSHBruteForce
+        expr: ssh_failed_attempts_1h > 5
+        for: 0m
+        labels:
+          severity: critical
+          category: security
+        annotations:
+          summary: "Possible SSH brute force attack"
+          description: "{{ $value }} failed SSH attempts in the last hour"
+          
+      - alert: UnusualOutboundTraffic
+        expr: outbound_traffic_mb_1h > 100
+        for: 15m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "Unusual outbound traffic detected"
+          description: "{{ $value }}MB outbound in last hour"
+
+# Notification channels
+notifications:
+  telegram:
+    enabled: true
+    chat_id_env: TELEGRAM_CHAT_ID
+    bot_token_env: TELEGRAM_BOT_TOKEN
+    notify_on_severity:
+      - critical
+      - warning
+    
+  # Optional: Add email notifications
+  # email:
+  #   enabled: false
+  #   smtp_host: smtp.gmail.com
+  #   smtp_port: 587
+  #   from: alerts@yourdomain.com
+  #   to: admin@yourdomain.com
+  #   username_env: EMAIL_USER
+  #   password_env: EMAIL_PASS
+
+# Alert suppression rules
+suppression:
+  max_alerts_per_hour: 10
+  cooldown_minutes:
+    critical: 15
+    warning: 30
+  deduplicate_by:
+    - severity
+    - category

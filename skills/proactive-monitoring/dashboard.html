@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proactive Monitoring Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0f0f23;
+            --card-bg: #1a1a2e;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent-green: #00d26a;
+            --accent-yellow: #ffc107;
+            --accent-red: #ff4757;
+            --accent-blue: #3498db;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .card-title {
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .metric:last-child { border-bottom: none; }
+        
+        .metric-label { color: var(--text-secondary); }
+        
+        .metric-value {
+            font-size: 1.4em;
+            font-weight: 700;
+        }
+        
+        .status-ok { color: var(--accent-green); }
+        .status-warning { color: var(--accent-yellow); }
+        .status-critical { color: var(--accent-red); }
+        
+        .bar-container {
+            width: 150px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .bar-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .bar-ok { background: var(--accent-green); }
+        .bar-warning { background: var(--accent-yellow); }
+        .bar-critical { background: var(--accent-red); }
+        
+        .cost-display {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .cost-amount {
+            font-size: 3em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .cost-threshold {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+        
+        .alerts-section {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+        
+        .alert-item {
+            background: rgba(255,71,87,0.1);
+            border-left: 4px solid var(--accent-red);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .alert-info {
+            background: rgba(52,152,219,0.1);
+            border-left-color: var(--accent-blue);
+        }
+        
+        .last-update {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .refresh-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 15px;
+        }
+        
+        .refresh-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><span class="status-indicator" id="connection-status"></span>Monitoring Dashboard</h1>
+        <p>Real-time system health, costs, and security monitoring</p>
+    </div>
+    
+    <div class="grid">
+        <!-- Cost Monitoring -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">💰 Daily Costs</div>
+            </div>
+            <div class="cost-display">
+                <div class="cost-amount" id="current-cost">$0.00</div>
+                <div class="cost-threshold">Threshold: $<span id="cost-threshold">10.00</span>/day</div>
+                <div style="margin-top: 15px;" id="cost-status" class="status-ok">Within Budget</div>
+            </div>
+        </div>
+        
+        <!-- CPU Usage -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">🖥️ CPU Usage</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Current</div>
+                <div>
+                    <div class="metric-value" id="cpu-value">--%</div>
+                    <div class="bar-container">
+                        <div class="bar-fill bar-ok" id="cpu-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Status</div>
+                <div class="status-ok" id="cpu-status">Normal</div>
+            </div>
+        </div>
+        
+        <!-- Memory Usage -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">💾 Memory</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Used</div>
+                <div class="metric-value" id="memory-used">-- GB</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Total</div>
+                <div class="metric-value" id="memory-total">-- GB</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Usage</div>
+                <div>
+                    <div class="metric-value" id="memory-percent">--%</div>
+                    <div class="bar-container">
+                        <div class="bar-fill bar-ok" id="memory-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Disk Space -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">💿 Disk Space</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Free</div>
+                <div class="metric-value" id="disk-free">-- GB</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Used</div>
+                <div class="metric-value" id="disk-used">-- GB</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Available</div>
+                <div>
+                    <div class="metric-value" id="disk-percent">--%</div>
+                    <div class="bar-container">
+                        <div class="bar-fill bar-ok" id="disk-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Security Posture -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">🛡️ Security</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Failed SSH (1h)</div>
+                <div class="metric-value" id="ssh-attempts">0</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Firewall</div>
+                <div class="metric-value" id="firewall-status">Checking...</div>
+            </div>
+            <div class="metric">
+                <div class="metric-label">Network Traffic</div>
+                <div class="metric-value" id="network-stats">--</div>
+            </div>
+        </div>
+        
+        <!-- Alert Log -->
+        <div class="card alerts-section">
+            <div class="card-header">
+                <div class="card-title">🚨 Recent Alerts</div>
+            </div>
+            <div id="alert-log">
+                <div style="color: var(--text-secondary); text-align: center; padding: 20px;">
+                    No recent alerts
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="last-update">
+        Last updated: <span id="last-updated">Never</span>
+        <br>
+        <button class="refresh-btn" onclick="loadMetrics()">Refresh Now</button>
+    </div>
+    
+    <script>
+        const DATA_DIR = '/Users/faisalshomemacmini/.openclaw/workspace/data/monitoring';
+        let lastUpdate = null;
+        
+        async function loadMetrics() {
+            try {
+                // In production, this would fetch from a local API
+                // For now, we'll use a mock structure that matches monitor.py output
+                const response = await fetch('/api/metrics/latest');
+                if (!response.ok) throw new Error('No metrics available');
+                
+                const data = await response.json();
+                updateDashboard(data);
+                
+            } catch (error) {
+                console.log('Using cached/mock data:', error);
+                // Try to load from localStorage (if populated by local server)
+                const cached = localStorage.getItem('monitoring_data');
+                if (cached) {
+                    updateDashboard(JSON.parse(cached));
+                }
+            }
+        }
+        
+        function updateDashboard(data) {
+            // Update timestamp
+            const ts = new Date(data.timestamp);
+            document.getElementById('last-updated').textContent = ts.toLocaleString();
+            lastUpdate = ts;
+            
+            // Update connection status
+            document.getElementById('connection-status').style.background = '#00d26a';
+            
+            // Cost metrics
+            if (data.cost) {
+                document.getElementById('current-cost').textContent = `$${data.cost.current.toFixed(2)}`;
+                document.getElementById('cost-threshold').textContent = data.cost.threshold.toFixed(2);
+                
+                const costEl = document.getElementById('current-cost');
+                const costStatus = document.getElementById('cost-status');
+                
+                if (data.cost.status === 'alert') {
+                    costEl.style.color = '#ff4757';
+                    costStatus.textContent = 'Over Budget!';
+                    costStatus.className = 'status-critical';
+                } else {
+                    costEl.style.color = '#00d26a';
+                    costStatus.textContent = 'Within Budget';
+                    costStatus.className = 'status-ok';
+                }
+            }
+            
+            // CPU metrics
+            if (data.system?.cpu) {
+                const cpu = data.system.cpu;
+                document.getElementById('cpu-value').textContent = `${cpu.percent.toFixed(1)}%`;
+                document.getElementById('cpu-bar').style.width = `${cpu.percent}%`;
+                document.getElementById('cpu-status').textContent = cpu.status.charAt(0).toUpperCase() + cpu.status.slice(1);
+                
+                const cpuVal = document.getElementById('cpu-value');
+                const cpuBar = document.getElementById('cpu-bar');
+                const cpuStat = document.getElementById('cpu-status');
+                
+                cpuVal.className = `metric-value status-${cpu.status}`;
+                cpuBar.className = `bar-fill bar-${cpu.status}`;
+                cpuStat.className = `status-${cpu.status}`;
+            }
+            
+            // Memory metrics
+            if (data.system?.memory) {
+                const mem = data.system.memory;
+                document.getElementById('memory-used').textContent = `${mem.used_gb} GB`;
+                document.getElementById('memory-total').textContent = `${mem.total_gb} GB`;
+                document.getElementById('memory-percent').textContent = `${mem.percent.toFixed(1)}%`;
+                document.getElementById('memory-bar').style.width = `${mem.percent}%`;
+                document.getElementById('memory-status').textContent = mem.status.charAt(0).toUpperCase() + mem.status.slice(1);
+                
+                const memVal = document.getElementById('memory-percent');
+                const memBar = document.getElementById('memory-bar');
+                const memStat = document.getElementById('memory-status');
+                
+                memVal.className = `metric-value status-${mem.status}`;
+                memBar.className = `bar-fill bar-${mem.status}`;
+                memStat.className = `status-${mem.status}`;
+            }
+            
+            // Disk metrics
+            if (data.system?.disk) {
+                const disk = data.system.disk;
+                document.getElementById('disk-free').textContent = `${disk.free_gb} GB`;
+                document.getElementById('disk-used').textContent = `${disk.used_gb} GB`;
+                document.getElementById('disk-percent').textContent = `${disk.percent_free}%`;
+                document.getElementById('disk-bar').style.width = `${disk.percent_free}%`;
+                document.getElementById('disk-status').textContent = disk.status.charAt(0).toUpperCase() + disk.status.slice(1);
+                
+                const diskVal = document.getElementById('disk-percent');
+                const diskBar = document.getElementById('disk-bar');
+                const diskStat = document.getElementById('disk-status');
+                
+                diskVal.className = `metric-value status-${disk.status}`;
+                diskBar.className = `bar-fill bar-${disk.status}`;
+                diskStat.className = `status-${disk.status}`;
+            }
+            
+            // Security metrics
+            if (data.security) {
+                document.getElementById('ssh-attempts').textContent = data.security.ssh_attempts;
+                document.getElementById('firewall-status').textContent = data.security.firewall_status || 'Unknown';
+                
+                if (data.security.bytes_sent && data.security.bytes_recv) {
+                    const sentMB = (data.security.bytes_sent / 1024 / 1024).toFixed(1);
+                    const recvMB = (data.security.bytes_recv / 1024 / 1024).toFixed(1);
+                    document.getElementById('network-stats').textContent = `${sentMB}↑ / ${recvMB}↓ MB`;
+                }
+            }
+            
+            // Update alerts
+            updateAlerts(data);
+        }
+        
+        function updateAlerts(data) {
+            const alertLog = document.getElementById('alert-log');
+            const alerts = [];
+            
+            if (data.cost?.status === 'alert') {
+                alerts.push({
+                    type: 'cost',
+                    message: `Daily costs exceeded threshold: $${data.cost.current.toFixed(2)}`
+                });
+            }
+            
+            if (data.system?.cpu?.status === 'critical') {
+                alerts.push({
+                    type: 'system',
+                    message: `CPU usage critical: ${data.system.cpu.percent.toFixed(1)}%`
+                });
+            }
+            
+            if (data.system?.memory?.status === 'critical') {
+                alerts.push({
+                    type: 'system',
+                    message: `Memory usage critical: ${data.system.memory.percent.toFixed(1)}%`
+                });
+            }
+            
+            if (data.system?.disk?.status === 'critical') {
+                alerts.push({
+                    type: 'system',
+                    message: `Disk space low: ${data.system.disk.percent_free}% free`
+                });
+            }
+            
+            if (data.security?.ssh_attempts > 5) {
+                alerts.push({
+                    type: 'security',
+                    message: `Multiple failed SSH attempts: ${data.security.ssh_attempts}`
+                });
+            }
+            
+            if (alerts.length === 0) {
+                alertLog.innerHTML = '<div style="color: var(--text-secondary); text-align: center; padding: 20px;">No recent alerts</div>';
+            } else {
+                alertLog.innerHTML = alerts.map(alert => `
+                    <div class="alert-item ${alert.type === 'cost' ? '' : ''}">
+                        <strong>${alert.message}</strong>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // Auto-refresh every 30 seconds
+        setInterval(loadMetrics, 30000);
+        
+        // Initial load
+        loadMetrics();
+    </script>
+</body>
+</html>

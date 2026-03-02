@@ -79,7 +79,10 @@ Resources:
           Action:
           - sns:Publish
           Resource:
-            Ref: AlertTopicArn
+            Fn::If:
+            - CreateAlertTopic
+            - Ref: AlertsSnsTopic
+            - Ref: AlertTopicArn
       Events:
         ApiGateway:
           Type: Api

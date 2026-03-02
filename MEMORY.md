@@ -1,6 +1,23 @@
 # MEMORY.md — Optimus Long-Term Memory
 
-*Last updated: 2026-02-20*
+*Last updated: 2026-02-21*
+
+---
+
+## 📁 Chat Archives (New)
+
+Historical chat data from previous AI agent interactions has been archived to:
+`~/memory/chat_archives/`
+
+### Available Archives:
+1. **Jarvismackbook** (446KB) - Previous agent (Jarvis) - Crestron/UniFi optimization
+2. **Financial & Optimus** (37KB) - Loan interest calculations, financial analysis
+3. **Network & Optimus** (46KB) - UDM Pro security, network optimization
+4. **Website & Optimus** (61KB) - Screen sharing, remote access setup
+5. **Travel & Optimus** (29KB) - Award travel NYC→Madrid planning
+6. **Health & Optimus** (74KB) - Peptide protocol, body recomposition
+
+See `~/memory/chat_archives/INDEX.md` for details.
 
 ---
 
@@ -43,6 +60,36 @@ export DATABASE_URL="postgres://..."
 
 Or use 1Password with these exact entry names:
 - "OpenAI", "GitHub", "AWS", "Stripe", "Database"
+
+---
+
+## 🧠 ClawVault Auto-Tracking Configuration
+
+**Active Chats Being Saved to Memory:**
+
+| Chat ID | Description |
+|---------|-------------|
+| 1003589630000 | User workspace |
+| 1003807261956 | User workspace 2 |
+| -5275168308 | Coding & Optimus_macmini |
+| -1003735686198 | Group chat |
+| -5215079081 | Current group |
+
+**Total:** 5 chats auto-tracked
+
+**Configuration File:** `~/memory/.clawvault-auto-track.conf`
+
+**Commands:**
+```bash
+# Add new chat to tracking
+node ~/.openclaw/workspace/clawvault/bin/add-chat-to-tracking.js <chat-id> "description"
+
+# List all tracked chats
+node ~/.openclaw/workspace/clawvault/bin/add-chat-to-tracking.js --list
+
+# Check if specific chat is tracked
+node ~/.openclaw/workspace/clawvault/bin/check-chat-memory.js <chat-id>
+```
 
 ---
 
@@ -169,7 +216,7 @@ Or use 1Password with these exact entry names:
 - **Daily Digest cron** at 7:00 AM CST
 
 ### Data Lake Portal - UPDATED (Feb 19, 2026)
-- **Portal URL**: https://portal.credologi.com
+- **Portal URL**: https://missioncontrol.credologi.com
 - **Tech Stack**: React + TypeScript + Vite + AWS Amplify + Cognito
 - **Features**:
   - Real-time API health monitoring (30s auto-refresh)
@@ -184,7 +231,7 @@ Or use 1Password with these exact entry names:
 - **Monitoring API**: https://o6whnf80tb.execute-api.us-east-1.amazonaws.com/Prod
 - **Main API**: https://pe6rxp3vtd.execute-api.us-east-1.amazonaws.com/Prod
 - **User Pool**: us-east-1_M6lTgVQaw (credologi-users)
-- **S3 Bucket**: portal.credologi.com
+- **S3 Bucket**: missioncontrol.credologi.com
 - **CloudFront**: d13ermioqnr3qb.cloudfront.net
 
 ### Data Flow Architecture (NEW)
@@ -236,6 +283,10 @@ Or use 1Password with these exact entry names:
 2. **Gateway token mismatch** — Fixed by stopping and restarting gateway
 3. **find commands get killed** — Filesystem searches timeout, be targeted with paths
 4. **Fas has massive infrastructure** — 6 companies, 2 network sites, smart home, extensive automation
+5. **Group Chat Access** — Fixed by adding the chat ID to the approved groups in the configuration and associating it with the user ID.
+
+### Project Names
+- Current frontend project: **mcfrontend**
 
 ---
 

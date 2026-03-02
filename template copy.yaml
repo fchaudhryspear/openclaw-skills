@@ -1,0 +1,41 @@
+# Updated IAM Role Scoping and CORS/Auth Settings
+
+
+
+
+
+
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:PutObject # If applicable
+              Resource:
+                - !Sub "arn:aws:s3:::your-data-lake-bucket-name"
+                - !Sub "arn:aws:s3:::your-data-lake-bucket-name/*"
+            - Effect: Allow
+              Action:
+                - glue:GetDatabase
+                - glue:GetTable
+                - glue:GetPartitions
+              Resource: "*" # Narrow to specific ARNs in production
+
+Globals:
+  Api:
+    Cors:
+      AllowMethods: "'OPTIONS,POST,GET'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'" # Replace with specific domain
+    Auth:
+      DefaultAuthorizer: MyCognitoAuthorizer
+      Authorizers:
+        MyCognitoAuthorizer:
+          UserPoolArn: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/us-east-1_M6lTgVQaw"
+
+# Further configuration adjustments as needed

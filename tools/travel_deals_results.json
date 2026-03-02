@@ -1,0 +1,96 @@
+{
+  "search_params": {
+    "origin": "NYC",
+    "destination": "Madrid",
+    "departure": "2026-07-23",
+    "return": "2026-08-13",
+    "passengers": 2,
+    "max_points": 140000
+  },
+  "deals_found": [
+    {
+      "program": "Iberia Avios",
+      "points_per_person": 50000,
+      "total_points": 100000,
+      "passengers": 2,
+      "is_peak": true,
+      "transfer_from": [
+        "Amex",
+        "Chase",
+        "British Airways"
+      ],
+      "notes": "Best value. Can transfer Amex\u2192BA\u2192Iberia or book via BA.com",
+      "route": "NYC \u2192 Madrid",
+      "cabin": "Business Class",
+      "amex_transfer": true,
+      "aa_transfer": false,
+      "chase_transfer": true
+    },
+    {
+      "program": "British Airways Avios",
+      "points_per_person": 60000,
+      "total_points": 120000,
+      "passengers": 2,
+      "is_peak": true,
+      "transfer_from": [
+        "Amex",
+        "Chase"
+      ],
+      "notes": "Higher than Iberia but easier to book",
+      "route": "NYC \u2192 Madrid",
+      "cabin": "Business Class",
+      "amex_transfer": true,
+      "aa_transfer": false,
+      "chase_transfer": true
+    },
+    {
+      "program": "Air Canada Aeroplan",
+      "points_per_person": 60000,
+      "total_points": 120000,
+      "passengers": 2,
+      "transfer_from": [
+        "Amex",
+        "Chase"
+      ],
+      "notes": "Good availability to Europe on Star Alliance partners",
+      "route": "NYC \u2192 Madrid",
+      "cabin": "Business Class",
+      "amex_transfer": true,
+      "aa_transfer": false,
+      "chase_transfer": true,
+      "is_peak": true
+    },
+    {
+      "program": "American Airlines AAdvantage",
+      "points_per_person": 70000,
+      "total_points": 140000,
+      "passengers": 2,
+      "is_peak": true,
+      "transfer_from": [
+        "AA only"
+      ],
+      "notes": "Cannot transfer from Amex/Chase. Must use AA miles directly",
+      "route": "NYC \u2192 Madrid",
+      "cabin": "Business Class",
+      "amex_transfer": false,
+      "aa_transfer": true,
+      "chase_transfer": false
+    }
+  ],
+  "transfer_bonuses": [
+    {
+      "program": "British Airways / Iberia",
+      "bonus": "30%",
+      "from": "Amex",
+      "expiry": "Check current offers",
+      "effective_ratio": "1:1.3"
+    },
+    {
+      "program": "Air France-KLM Flying Blue",
+      "bonus": "25%",
+      "from": "Amex",
+      "expiry": "Check current offers",
+      "effective_ratio": "1:1.25"
+    }
+  ]
+}

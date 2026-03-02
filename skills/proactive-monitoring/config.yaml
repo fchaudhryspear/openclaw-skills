@@ -1,0 +1,41 @@
+# Proactive Monitoring Configuration
+# Alert thresholds and notification settings
+
+alerts:
+  cost:
+    threshold_daily: 10.00  # USD
+    check_interval_minutes: 60
+    
+  system:
+    cpu_critical: 90  # percentage
+    cpu_warning: 75
+    disk_critical_percent_free: 10  # alert when below this
+    disk_warning_percent_free: 20
+    memory_critical: 95  # percentage
+    check_interval_minutes: 5
+    
+  security:
+    failed_ssh_attempts: 5
+    unusual_outbound_traffic_mb: 100
+    check_interval_minutes: 15
+
+notification:
+  channel: telegram
+  chat_id: "${TELEGRAM_CHAT_ID}"  # Will be overridden by env
+  notify_on:
+    - cost_alert
+    - cpu_critical
+    - disk_critical
+    - security_alert
+    - service_down
+  
+dashboard:
+  refresh_interval_seconds: 30
+  retention_days: 30
+  data_dir: /Users/faisalshomemacmini/.openclaw/workspace/data/monitoring
+
+logging:
+  level: INFO
+  file: /Users/faisalshomemacmini/.openclaw/workspace/logs/monitoring.log
+  max_size_mb: 100
+  backup_count: 5

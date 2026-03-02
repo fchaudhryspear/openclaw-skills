@@ -20,15 +20,22 @@ const ACCOUNT_NAMES = {
 function mergeSlots(events) {
   if (!events.length) return [];
   const sorted = [...events].sort((a, b) => new Date(a.start) - new Date(b.start));
-  const merged = [{ ...sorted[0] }];
+  const merged = [{
+    ...sorted[0],
+    eventIds: sorted[0].id ? [sorted[0].id] : []
+  }];
   for (let i = 1; i < sorted.length; i++) {
     const cur = merged[merged.length - 1];
     const next = sorted[i];
     if (new Date(next.start) <= new Date(cur.end)) {
       if (new Date(next.end) > new Date(cur.end)) cur.end = next.end;
       if (!cur.sources.includes(next.source)) cur.sources.push(next.source);
+      if (next.id && !cur.eventIds.includes(next.id)) cur.eventIds.push(next.id);
     } else {
-      merged.push({ ...next });
+      merged.push({
+        ...next,
+        eventIds: next.id ? [next.id] : []
+      });
     }
   }
   return merged;
@@ -52,8 +59,8 @@ async function main() {
       const events = (result.value || []).filter(e => !e.subject?.startsWith(SYNC_MARKER) && !e.isAllDay);
 
       for (const e of events) {
-        if (e.start?.dateTime && e.end?.dateTime) {
-          allEvents.push({ account: acc.account, start: e.start.dateTime, end: e.end.dateTime });
+        if (e.start?.dateTime && e.end?.dateTime && e.id) {
+          allEvents.push({ account: acc.account, start: e.start.dateTime, end: e.end.dateTime, id: e.id });
         }
       }
       console.log(`   ✓ ${acc.account}: ${events.length} real event(s)`);

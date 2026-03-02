@@ -1,0 +1,34 @@
+{
+  "Monday": {
+    "MOTS-c": "0.4 mL",
+    "AOD-9604": "0.4 mL",
+    "NAD+": "0.5 mL"
+  },
+  "Tuesday": {
+    "MOTS-c": "0.4 mL",
+    "AOD-9604": "0.4 mL",
+    "NAD+": "0.5 mL"
+  },
+  "Wednesday": {
+    "AOD-9604": "0.4 mL",
+    "NAD+": "0.5 mL"
+  },
+  "Thursday": {
+    "MOTS-c": "0.4 mL",
+    "AOD-9604": "0.4 mL",
+    "NAD+": "0.5 mL"
+  },
+  "Friday": {
+    "MOTS-c": "0.4 mL",
+    "AOD-9604": "0.4 mL",
+    "NAD+": "0.5 mL"
+  },
+  "Saturday": {
+    "AOD-9604": "0.4 mL",
+    "Retatrutide": "0.2 mL"
+  },
+  "Sunday": {
+    "MOTS-c": "0.4 mL",
+    "AOD-9604": "0.4 mL"
+  }
+}

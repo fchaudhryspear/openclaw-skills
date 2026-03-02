@@ -1,0 +1,2 @@
+# observational_memory_system/requirements.txt
+cryptography==3.4.8 # Or a more recent stable version

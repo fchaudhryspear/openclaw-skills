@@ -74,7 +74,7 @@ Resources:
           - Effect: Allow
             Action:
               - sns:Publish
-            Resource: !Ref AlertTopicArn
+            Resource: !If [CreateAlertTopic, !Ref AlertsSnsTopic, !Ref AlertTopicArn]
       Events:
         ApiGateway:
           Type: Api

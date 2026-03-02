@@ -1,0 +1,61 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.env
+secrets-lifecycle/data/*.enc.json
+secrets-lifecycle/data/audit.log
+skills/*/config.json
+workspace/unifi-creds.json
+workspace/logs/*.jsonl
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Temporary Files
+.tmp/
+temp/
+.cache/
+.pytest_cache/
+
+# Build Artifacts
+*.pem
+*.key
+*.crt
+*.cer
+certificates/
+
+# Test Coverage
+coverage/
+htmlcov/
+.nox/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Data Lake Monitoring (AWS SAM)
+data-lake-monitoring/.aws-sam/

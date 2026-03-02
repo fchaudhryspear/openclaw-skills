@@ -1,0 +1,134 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Credologi Mission Control Backend
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs20.x
+    Architectures:
+      - arm64
+
+Parameters:
+  UserPoolId:
+    Type: String
+    Default: us-east-1_M6lTgVQaw
+  AggregatesTableName:
+    Type: String
+    Default: AggregatesTable
+
+Resources:
+  MissionApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
+
+  MonitoringFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambdaHandler
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref UserPoolId
+          AGGREGATES_TABLE: !Ref AggregatesTableName
+          CODEBUILD_PROJECT_NAME: credologi-test-suite # Example project name
+      Policies:
+        - AmazonCognitoPowerUser
+        - AWSSecurityHubReadOnlyAccess
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:Query
+                - dynamodb:GetItem
+              Resource: !GetAtt AggregatesTable.Arn
+        - Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:snowflake-private-key*
+        - Statement:
+            - Effect: Allow
+              Action:
+                - codebuild:StartBuild
+                - codebuild:BatchGetBuilds
+              Resource: !Sub arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/${CODEBUILD_PROJECT_NAME}
+      Events:
+        Health:
+          Type: Api
+          Properties:
+            Path: /health
+            Method: get
+            RestApiId: !Ref MissionApi
+        Flows:
+          Type: Api
+          Properties:
+            Path: /flows
+            Method: get
+            RestApiId: !Ref MissionApi
+        SecurityAlerts:
+          Type: Api
+          Properties:
+            Path: /security-alerts
+            Method: get
+            RestApiId: !Ref MissionApi
+        ListUsers:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: get
+            RestApiId: !Ref MissionApi
+        CreateUser:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: post
+            RestApiId: !Ref MissionApi
+        UserActions:
+          Type: Api
+          Properties:
+            Path: /users/{username}/{action}
+            Method: post
+            RestApiId: !Ref MissionApi
+        RunTests:
+          Type: Api
+          Properties:
+            Path: /run-tests
+            Method: post
+            RestApiId: !Ref MissionApi
+        TestStatus:
+          Type: Api
+          Properties:
+            Path: /test-status
+            Method: get
+            RestApiId: !Ref MissionApi
+
+  AggregatesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: Date
+          AttributeType: S
+        - AttributeName: FlowType
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Date
+          KeyType: HASH
+        - AttributeName: FlowType
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value: !Sub "https://${MissionApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  MonitoringFunction:
+    Description: Monitoring Lambda Function ARN
+    Value: !GetAtt MonitoringFunction.Arn

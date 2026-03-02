@@ -38,18 +38,18 @@ function aggregate(entries) {
   let totalCost = 0, totalIn = 0, totalOut = 0;
 
   for (const e of entries) {
-    totalCost += e.cost || 0;
-    totalIn += e.inputTokens || 0;
-    totalOut += e.outputTokens || 0;
+    totalCost += Number(e.cost) || 0;
+    totalIn += Number(e.inputTokens) || 0;
+    totalOut += Number(e.outputTokens) || 0;
 
     const modelName = PRICING[e.model]?.name || e.model;
     if (!byModel[modelName]) byModel[modelName] = { cost: 0, calls: 0 };
-    byModel[modelName].cost += e.cost || 0;
+    byModel[modelName].cost = (Number(byModel[modelName].cost) || 0) + (Number(e.cost) || 0);
     byModel[modelName].calls++;
 
     const script = e.script?.replace('ai-', '') || 'unknown';
     if (!byScript[script]) byScript[script] = { cost: 0, calls: 0 };
-    byScript[script].cost += e.cost || 0;
+    byScript[script].cost = (Number(byScript[script].cost) || 0) + (Number(e.cost) || 0);
     byScript[script].calls++;
   }
 

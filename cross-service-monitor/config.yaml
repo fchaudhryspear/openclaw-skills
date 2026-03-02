@@ -1,0 +1,213 @@
+# Cross-Service Correlation Monitor Configuration
+
+services:
+  # AWS Monitoring
+  aws:
+    region: us-east-1
+    check_interval: 60  # seconds
+    enabled: true
+    metrics:
+      - lambda_invocations
+      - lambda_errors
+      - lambda_duration
+      - s3_object_count
+      - sqs_messages
+    alarms:
+      lambda_error_threshold: 5
+      lambda_duration_p99_ms: 5000
+      sqs_backlog_threshold: 1000
+
+  # Snowflake Monitoring
+  snowflake:
+    account: credologi-dev
+    warehouse: COMPUTE_WH
+    database: APPLICATIONS
+    schema: PUBLIC
+    role: ACCOUNTADMIN
+    check_interval: 300  # seconds
+    enabled: true
+    metrics:
+      - query_success_rate
+      - warehouse_cpu
+      - storage_gb
+      - credits_used
+      - failed_logins
+    queries:
+      recent_queries: |
+        SELECT 
+          QUERY_ID,
+          QUERY_TEXT,
+          EXECUTION_STATUS,
+          START_TIME,
+          TOTAL_ELAPSED_TIME_MS
+        FROM SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY
+        WHERE START_TIME >= DATEADD(hour, -24, CURRENT_TIMESTAMP())
+        ORDER BY START_TIME DESC
+        LIMIT 100
+    alerts:
+      query_failure_rate_threshold: 0.1
+      warehouse_suspended_timeout_minutes: 30
+      credit_spike_threshold: 2.0
+
+  # CRM Integrations
+  crm:
+    hubspot:
+      enabled: true
+      api_base: https://api.hubapi.com
+      check_interval: 300
+      webhooks:
+        - contact.created
+        - contact.updated
+        - deal.created
+      rate_limit:
+        requests_per_second: 100
+        burst_limit: 200
+    
+    salesforce:
+      enabled: false
+      instance_url: https://your-instance.salesforce.com
+      check_interval: 300
+
+pipeline_definitions:
+  # Define your data pipelines with dependencies
+  - name: "aws-to-snowflake-load"
+    description: "Daily data load from S3 to Snowflake"
+    schedule: "0 */6 * * *"  # Every 6 hours
+    timeout_minutes: 30
+    steps:
+      - service: aws
+        resource: lambda:data-loader
+      - service: snowflake
+        resource: pipeline:load_data
+    depends_on: []
+    
+  - name: "snowflake-to-hubspot-sync"
+    description: "Sync customer data to HubSpot"
+    schedule: "*/15 * * * *"  # Every 15 minutes
+    timeout_minutes: 10
+    steps:
+      - service: snowflake
+        resource: view:customer_master
+      - service: crm
+        resource: hubspot:contacts
+    depends_on: ["aws-to-snowflake-load"]
+    
+  - name: "hubspot-to-salesforce-bi-directional"
+    description: "Bi-directional sync between CRM systems"
+    schedule: "*/30 * * * *"
+    timeout_minutes: 15
+    steps:
+      - service: crm
+        resource: hubspot:deals
+      - service: crm
+        resource: salesforce:opportunities
+    depends_on: []
+
+alerting:
+  slack_webhook: "${SLACK_WEBHOOK_URL}"
+  telegram_bot_token: "${TELEGRAM_BOT_TOKEN}"
+  telegram_chat_id: "-1002381931352"  # Your channel
+  email:
+    smtp_server: smtp.gmail.com
+    smtp_port: 587
+    from: alerts@credologi.com
+    
+  channels:
+    critical: [slack, telegram, email]
+    warning: [slack, telegram]
+    info: [slack]
+  
+  deduplication_window_seconds: 300  # Don't alert same issue twice in 5 min
+  
+  rules:
+    - name: "pipeline_fail"
+      condition: "pipeline.status == 'failed'"
+      severity: "critical"
+      message: "Pipeline {pipeline.name} failed at step {step.service}:{step.resource}"
+      
+    - name: "pipeline_lag"
+      condition: "pipeline.lag_minutes > threshold"
+      severity: "warning"
+      threshold_minutes: 15
+      message: "Pipeline {pipeline.name} is lagging by {pipeline.lag_minutes} minutes (threshold: {threshold_minutes})"
+      
+    - name: "snowflake_query_failures"
+      condition: "snowflake.failure_rate > threshold"
+      severity: "warning"
+      threshold: 0.1
+      message: "Snowflake query failure rate is {snowflake.failure_rate:.1%} (threshold: {threshold:.1%})"
+      
+    - name: "aws_lambda_errors"
+      condition: "aws.lambda_errors > threshold"
+      severity: "critical"
+      threshold: 5
+      message: "AWS Lambda error count is {aws.lambda_errors} (threshold: {threshold})"
+      
+    - name: "data_freshness"
+      condition: "data.age_hours > max_age"
+      severity: "warning"
+      max_age_hours: 24
+      message: "Data in {dataset} is {data.age_hours}h old (max age: {max_age_hours}h)"
+
+dashboard:
+  port: 8080
+  refresh_interval_seconds: 30
+  theme: dark
+  
+  panels:
+    - id: health_overview
+      type: status_summary
+      title: "System Health"
+      position: {x: 0, y: 0, w: 12, h: 4}
+      
+    - id: pipeline_timeline
+      type: timeline
+      title: "Pipeline Execution Timeline"
+      position: {x: 0, y: 4, w: 24, h: 6}
+      
+    - id: aws_metrics
+      type: line_chart
+      title: "AWS Metrics (24h)"
+      metrics: [lambda_invocations, lambda_errors]
+      position: {x: 0, y: 10, w: 8, h: 6}
+      
+    - id: snowflake_metrics
+      type: gauge
+      title: "Snowflake Status"
+      metrics: [query_success_rate, warehouse_cpu]
+      position: {x: 8, y: 10, w: 8, h: 6}
+      
+    - id: crm_health
+      type: table
+      title: "CRM API Health"
+      position: {x: 16, y: 10, w: 8, h: 6}
+      
+    - id: active_alerts
+      type: alert_list
+      title: "Active Alerts"
+      max_items: 10
+      position: {x: 0, y: 16, w: 12, h: 6}
+      
+    - id: latency_breakdown
+      type: bar_chart
+      title: "Pipeline Latency"
+      position: {x: 12, y: 16, w: 12, h: 6}
+
+logging:
+  level: INFO
+  file: /var/log/cross-service-monitor/monitor.log
+  max_size_mb: 100
+  backup_count: 5
+  
+storage:
+  type: sqlite
+  path: ./metrics.db
+  retention_days: 90
+  
+  # Alternative: PostgreSQL
+  # type: postgres
+  # host: localhost
+  # port: 5432
+  # database: monitoring
+  # user: monitor
+  # password: ${DB_PASSWORD}

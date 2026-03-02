@@ -4,13 +4,13 @@
 Complete operations dashboard for the Real-Time Financial Data Lake with real-time monitoring, user management, and alerting.
 
 ## Portal URL
-**Primary**: https://portal.credologi.com  
+**Primary**: https://missioncontrol.credologi.com  
 **CloudFront**: https://d13ermioqnr3qb.cloudfront.net
 
 ## Authentication
 - **User Pool**: us-east-1_M6lTgVQaw (credologi-users)
 - **Admin User**: faisal@credologi.com
-- **Login URL**: https://portal.credologi.com
+- **Login URL**: https://missioncontrol.credologi.com
 
 ## Features
 
@@ -158,7 +158,7 @@ aws sns subscribe \
 ```bash
 cd portal
 npm run build
-aws s3 sync dist/ s3://portal.credologi.com/ --delete
+aws s3 sync dist/ s3://missioncontrol.credologi.com/ --delete
 aws cloudfront create-invalidation --distribution-id E2QA9DG4SSZ3NU --paths "/*"
 ```
 
@@ -192,7 +192,7 @@ sam deploy -t monitoring-template.yaml \
 | real-time-data-lake | API Gateway | pe6rxp3vtd |
 | real-time-data-lake | DynamoDB | real-time-data-lake-loan-applications |
 | real-time-data-lake | Cognito | us-east-1_M6lTgVQaw |
-| Portal | S3 Bucket | portal.credologi.com |
+| Portal | S3 Bucket | missioncontrol.credologi.com |
 | Portal | CloudFront | d13ermioqnr3qb.cloudfront.net |
 
 ## Documentation
