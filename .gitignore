@@ -66,3 +66,16 @@ box_downloads/
 *.backup
 .env
 .env.*
+
+# Keychain setup script contains real keys — local only
+security/keychain-setup.sh
+
+# Memory files are local only — contain personal context
+memory/
+
+# Python virtual environments — contain AWS SDK example files
+venv/
+*/venv/
+**/venv/
+*/layer/python/
+**/layer/python/

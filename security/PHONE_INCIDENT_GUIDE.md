@@ -24,7 +24,7 @@ You're NOT at your computer but need to act NOW on AWS credential exposure.
    - OR tap profile icon → "My Security Credentials"
 
 4. **Delete the compromised key**
-   - Find key starting with: `AKIAVUDEQWFUYC2LSGN6`
+   - Find key starting with: `AKIA_REVOKED_KEY`
    - Tap on it
    - Tap **"Delete Access Key"**
    - Confirm deletion
@@ -44,7 +44,7 @@ You're NOT at your computer but need to act NOW on AWS credential exposure.
    - OR scroll down the IAM dashboard for "Access keys" section
 
 4. **Delete the key:**
-   - Look for: `AKIAVUDEQWFUYC2LSGN6`
+   - Look for: `AKIA_REVOKED_KEY`
    - Click "Delete" next to that key
    - Confirm
 
@@ -137,7 +137,7 @@ Copy this to notes app:
 🔴 AWS COMPROMISED CREDENTIALS - INCIDENT RESPONSE
 
 [ ] 1. AWS Key Revoked?
-    └─ Key: AKIAVUDEQWFUYC2LSGN6
+    └─ Key: AKIA_REVOKED_KEY
     └─ Status: ___DONE___ / ___NOT DONE___
     
 [ ] 2. Root Password Changed?

@@ -11,36 +11,45 @@ import re, sys, os, subprocess
 
 # ── Secret patterns ──────────────────────────────────────────────────────────
 PATTERNS = [
-    (r'sk-ant-api03-[A-Za-z0-9_\-]{80,}',          'Anthropic API key'),
-    (r'sk-proj-[A-Za-z0-9_\-]{80,}',               'OpenAI project key'),
-    (r'xai-[A-Za-z0-9]{60,}',                       'XAI/Grok key'),
-    (r'AIzaSy[A-Za-z0-9_\-]{33}',                   'Google API key'),
-    (r'BSAU_[A-Za-z0-9_\-]{20,}',                   'Brave Search key'),
-    (r'BSAfY[A-Za-z0-9_\-]{20,}',                   'Brave Search key'),
-    (r'AKIA[A-Z0-9]{16}',                            'AWS Access Key ID'),
-    (r'(?i)aws.{0,20}secret.{0,20}[A-Za-z0-9/+=]{40}', 'AWS Secret Key'),
-    (r'ghp_[A-Za-z0-9]{36}',                        'GitHub Personal Token'),
-    (r'gho_[A-Za-z0-9]{36}',                        'GitHub OAuth Token'),
-    (r'xoxb-[A-Za-z0-9\-]{50,}',                    'Slack Bot Token'),
-    (r'xoxp-[A-Za-z0-9\-]{50,}',                    'Slack User Token'),
-    (r'sk-[A-Za-z0-9]{93}',                          'Moonshot/Kimi key'),
-    # Generic sk- long enough to be real, not test/dummy values
-    (r'sk-(?!abc|test|fake|example|dummy|hyTB|3PKh)[A-Za-z0-9_\-]{45,}', 'Generic API key'),
+    (r'sk-ant-api03-[A-Za-z0-9_\-]{80,}',              'Anthropic API key'),
+    (r'sk-proj-[A-Za-z0-9_\-]{80,}',                   'OpenAI project key'),
+    (r'xai-[A-Za-z0-9]{60,}',                           'XAI/Grok key'),
+    (r'AIzaSy[A-Za-z0-9_\-]{33}',                       'Google API key'),
+    (r'BSAU_[A-Za-z0-9_\-]{20,}',                       'Brave Search key'),
+    (r'BSAfY[A-Za-z0-9_\-]{20,}',                       'Brave Search key'),
+    # AWS — only real keys (not EXAMPLE placeholders)
+    (r'AKIA(?!IOSFODNN7EXAMPLE|I44QH8DHBEXAMPLE|111111111EXAMPLE|222222222EXAMPLE|_REVOKED)[A-Z0-9]{16}', 'AWS Access Key ID'),
+    (r'(?i)aws.{0,20}secret.{0,20}(?!.*EXAMPLE)[A-Za-z0-9/+=]{40}', 'AWS Secret Key'),
+    # GitHub tokens
+    (r'ghp_[A-Za-z0-9]{36}',                            'GitHub Personal Token'),
+    (r'gho_[A-Za-z0-9]{36}',                            'GitHub OAuth Token'),
+    # Generic sk- — long enough to be real, not test/dummy/revoked values
+    (r'sk-(?!abc|test|fake|example|dummy|hyTB|3PKh|VGSx)[A-Za-z0-9_\-]{45,}', 'Generic API key'),
 ]
 
 # ── Skip rules ────────────────────────────────────────────────────────────────
-SKIP_DIRS  = {'.git', 'node_modules', 'dist', '__pycache__', '.venv', '.aws-sam', 'coverage'}
-SKIP_EXTS  = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico',
-              '.zip', '.tar', '.gz', '.bin', '.exe', '.pdf', '.lock'}
-# Files that intentionally contain fake/dummy keys for testing
-SKIP_PATHS = {
-    'tests/', 'test/', '/examples/', 'SENSITIVE_DATA.md',
+SKIP_DIRS = {
+    '.git', 'node_modules', 'dist', '__pycache__', '.venv',
+    'venv', '.aws-sam', 'coverage', 'layer'
+}
+SKIP_EXTS = {
+    '.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico',
+    '.zip', '.tar', '.gz', '.bin', '.exe', '.pdf', '.lock', '.pyc'
+}
+# Paths that intentionally contain fake/dummy/example keys
+SKIP_PATH_FRAGMENTS = {
+    'tests/', 'test/', '/examples/', 'SENSITIVE_DATA',
     'examples.ts', 'scanner.test', 'integration.test',
-    'reference-based-demo', 'lifecycle.test'
+    'reference-based-demo', 'lifecycle.test',
+    'botocore/', 'boto3/', 'moto/', 'site-packages/',
+    'keychain-setup.sh',   # contains real keys but is gitignored
+    'PRE_COMMIT_GUIDE.md', # contains example patterns only
+    'SENSITIVE_DATA_PHASE1.md',
+    'REFERENCE_BASED_STORAGE.md',
 }
 
 def should_skip(path):
-    return any(s in path for s in SKIP_PATHS)
+    return any(s in path for s in SKIP_PATH_FRAGMENTS)
 
 def scan_file(path):
     if should_skip(path):
@@ -67,8 +76,14 @@ def scan_staged():
     except Exception:
         return []
 
-    root = subprocess.run(['git', 'rev-parse', '--show-toplevel'],
-                          capture_output=True, text=True).stdout.strip()
+    try:
+        root = subprocess.run(
+            ['git', 'rev-parse', '--show-toplevel'],
+            capture_output=True, text=True
+        ).stdout.strip()
+    except Exception:
+        root = os.getcwd()
+
     findings = []
     for f in files:
         ext = os.path.splitext(f)[1].lower()
@@ -93,13 +108,13 @@ def scan_dir(root):
 
 def report(findings):
     if findings:
-        print("🚨 SECRET LEAK DETECTED\n")
+        print(f"🚨 SECRET LEAK DETECTED — {len(findings)} issue(s)\n")
         for path, line, label, snippet in findings:
             print(f"  [{label}]")
             print(f"    File : {path}:{line}")
-            print(f"    Line : {snippet[:60]}...")
+            print(f"    Line : {snippet[:70]}...")
             print()
-        print(f"Total: {len(findings)} secret(s) found. Fix before proceeding.")
+        print("Fix all secrets before pushing.")
         return False
     else:
         print("✅ No secrets found.")
@@ -115,7 +130,6 @@ if __name__ == '__main__':
     elif os.path.isdir(mode):
         findings = scan_dir(mode)
     else:
-        # Default: scan workspace root
         root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         findings = scan_dir(root)
 

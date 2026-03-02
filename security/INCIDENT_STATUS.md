@@ -1,7 +1,7 @@
 # 🔴 SECURITY INCIDENT STATUS - LAST UPDATED: 2026-03-01 19:24 CST
 
 **Incident:** AWS Root Access Key Exposed on GitHub  
-**Key:** `AKIAVUDEQWFUYC2LSGN6`  
+**Key:** `AKIA_REVOKED_KEY`  
 **Severity:** CRITICAL  
 **Location:** https://github.com/fchaudhryspear/openclaw-skills  
 
@@ -68,7 +68,7 @@ Print this or save as note on phone:
 ON PHONE (Do Immediately):
 
 [ ] 1. Revoke AWS Access Key
-    └─ Key: AKIAVUDEQWFUYC2LSGN6
+    └─ Key: AKIA_REVOKED_KEY
     └─ Use: AWS Mobile App or Mobile Browser
     └─ URL: console.aws.amazon.com/iam
 
@@ -117,7 +117,7 @@ AT COMPUTER (Return Later):
 3. Reference ticket: "Security incident - AWS credentials exposed publicly"
 
 **What to Say:**
-"I accidentally committed AWS root account access keys to a public GitHub repository. The key ID is AKIAVUDEQWFUYC2LSGN6. I need to revoke it immediately and check for unauthorized activity."
+"I accidentally committed AWS root account access keys to a public GitHub repository. The key ID is AKIA_REVOKED_KEY. I need to revoke it immediately and check for unauthorized activity."
 
 This triggers priority handling.
 

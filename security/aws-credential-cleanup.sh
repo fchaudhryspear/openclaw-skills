@@ -35,7 +35,7 @@ if [ -f "$AWS_CREDS" ]; then
     # Clear the file
     cat > "$AWS_CREDS" << 'EOF'
 # WARNING: This file was cleared due to credential compromise
-# The access key AKIAVUDEQWFUYC2LSGN6 has been revoked by AWS
+# The access key AKIA_REVOKED_KEY has been revoked by AWS
 #
 # SETUP NEW IAM USER INSTRUCTIONS:
 # 1. Go to https://console.aws.amazon.com/iam/home#/users

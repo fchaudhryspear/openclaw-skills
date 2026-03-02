@@ -4,7 +4,7 @@
 
 **Date:** 2026-03-01  
 **Severity:** CRITICAL  
-**Exposed:** AWS Root Account Access Key `AKIAVUDEQWFUYC2LSGN6`  
+**Exposed:** AWS Root Account Access Key `AKIA_REVOKED_KEY`  
 **Location:** GitHub repository (https://github.com/fchaudhryspear/openclaw-skills)
 
 ---
@@ -23,7 +23,7 @@
 1. **REVOKE AWS ACCESS KEY (5 minutes)**
    ```
    URL: https://console.aws.amazon.com/iam/home?#/security_credentials
-   Action: Delete access key AKIAVUDEQWFUYC2LSGN6
+   Action: Delete access key AKIA_REVOKED_KEY
    ```
 
 2. **CHANGE ROOT PASSWORD (5 minutes)**
