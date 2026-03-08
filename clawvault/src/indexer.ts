@@ -5,6 +5,12 @@
 
 import { MemoryEntry, MemoryType, MemoryScope } from './types';
 
+// Shared constants for file paths
+export const HOME = process.env.HOME || '~';
+export const MEMORY_ROOT = `${HOME}/memory`;
+export const CLAWVAULT_DIR = `${HOME}/.openclaw/workspace/clawvault`;
+export const VAULT_PATH = `${CLAWVAULT_DIR}/vault`;
+
 export interface IndexStats {
   totalEntries: number;
   byType: Record<MemoryType, number>;

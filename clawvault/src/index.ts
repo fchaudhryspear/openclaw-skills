@@ -1,11 +1,11 @@
 /**
  * ClawVault - AI Agent Memory System
- * Phase 1 + Phase 2 Integration
+ * Phase 1 + Phase 2 + Phase 3 Integration with Advanced Features
  */
 
 import { 
   MemoryEntry, MemoryType, MemoryScope, ConfidenceScore, 
-  SearchResult, ContextMessage, SearchFilters, SearchOptions 
+  SearchResult, ContextMessage, SearchFilters, SearchOptions, Memory
 } from './types';
 import { generateEmbedding } from './embeddings';
 import { ConfidenceScorer } from './confidence';
@@ -13,6 +13,11 @@ import { SensitiveDataDetector } from './sensitive';
 import { SemanticLayerBuilder } from './semantic';
 import { IncrementalIndexer } from './indexer';
 import { ContextAwareSearch } from './search';
+import { VectorStore, getVectorStore } from './vector-store';
+import { ConsolidationModule, consolidationModule, consolidate, findDuplicates, bulkConsolidate } from './consolidation';
+import { MemoryCache, globalCache, getCached } from './cache';
+import { SafetyModule, safetyModule, canAddMemory, enforceSizeLimits, getSafetyStats, healthCheck } from './safety';
+import { SessionManager, sessionManager, startSession, endSession, acquireLock, getCurrentSession } from './session-manager';
 import * as crypto from 'crypto';
 
 export interface ClawVaultConfig {
@@ -36,6 +41,14 @@ export class ClawVault {
   private confidenceScorer: ConfidenceScorer;
   private sensitiveDetector: SensitiveDataDetector;
   private semanticBuilder: SemanticLayerBuilder;
+  
+  // New Phase 3 + Advanced modules
+  private vectorStore: VectorStore;
+  private consolidationModule: ConsolidationModule;
+  private cache: MemoryCache;
+  private safetyModule: SafetyModule;
+  private sessionManager: SessionManager;
+  
   private config: ClawVaultConfig;
 
   constructor(config: ClawVaultConfig = {}) {
@@ -47,11 +60,19 @@ export class ClawVault {
       ...config
     };
 
+    // Core modules
     this.indexer = new IncrementalIndexer();
     this.searcher = new ContextAwareSearch();
     this.confidenceScorer = new ConfidenceScorer();
     this.sensitiveDetector = new SensitiveDataDetector();
     this.semanticBuilder = new SemanticLayerBuilder();
+    
+    // New advanced modules
+    this.vectorStore = getVectorStore();
+    this.consolidationModule = consolidationModule;
+    this.cache = globalCache;
+    this.safetyModule = safetyModule;
+    this.sessionManager = sessionManager;
   }
 
   /**
@@ -275,3 +296,10 @@ export { SemanticLayerBuilder } from './semantic';
 export { IncrementalIndexer } from './indexer';
 export { ContextAwareSearch } from './search';
 export { generateEmbedding, cosineSimilarity } from './embeddings';
+
+// Phase 3 + Advanced features exports
+export { VectorStore, getVectorStore } from './vector-store';
+export { ConsolidationModule, consolidationModule, consolidate, findDuplicates, bulkConsolidate } from './consolidation';
+export { MemoryCache, globalCache, getCached } from './cache';
+export { SafetyModule, safetyModule, canAddMemory, enforceSizeLimits, getSafetyStats, healthCheck } from './safety';
+export { SessionManager, sessionManager, startSession, endSession, acquireLock, getCurrentSession, SessionInfo } from './session-manager';

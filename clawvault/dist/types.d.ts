@@ -5,6 +5,13 @@
 export type MemoryType = 'episodic' | 'semantic' | 'procedural' | 'working';
 export type MemoryScope = 'session' | 'user' | 'global';
 export type SensitivityLevel = 'public' | 'internal' | 'confidential' | 'restricted';
+export interface Memory {
+    id: string;
+    content: string;
+    type?: MemoryType;
+    createdAtMs?: number;
+    metadata?: Record<string, any>;
+}
 export interface MemoryEntry {
     id: string;
     content: string;

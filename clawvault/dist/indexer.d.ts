@@ -3,6 +3,10 @@
  * Manages efficient indexing of memory entries
  */
 import { MemoryEntry, MemoryType, MemoryScope } from './types';
+export declare const HOME: string;
+export declare const MEMORY_ROOT: string;
+export declare const CLAWVAULT_DIR: string;
+export declare const VAULT_PATH: string;
 export interface IndexStats {
     totalEntries: number;
     byType: Record<MemoryType, number>;

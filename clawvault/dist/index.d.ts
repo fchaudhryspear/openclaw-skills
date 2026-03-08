@@ -1,6 +1,6 @@
 /**
  * ClawVault - AI Agent Memory System
- * Phase 1 + Phase 2 Integration
+ * Phase 1 + Phase 2 + Phase 3 Integration with Advanced Features
  */
 import { MemoryEntry, MemoryType, MemoryScope, ConfidenceScore, SearchResult, ContextMessage, SearchFilters, SearchOptions } from './types';
 export interface ClawVaultConfig {
@@ -22,6 +22,11 @@ export declare class ClawVault {
     private confidenceScorer;
     private sensitiveDetector;
     private semanticBuilder;
+    private vectorStore;
+    private consolidationModule;
+    private cache;
+    private safetyModule;
+    private sessionManager;
     private config;
     constructor(config?: ClawVaultConfig);
     /**
@@ -106,4 +111,9 @@ export { SemanticLayerBuilder } from './semantic';
 export { IncrementalIndexer } from './indexer';
 export { ContextAwareSearch } from './search';
 export { generateEmbedding, cosineSimilarity } from './embeddings';
+export { VectorStore, getVectorStore } from './vector-store';
+export { ConsolidationModule, consolidationModule, consolidate, findDuplicates, bulkConsolidate } from './consolidation';
+export { MemoryCache, globalCache, getCached } from './cache';
+export { SafetyModule, safetyModule, canAddMemory, enforceSizeLimits, getSafetyStats, healthCheck } from './safety';
+export { SessionManager, sessionManager, startSession, endSession, acquireLock, getCurrentSession, SessionInfo } from './session-manager';
 //# sourceMappingURL=index.d.ts.map

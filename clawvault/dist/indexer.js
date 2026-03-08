@@ -4,7 +4,12 @@
  * Manages efficient indexing of memory entries
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IncrementalIndexer = void 0;
+exports.IncrementalIndexer = exports.VAULT_PATH = exports.CLAWVAULT_DIR = exports.MEMORY_ROOT = exports.HOME = void 0;
+// Shared constants for file paths
+exports.HOME = process.env.HOME || '~';
+exports.MEMORY_ROOT = `${exports.HOME}/memory`;
+exports.CLAWVAULT_DIR = `${exports.HOME}/.openclaw/workspace/clawvault`;
+exports.VAULT_PATH = `${exports.CLAWVAULT_DIR}/vault`;
 class IncrementalIndexer {
     entries = new Map();
     typeIndex = new Map();

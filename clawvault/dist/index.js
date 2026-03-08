@@ -1,7 +1,7 @@
 "use strict";
 /**
  * ClawVault - AI Agent Memory System
- * Phase 1 + Phase 2 Integration
+ * Phase 1 + Phase 2 + Phase 3 Integration with Advanced Features
  */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
@@ -40,13 +40,18 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cosineSimilarity = exports.generateEmbedding = exports.ContextAwareSearch = exports.IncrementalIndexer = exports.SemanticLayerBuilder = exports.SensitiveDataDetector = exports.ConfidenceScorer = exports.ClawVault = void 0;
+exports.getCurrentSession = exports.acquireLock = exports.endSession = exports.startSession = exports.sessionManager = exports.SessionManager = exports.healthCheck = exports.getSafetyStats = exports.enforceSizeLimits = exports.canAddMemory = exports.safetyModule = exports.SafetyModule = exports.getCached = exports.globalCache = exports.MemoryCache = exports.bulkConsolidate = exports.findDuplicates = exports.consolidate = exports.consolidationModule = exports.ConsolidationModule = exports.getVectorStore = exports.VectorStore = exports.cosineSimilarity = exports.generateEmbedding = exports.ContextAwareSearch = exports.IncrementalIndexer = exports.SemanticLayerBuilder = exports.SensitiveDataDetector = exports.ConfidenceScorer = exports.ClawVault = void 0;
 const embeddings_1 = require("./embeddings");
 const confidence_1 = require("./confidence");
 const sensitive_1 = require("./sensitive");
 const semantic_1 = require("./semantic");
 const indexer_1 = require("./indexer");
 const search_1 = require("./search");
+const vector_store_1 = require("./vector-store");
+const consolidation_1 = require("./consolidation");
+const cache_1 = require("./cache");
+const safety_1 = require("./safety");
+const session_manager_1 = require("./session-manager");
 const crypto = __importStar(require("crypto"));
 class ClawVault {
     indexer;
@@ -54,6 +59,12 @@ class ClawVault {
     confidenceScorer;
     sensitiveDetector;
     semanticBuilder;
+    // New Phase 3 + Advanced modules
+    vectorStore;
+    consolidationModule;
+    cache;
+    safetyModule;
+    sessionManager;
     config;
     constructor(config = {}) {
         this.config = {
@@ -63,11 +74,18 @@ class ClawVault {
             defaultScope: 'user',
             ...config
         };
+        // Core modules
         this.indexer = new indexer_1.IncrementalIndexer();
         this.searcher = new search_1.ContextAwareSearch();
         this.confidenceScorer = new confidence_1.ConfidenceScorer();
         this.sensitiveDetector = new sensitive_1.SensitiveDataDetector();
         this.semanticBuilder = new semantic_1.SemanticLayerBuilder();
+        // New advanced modules
+        this.vectorStore = (0, vector_store_1.getVectorStore)();
+        this.consolidationModule = consolidation_1.consolidationModule;
+        this.cache = cache_1.globalCache;
+        this.safetyModule = safety_1.safetyModule;
+        this.sessionManager = session_manager_1.sessionManager;
     }
     /**
      * Store a new memory entry
@@ -265,4 +283,32 @@ Object.defineProperty(exports, "ContextAwareSearch", { enumerable: true, get: fu
 var embeddings_2 = require("./embeddings");
 Object.defineProperty(exports, "generateEmbedding", { enumerable: true, get: function () { return embeddings_2.generateEmbedding; } });
 Object.defineProperty(exports, "cosineSimilarity", { enumerable: true, get: function () { return embeddings_2.cosineSimilarity; } });
+// Phase 3 + Advanced features exports
+var vector_store_2 = require("./vector-store");
+Object.defineProperty(exports, "VectorStore", { enumerable: true, get: function () { return vector_store_2.VectorStore; } });
+Object.defineProperty(exports, "getVectorStore", { enumerable: true, get: function () { return vector_store_2.getVectorStore; } });
+var consolidation_2 = require("./consolidation");
+Object.defineProperty(exports, "ConsolidationModule", { enumerable: true, get: function () { return consolidation_2.ConsolidationModule; } });
+Object.defineProperty(exports, "consolidationModule", { enumerable: true, get: function () { return consolidation_2.consolidationModule; } });
+Object.defineProperty(exports, "consolidate", { enumerable: true, get: function () { return consolidation_2.consolidate; } });
+Object.defineProperty(exports, "findDuplicates", { enumerable: true, get: function () { return consolidation_2.findDuplicates; } });
+Object.defineProperty(exports, "bulkConsolidate", { enumerable: true, get: function () { return consolidation_2.bulkConsolidate; } });
+var cache_2 = require("./cache");
+Object.defineProperty(exports, "MemoryCache", { enumerable: true, get: function () { return cache_2.MemoryCache; } });
+Object.defineProperty(exports, "globalCache", { enumerable: true, get: function () { return cache_2.globalCache; } });
+Object.defineProperty(exports, "getCached", { enumerable: true, get: function () { return cache_2.getCached; } });
+var safety_2 = require("./safety");
+Object.defineProperty(exports, "SafetyModule", { enumerable: true, get: function () { return safety_2.SafetyModule; } });
+Object.defineProperty(exports, "safetyModule", { enumerable: true, get: function () { return safety_2.safetyModule; } });
+Object.defineProperty(exports, "canAddMemory", { enumerable: true, get: function () { return safety_2.canAddMemory; } });
+Object.defineProperty(exports, "enforceSizeLimits", { enumerable: true, get: function () { return safety_2.enforceSizeLimits; } });
+Object.defineProperty(exports, "getSafetyStats", { enumerable: true, get: function () { return safety_2.getSafetyStats; } });
+Object.defineProperty(exports, "healthCheck", { enumerable: true, get: function () { return safety_2.healthCheck; } });
+var session_manager_2 = require("./session-manager");
+Object.defineProperty(exports, "SessionManager", { enumerable: true, get: function () { return session_manager_2.SessionManager; } });
+Object.defineProperty(exports, "sessionManager", { enumerable: true, get: function () { return session_manager_2.sessionManager; } });
+Object.defineProperty(exports, "startSession", { enumerable: true, get: function () { return session_manager_2.startSession; } });
+Object.defineProperty(exports, "endSession", { enumerable: true, get: function () { return session_manager_2.endSession; } });
+Object.defineProperty(exports, "acquireLock", { enumerable: true, get: function () { return session_manager_2.acquireLock; } });
+Object.defineProperty(exports, "getCurrentSession", { enumerable: true, get: function () { return session_manager_2.getCurrentSession; } });
 //# sourceMappingURL=index.js.map
