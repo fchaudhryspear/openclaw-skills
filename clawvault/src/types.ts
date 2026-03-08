@@ -90,55 +90,27 @@ export interface ContextMessage {
 export interface SearchFilters {
   types?: MemoryType[];
   scopes?: MemoryScope[];
-  minConfidence?: number;
-  maxAge?: number;
   tags?: string[];
-  excludeSensitive?: boolean;
+  confidenceMin?: number;
+  dateRange?: { from: number; to: number };
 }
 
 export interface SearchOptions {
   limit?: number;
   offset?: number;
-  includeScores?: boolean;
-  rerank?: boolean;
-  weights?: SearchWeights;
+  sortBy?: 'relevance' | 'date' | 'confidence';
+  sortOrder?: 'asc' | 'desc';
 }
 
-export interface SearchWeights {
-  vector: number;
-  keyword: number;
-  temporal: number;
+// Legacy interfaces (for backward compatibility)
+export interface QueryOptions {
+  limit?: number;
+  offset?: number;
+  sort?: 'asc' | 'desc';
 }
 
-export interface SearchResult {
-  entry: MemoryEntry;
-  scores: {
-    vector: number;
-    keyword: number;
-    temporal: number;
-    context: number;
-    combined: number;
-  };
-  highlights?: string[];
-}
-
-export interface SearchCache {
-  key: string;
-  results: SearchResult[];
-  timestamp: number;
-  hitCount: number;
-}
-
-export interface HybridSearchIndex {
-  tfidf: Map<string, Map<string, number>>;
-  documentFrequency: Map<string, number>;
-  documentCount: number;
-  idf: Map<string, number>;
-}
-
-export interface SearchStats {
-  totalSearches: number;
-  cacheHits: number;
-  averageLatency: number;
-  topQueries: Map<string, number>;
+export interface SearchOptionsLegacy {
+  limit?: number;
+  offset?: number;
+  sort?: 'asc' | 'desc';
 }

@@ -1,0 +1,373 @@
+{
+  "project_id": "PROJ-20260308-001",
+  "version": "1",
+  "spec_version": "1",
+  "architecture_pattern": "monolithic",
+  "summary": "Monolithic architecture for Build a SaaS platform for property maintenance with auth,.... Pattern chosen because: Supports feature: authentication; Tech pref 'React' available; Tech pref 'Node.js' available",
+  "components": [
+    {
+      "name": "API Gateway",
+      "type": "infrastructure",
+      "description": "Entry point for all API requests. Handles routing, rate limiting, and auth.",
+      "technology": "nginx / AWS API Gateway",
+      "responsibilities": [
+        "Request routing",
+        "Rate limiting",
+        "Authentication",
+        "CORS"
+      ]
+    },
+    {
+      "name": "Auth Service",
+      "type": "service",
+      "description": "Handles user authentication, authorization, and session management.",
+      "technology": "JWT + bcrypt",
+      "responsibilities": [
+        "User registration",
+        "Login/logout",
+        "Token management",
+        "Password reset"
+      ]
+    },
+    {
+      "name": "Application Service",
+      "type": "service",
+      "description": "Core business logic service.",
+      "technology": "Node.js / Python",
+      "responsibilities": [
+        "Business logic",
+        "Data validation",
+        "Domain operations"
+      ]
+    },
+    {
+      "name": "Primary Database",
+      "type": "database",
+      "description": "Primary data store.",
+      "technology": "PostgreSQL",
+      "responsibilities": [
+        "Data persistence",
+        "ACID transactions",
+        "Query optimization"
+      ]
+    }
+  ],
+  "api_endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/auth/register",
+      "description": "Register a new user",
+      "request_body": {
+        "email": "string",
+        "password": "string",
+        "name": "string"
+      },
+      "response_schema": {
+        "user": "object",
+        "token": "string"
+      },
+      "auth_required": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "description": "Authenticate user",
+      "request_body": {
+        "email": "string",
+        "password": "string"
+      },
+      "response_schema": {
+        "token": "string",
+        "user": "object"
+      },
+      "auth_required": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "description": "Logout user",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/refresh",
+      "description": "Refresh auth token",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/me",
+      "description": "Get current user profile",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "PUT",
+      "path": "/api/users/me",
+      "description": "Update current user profile",
+      "request_body": {
+        "name": "string",
+        "email": "string"
+      },
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/users",
+      "description": "List users (admin)",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/:id",
+      "description": "Get user by ID",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/me",
+      "description": "Get current user profile",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "PUT",
+      "path": "/api/users/me",
+      "description": "Update current user profile",
+      "request_body": {
+        "name": "string",
+        "email": "string"
+      },
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/users",
+      "description": "List users (admin)",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/:id",
+      "description": "Get user by ID",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/me",
+      "description": "Get current user profile",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "PUT",
+      "path": "/api/users/me",
+      "description": "Update current user profile",
+      "request_body": {
+        "name": "string",
+        "email": "string"
+      },
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/users",
+      "description": "List users (admin)",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/:id",
+      "description": "Get user by ID",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/payments/intent",
+      "description": "Create payment intent",
+      "request_body": {
+        "amount": "number",
+        "currency": "string"
+      },
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/payments/history",
+      "description": "Get payment history",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "POST",
+      "path": "/api/subscriptions",
+      "description": "Create subscription",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/subscriptions/:id",
+      "description": "Cancel subscription",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications",
+      "description": "List notifications",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "PUT",
+      "path": "/api/notifications/:id/read",
+      "description": "Mark notification as read",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "PUT",
+      "path": "/api/notifications/preferences",
+      "description": "Update preferences",
+      "request_body": {
+        "email": "boolean",
+        "push": "boolean"
+      },
+      "response_schema": null,
+      "auth_required": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "description": "Health check endpoint",
+      "request_body": null,
+      "response_schema": null,
+      "auth_required": false
+    }
+  ],
+  "database_schema": [
+    {
+      "name": "users",
+      "description": "User accounts",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "nullable": false,
+          "description": "Primary key"
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR(255)",
+          "nullable": false,
+          "description": "Unique email"
+        },
+        {
+          "name": "password_hash",
+          "type": "VARCHAR(255)",
+          "nullable": false,
+          "description": "Bcrypt hash"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "nullable": true,
+          "description": "Display name"
+        },
+        {
+          "name": "role",
+          "type": "VARCHAR(50)",
+          "nullable": false,
+          "description": "User role"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP",
+          "nullable": false,
+          "description": "Creation time"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP",
+          "nullable": false,
+          "description": "Last update"
+        }
+      ],
+      "indexes": [
+        "UNIQUE(email)",
+        "INDEX(role)"
+      ],
+      "relationships": []
+    }
+  ],
+  "infrastructure": {
+    "compute": "Node.js (Express)",
+    "database": "PostgreSQL",
+    "infrastructure_as_code": "Docker",
+    "ci_cd": "GitHub Actions",
+    "monitoring": "CloudWatch / Datadog",
+    "logging": "Structured JSON logs \u2192 CloudWatch / ELK",
+    "secrets": "AWS Secrets Manager / .env (dev)"
+  },
+  "security_considerations": [
+    "All passwords hashed with bcrypt (cost factor \u2265 12)",
+    "JWT tokens with short expiry (15min access, 7d refresh)",
+    "HTTPS enforced in production",
+    "Input validation on all endpoints",
+    "SQL injection prevention via parameterized queries",
+    "XSS prevention via output encoding",
+    "CORS configured for allowed origins only",
+    "Rate limiting on authentication endpoints",
+    "PCI DSS compliance for payment handling",
+    "No raw card data stored \u2014 use Stripe tokens"
+  ],
+  "scalability_notes": [
+    "Pattern supports low-medium scale",
+    "Horizontal scaling via container orchestration",
+    "Database connection pooling recommended",
+    "CDN for static assets"
+  ],
+  "deployment_strategy": "rolling",
+  "tech_stack": {
+    "frontend": "React",
+    "backend": "Node.js (Express)",
+    "database": "PostgreSQL",
+    "infrastructure": "Docker",
+    "ci_cd": "GitHub Actions"
+  },
+  "component_diagram": "Architecture: Monolithic\n========================================\n\n[Infrastructure Layer]\n  \u2514\u2500\u2500 API Gateway (nginx / AWS API Gateway)\n\n[Service Layer]\n  \u2514\u2500\u2500 Auth Service (JWT + bcrypt)\n  \u2514\u2500\u2500 Application Service (Node.js / Python)\n\n[Data Layer]\n  \u2514\u2500\u2500 Primary Database (PostgreSQL)",
+  "data_flow": "",
+  "status": "draft",
+  "created_by": "architect",
+  "created_at": "2026-03-08T00:25:52.881294",
+  "review_notes": []
+}

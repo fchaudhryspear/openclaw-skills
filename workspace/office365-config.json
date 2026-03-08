@@ -1,0 +1,61 @@
+{
+  "description": "Microsoft Graph OAuth 2.0 Configuration - SECRETS STORED IN KEYCHAIN",
+  "secrets_location": "macOS Keychain (account: optimus)",
+  "last_updated": "2026-03-02T21:27:00Z",
+  
+  "providers": {
+    "flobase_credologi": {
+      "tenant_id": "98affaa8-8af4-4134-8378-efa5d337284d",
+      "client_id_flobase": "de70d95f-6f8c-4f39-8259-1c579090f401",
+      "client_id_credologi": "[TO_ADD]",
+      "secret_reference": "keychain://optimus/msgraph-flobase-secret",
+      "email_primary": "faisal@credologi.com"
+    },
+    
+    "utility_valet": {
+      "tenant_id": "fd036b44-5db1-45c7-a55a-711bee087e49",
+      "client_id": "f9da90a6-046c-410d-95c6-6dcb1d5d6523",
+      "secret_reference": "keychain://optimus/msgraph-utilityvalet-secret",
+      "email_primary": "faisal@utilityvalet.io"
+    },
+    
+    "starship_residential": {
+      "tenant_id": "d2acd1fb-6f18-45a4-8585-659506e4c5b4",
+      "client_id": "9e0e77d8-f8a4-4ecc-8467-36bdb6c95a94",
+      "secret_reference": "keychain://optimus/msgraph-starship-secret",
+      "email_primary": "faisal@starshipresidential.com"
+    },
+    
+    "dallas_partners": {
+      "tenant_id": "5ea31e0b-d45a-4d55-b590-333c3d9aa345",
+      "client_id": "c1d6e45d-4546-4227-aab9-b6c600841e01",
+      "secret_reference": "keychain://optimus/msgraph-dallaspartners-secret",
+      "email_primary": "faisal@dallaspartners.us"
+    },
+    
+    "spearhead": {
+      "tenant_id": "68a1289f-441e-4447-8a20-81b7bd47ab19",
+      "client_id": "6b40a3e9-eca9-4d42-8aea-67d234eec93e",
+      "secret_reference": "keychain://optimus/msgraph-spearhead-secret",
+      "email_primary": "faisal@spearhead.io"
+    }
+  },
+  
+  "oauth_scope": [
+    "Mail.Read",
+    "Mail.Send",
+    "MailboxSettings.Read",
+    "Calendars.ReadWrite",
+    "Contacts.Read",
+    "Files.Read.All",
+    "User.Read",
+    "Directory.Read.All"
+  ],
+  
+  "usage_notes": [
+    "Secrets loaded at runtime from macOS Keychain via keychain-load.sh",
+    "Config file contains NO secrets - all referenced externally",
+    "To view stored secrets: security find-generic-password -a 'optimus' -s msgraph-* -w",
+    "If secrets expire: generate new app registration secrets at https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps"
+  ]
+}

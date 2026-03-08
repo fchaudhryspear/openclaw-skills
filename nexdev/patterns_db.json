@@ -1,0 +1,237 @@
+{
+  "patterns": [
+    {
+      "id": "auth-service",
+      "name": "Centralized Authentication Service",
+      "category": "security",
+      "description": "Single service handling authentication/authorization across all applications",
+      "use_cases": [
+        "Multiple services need auth",
+        "Enterprise applications",
+        "SaaS platforms",
+        "Multi-tenant systems"
+      ],
+      "technologies": [
+        "OAuth 2.0",
+        "JWT",
+        "Keycloak",
+        "Auth0",
+        "Cognito"
+      ],
+      "pros": [
+        "Single source of truth for user data",
+        "Consistent security policies",
+        "Easier compliance audits",
+        "SSO support out of box"
+      ],
+      "cons": [
+        "Single point of failure risk",
+        "Can become bottleneck at scale",
+        "Complexity in migration if vendor changes"
+      ],
+      "complexity": "medium",
+      "team_size_required": 3,
+      "success_count": 15,
+      "example_code": "# Example OAuth2 token endpoint\n@app.route('/oauth/token', methods=['POST'])\ndef issue_token():\n    credentials = request.json\n    user = authenticate(credentials.username, credentials.password)\n    \n    if not user:\n        return jsonify({\"error\": \"Invalid credentials\"}), 401\n    \n    token = jwt.encode({\n        'sub': user.id,\n        'role': user.role,\n        'exp': datetime.utcnow() + timedelta(hours=24)\n    }, SECRET_KEY)\n    \n    return jsonify({\"access_token\": token}), 200",
+      "anti_patterns": [
+        "Don't hardcode secrets in application code",
+        "Don't store passwords in plaintext",
+        "Avoid rolling your own crypto"
+      ]
+    },
+    {
+      "id": "api-gateway-pattern",
+      "name": "API Gateway Pattern",
+      "category": "architecture",
+      "description": "Single entry point that routes requests to backend services",
+      "use_cases": [
+        "Microservices architecture",
+        "Mobile and web clients",
+        "Rate limiting needed",
+        "Request aggregation required"
+      ],
+      "technologies": [
+        "Kong",
+        "Apigee",
+        "AWS API Gateway",
+        "nginx",
+        "Express Gateway"
+      ],
+      "pros": [
+        "Client abstraction from internal structure",
+        "Centralized cross-cutting concerns",
+        "Easier versioning",
+        "Built-in rate limiting/auth"
+      ],
+      "cons": [
+        "Additional network hop",
+        "Single point of failure",
+        "Can become overly complex"
+      ],
+      "complexity": "medium",
+      "team_size_required": 4,
+      "success_count": 22,
+      "example_code": "# Kong route configuration\n{\n  \"routes\": [\n    {\n      \"name\": \"user-service-route\",\n      \"paths\": [\"/api/users\"],\n      \"strip_path\": true,\n      \"upstream_url\": \"http://user-service:8080\",\n      \"plugins\": [\"rate-limiting\", \"jwt\"]\n    }\n  ]\n}",
+      "anti_patterns": [
+        "Don't put business logic in gateway",
+        "Avoid tight coupling between gateway and services",
+        "Don't expose internal ports directly"
+      ]
+    },
+    {
+      "id": "event-sourcing",
+      "name": "Event Sourcing Pattern",
+      "category": "data",
+      "description": "Store state as sequence of events rather than current state",
+      "use_cases": [
+        "Audit trail required",
+        "Temporal queries needed",
+        "Financial systems",
+        "Inventory management"
+      ],
+      "technologies": [
+        "EventStoreDB",
+        "Axon",
+        "Kafka",
+        "RabbitMQ"
+      ],
+      "pros": [
+        "Complete audit history",
+        "Can reconstruct any point in time",
+        "Supports CQRS naturally",
+        "Excellent for debugging"
+      ],
+      "cons": [
+        "Complex query patterns",
+        "Event schema evolution challenges",
+        "Requires mindset shift",
+        "Storage overhead"
+      ],
+      "complexity": "high",
+      "team_size_required": 5,
+      "success_count": 8,
+      "example_code": "# Event store repository\nclass OrderRepository:\n    def __init__(self, event_store):\n        self.event_store = event_store\n    \n    def get_order(self, order_id):\n        events = self.event_store.get_events(order_id)\n        order = Order()\n        for event in events:\n            order.apply(event)\n        return order\n    \n    def save(self, order):\n        new_events = order.get_uncommitted_events()\n        self.event_store.append(order.id, new_events)\n        order.mark_events_as_committed()",
+      "anti_patterns": [
+        "Don't use when simple CRUD suffices",
+        "Avoid storing PII in events",
+        "Don't forget about snapshotting for performance"
+      ]
+    },
+    {
+      "id": "circuit-breaker",
+      "name": "Circuit Breaker Pattern",
+      "category": "resilience",
+      "description": "Prevent cascading failures by failing fast when downstream service unavailable",
+      "use_cases": [
+        "External API calls",
+        "Database connections",
+        "Third-party integrations",
+        "High-latency operations"
+      ],
+      "technologies": [
+        "Hystrix",
+        "Resilience4j",
+        "pybreaker",
+        " Polly (.NET)"
+      ],
+      "pros": [
+        "Prevents cascade failures",
+        "Graceful degradation possible",
+        "Faster failure detection",
+        "Automatic recovery"
+      ],
+      "cons": [
+        "Added complexity",
+        "Need to define fallback behavior",
+        "Can hide real problems"
+      ],
+      "complexity": "medium",
+      "team_size_required": 2,
+      "success_count": 18,
+      "example_code": "# Circuit breaker decorator\nimport pybreaker\n\norder_service_breaker = pybreaker.CircuitBreaker(\n    name='order-service',\n    fail_max=3,\n    reset_timeout=30,\n    state_storage=MemoryStorage()\n)\n\n@order_service_breaker\ndef get_orders(customer_id):\n    response = requests.get(f'http://orders/{customer_id}', timeout=5)\n    return response.json()",
+      "anti_patterns": [
+        "Don't set too low fail_max threshold",
+        "Always provide meaningful fallback",
+        "Monitor circuit state metrics"
+      ]
+    },
+    {
+      "id": "cache-aside",
+      "name": "Cache-Aside Pattern",
+      "category": "performance",
+      "description": "Application manages cache separately from data source",
+      "use_cases": [
+        "Read-heavy workloads",
+        "Expensive queries",
+        "Frequently accessed data",
+        "CDN caching"
+      ],
+      "technologies": [
+        "Redis",
+        "Memcached",
+        "Varnish",
+        "CloudFront"
+      ],
+      "pros": [
+        "Improved read performance",
+        "Reduced database load",
+        "Simple to implement",
+        "Granular cache control"
+      ],
+      "cons": [
+        "Cache invalidation complexity",
+        "Stale data risk",
+        "Memory management"
+      ],
+      "complexity": "low",
+      "team_size_required": 2,
+      "success_count": 30,
+      "example_code": "# Cache-aside implementation\ndef get_user(user_id):\n    # Try cache first\n    cached = redis_client.get(f\"user:{user_id}\")\n    if cached:\n        return json.loads(cached)\n    \n    # Cache miss - load from DB\n    user = db.query(User).filter_by(id=user_id).first()\n    \n    # Populate cache\n    if user:\n        redis_client.setex(\n            f\"user:{user_id}\",\n            TTL_HOURS * 3600,\n            json.dumps(user.to_dict())\n        )\n    \n    return user",
+      "anti_patterns": [
+        "Don't cache everything",
+        "Set appropriate TTL values",
+        "Handle cache stampede with locking"
+      ]
+    },
+    {
+      "id": " Saga-orchestration",
+      "name": "Saga Orchestration Pattern",
+      "category": "distributed-transactions",
+      "description": "Manage distributed transactions through compensating actions",
+      "use_cases": [
+        "Multi-step workflows",
+        "Cross-service transactions",
+        "Order processing pipelines",
+        "Payment flows"
+      ],
+      "technologies": [
+        "Temporal",
+        "Camunda",
+        "Zeebe",
+        "Custom orchestration"
+      ],
+      "pros": [
+        "Maintains data consistency",
+        "Compensating rollbacks",
+        "Visible workflow state",
+        "Retry support built-in"
+      ],
+      "cons": [
+        "Complex implementation",
+        "Debugging difficulties",
+        "Potential infinite loops"
+      ],
+      "complexity": "high",
+      "team_size_required": 4,
+      "success_count": 12,
+      "example_code": "# Saga definition\n@saga(name=\"OrderSaga\")\ndef process_order(order_id: str):\n    yield create_inventory_reservation(order_id)\n    yield charge_payment(order_id)\n    yield ship_order(order_id)\n    yield send_confirmation_email(order_id)\n\n@process_order.compensate\ndef cancel_order(order_id: str):\n    yield release_inventory(order_id)\n    yield refund_payment(order_id)\n    yield cancel_shipment(order_id)\n",
+      "anti_patterns": [
+        "Don't block sagas unnecessarily",
+        "Keep compensation logic simple",
+        "Implement saga timeout"
+      ]
+    }
+  ],
+  "last_updated": "2026-03-03T10:10:00.441379",
+  "version": "1.0"
+}

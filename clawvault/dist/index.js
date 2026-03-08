@@ -54,18 +54,6 @@ const safety_1 = require("./safety");
 const session_manager_1 = require("./session-manager");
 const crypto = __importStar(require("crypto"));
 class ClawVault {
-    indexer;
-    searcher;
-    confidenceScorer;
-    sensitiveDetector;
-    semanticBuilder;
-    // New Phase 3 + Advanced modules
-    vectorStore;
-    consolidationModule;
-    cache;
-    safetyModule;
-    sessionManager;
-    config;
     constructor(config = {}) {
         this.config = {
             enableSensitiveDetection: true,
@@ -311,4 +299,3 @@ Object.defineProperty(exports, "startSession", { enumerable: true, get: function
 Object.defineProperty(exports, "endSession", { enumerable: true, get: function () { return session_manager_2.endSession; } });
 Object.defineProperty(exports, "acquireLock", { enumerable: true, get: function () { return session_manager_2.acquireLock; } });
 Object.defineProperty(exports, "getCurrentSession", { enumerable: true, get: function () { return session_manager_2.getCurrentSession; } });
-//# sourceMappingURL=index.js.map

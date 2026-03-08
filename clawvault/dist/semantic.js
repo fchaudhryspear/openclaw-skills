@@ -7,15 +7,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SemanticLayerBuilder = void 0;
 const embeddings_1 = require("./embeddings");
 class SemanticLayerBuilder {
-    categories = new Map([
-        ['technical', ['code', 'api', 'database', 'server', 'function', 'class', 'bug', 'error', 'debug', 'deploy']],
-        ['personal', ['name', 'birthday', 'family', 'friend', 'hobby', 'like', 'dislike', 'preference']],
-        ['task', ['todo', 'task', 'deadline', 'schedule', 'meeting', 'reminder', 'commitment', 'goal']],
-        ['knowledge', ['fact', 'learn', 'study', 'research', 'concept', 'theory', 'principle']],
-        ['communication', ['email', 'message', 'call', 'chat', 'conversation', 'discuss', 'talk']],
-        ['location', ['address', 'place', 'city', 'country', 'travel', 'visit', 'location']],
-        ['financial', ['money', 'price', 'cost', 'budget', 'payment', 'purchase', 'expense']]
-    ]);
+    constructor() {
+        this.categories = new Map([
+            ['technical', ['code', 'api', 'database', 'server', 'function', 'class', 'bug', 'error', 'debug', 'deploy']],
+            ['personal', ['name', 'birthday', 'family', 'friend', 'hobby', 'like', 'dislike', 'preference']],
+            ['task', ['todo', 'task', 'deadline', 'schedule', 'meeting', 'reminder', 'commitment', 'goal']],
+            ['knowledge', ['fact', 'learn', 'study', 'research', 'concept', 'theory', 'principle']],
+            ['communication', ['email', 'message', 'call', 'chat', 'conversation', 'discuss', 'talk']],
+            ['location', ['address', 'place', 'city', 'country', 'travel', 'visit', 'location']],
+            ['financial', ['money', 'price', 'cost', 'budget', 'payment', 'purchase', 'expense']]
+        ]);
+    }
     build(content) {
         const tokens = (0, embeddings_1.removeStopwords)((0, embeddings_1.tokenize)(content));
         const entities = this.extractEntities(content);
@@ -103,4 +105,3 @@ class SemanticLayerBuilder {
     }
 }
 exports.SemanticLayerBuilder = SemanticLayerBuilder;
-//# sourceMappingURL=semantic.js.map

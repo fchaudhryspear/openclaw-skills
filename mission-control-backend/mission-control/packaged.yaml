@@ -1,0 +1,153 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Credologi Mission Control API v2.3.0
+Parameters:
+  UserPoolId:
+    Type: String
+    Default: us-east-1_M6lTgVQaw
+    Description: Cognito User Pool ID
+  CorsOrigin:
+    Type: String
+    Default: https://missioncontrol.credologi.com
+    Description: Allowed CORS origin
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 256
+    Runtime: nodejs20.x
+Resources:
+  RemediationJobsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    Properties:
+      TableName: mission-control-remediation-jobs
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: jobId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: jobId
+        KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+      - Key: Project
+        Value: MissionControl
+      - Key: ManagedBy
+        Value: CloudFormation
+  MonitoringFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://aws-sam-cli-managed-default-samclisourcebucket-ww6kkkgn42oe/f2fadedc7ea3d601e7bf395515266122
+      Handler: app.lambdaHandler
+      Description: Mission Control API v2.3.0 — monitoring, user management, security
+        alerts, remediation
+      Environment:
+        Variables:
+          USER_POOL_ID:
+            Ref: UserPoolId
+          CODEBUILD_PROJECT_NAME: credologi-test-suite
+          CORS_ORIGIN:
+            Ref: CorsOrigin
+          REMEDIATION_TABLE:
+            Ref: RemediationJobsTable
+          AWS_ACCOUNT_ID:
+            Fn::Sub: ${AWS::AccountId}
+      Policies:
+      - AmazonCognitoPowerUser
+      - AmazonSESFullAccess
+      - AWSSecurityHubReadOnlyAccess
+      - Statement:
+        - Effect: Allow
+          Action:
+          - securityhub:BatchUpdateFindings
+          Resource: '*'
+      - Statement:
+        - Effect: Allow
+          Action:
+          - secretsmanager:GetSecretValue
+          Resource:
+            Fn::Sub: arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:snowflake-lambda-key*
+      - Statement:
+        - Effect: Allow
+          Action:
+          - codebuild:StartBuild
+          - codebuild:BatchGetBuilds
+          Resource:
+            Fn::Sub: arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/credologi-test-suite
+      - Statement:
+        - Effect: Allow
+          Action:
+          - dynamodb:CreateTable
+          - dynamodb:DescribeTable
+          - dynamodb:ListTables
+          - dynamodb:PutItem
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+          - dynamodb:DeleteItem
+          - dynamodb:Query
+          Resource:
+            Fn::GetAtt:
+            - RemediationJobsTable
+            - Arn
+      - Statement:
+        - Effect: Allow
+          Action:
+          - s3:PutBucketPublicAccessBlock
+          - s3:PutEncryptionConfiguration
+          - s3:GetBucketPublicAccessBlock
+          - s3:GetEncryptionConfiguration
+          - s3:ListAllMyBuckets
+          Resource: '*'
+      - Statement:
+        - Effect: Allow
+          Action:
+          - ssm:StartAutomationExecution
+          - ssm:GetAutomationExecution
+          - ssm:DescribeAutomationExecutions
+          Resource: '*'
+      - Statement:
+        - Effect: Allow
+          Action:
+          - iam:GetPolicy
+          - iam:GetPolicyVersion
+          - iam:ListAttachedRolePolicies
+          - iam:ListRolePolicies
+          - iam:GetRolePolicy
+          Resource: '*'
+      - Statement:
+        - Effect: Allow
+          Action:
+          - lambda:ListFunctions
+          - lambda:GetFunction
+          - lambda:ListTags
+          Resource: '*'
+      Events:
+        Root:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+        ProxyAll:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+    Metadata:
+      SamResourceId: MonitoringFunction
+Outputs:
+  MonitoringApi:
+    Description: API Gateway endpoint URL
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+  MonitoringFunction:
+    Description: Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - MonitoringFunction
+      - Arn
+  RemediationTable:
+    Description: DynamoDB table for remediation job tracking
+    Value:
+      Ref: RemediationJobsTable

@@ -1,0 +1,43 @@
+{
+  "version": "2.0",
+  "name": "NexDev Orchestrator v2 — The Sovereign Architect",
+  "created": "2026-03-03",
+  "default_tier": "execution",
+  "default_model": "alibaba-sg/qwen3.5-122b-a10b",
+  "clawvault": {
+    "enabled": true,
+    "memory_path": "~/memory/",
+    "search_depth_days": 7,
+    "active_projects_file": "~/memory/active_projects.json",
+    "performance_db": "~/memory/model_performance.json"
+  },
+  "protocols": {
+    "self_correction": {
+      "enabled": true,
+      "max_escalations": 3,
+      "escalation_on_lint_fail": true,
+      "escalation_on_test_fail": true
+    },
+    "dependency_guard": {
+      "enabled": true,
+      "strategic_approval_required": true,
+      "auto_reject_gpl": false,
+      "min_downloads": 1000
+    },
+    "context_compression": {
+      "enabled": true,
+      "compress_every_n_prs": 5,
+      "max_summary_tokens": 2000
+    }
+  },
+  "agents": {
+    "shadow_sec": {"enabled": true, "auto_trigger": true},
+    "sre": {"enabled": true, "auto_trigger": true},
+    "archivist": {"enabled": true, "auto_trigger": true}
+  },
+  "cost_limits": {
+    "daily_max_usd": 20.00,
+    "per_query_max_usd": 5.00,
+    "prefer_cheapest_in_tier": true
+  }
+}

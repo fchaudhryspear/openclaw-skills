@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Interest Calculator</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 24px; }
+  h1 { text-align: center; font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; color: #f1f5f9; }
+  .subtitle { text-align: center; color: #94a3b8; font-size: 0.85rem; margin-bottom: 28px; }
+  .card { background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid #334155; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .loan-label { font-weight: 700; font-size: 1rem; color: #38bdf8; }
+  .loan-note { font-size: 0.78rem; color: #94a3b8; background: #0f172a; padding: 3px 8px; border-radius: 20px; }
+  .paid-badge { font-size: 0.78rem; color: #4ade80; background: #052e16; padding: 3px 8px; border-radius: 20px; border: 1px solid #166534; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .field label { display: block; font-size: 0.72rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .field input { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 8px 10px; color: #e2e8f0; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+  .field input:focus { border-color: #38bdf8; }
+  .result-row { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid #334155; flex-wrap: wrap; gap: 8px; }
+  .result-item { text-align: center; }
+  .result-item .val { font-size: 1.1rem; font-weight: 700; color: #fbbf24; }
+  .result-item .lbl { font-size: 0.7rem; color: #64748b; text-transform: uppercase; margin-top: 2px; }
+  .days-val { color: #a78bfa; }
+  .summary { background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #475569; margin-top: 8px; }
+  .summary h2 { font-size: 1rem; color: #94a3b8; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+  .summary-item .val { font-size: 1.4rem; font-weight: 800; color: #f1f5f9; }
+  .summary-item .lbl { font-size: 0.72rem; color: #64748b; text-transform: uppercase; margin-top: 4px; }
+  .total-interest .val { color: #f87171; }
+  .btn { background: #0ea5e9; color: white; border: none; border-radius: 8px; padding: 10px 20px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 16px; width: 100%; }
+  .btn:hover { background: #0284c7; }
+  .rate-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; background: #1e293b; border-radius: 10px; padding: 12px 16px; border: 1px solid #334155; }
+  .rate-bar label { font-size: 0.85rem; color: #94a3b8; }
+  .rate-bar input { width: 80px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 6px 10px; color: #fbbf24; font-size: 1rem; font-weight: 700; outline: none; text-align: center; }
+  .rate-bar span { color: #fbbf24; font-weight: 700; }
+  @media (max-width: 500px) { .grid { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<h1>💰 Loan Interest Calculator</h1>
+<p class="subtitle">8.35% Annual Rate — Accrued to Feb 28, 2026 (or payoff date)</p>
+
+<div class="rate-bar">
+  <label>Annual Rate:</label>
+  <input type="number" id="globalRate" value="8.35" step="0.01" onchange="recalcAll()">
+  <span>%</span>
+  <span style="margin-left:auto; color:#64748b; font-size:0.8rem;">Daily = rate ÷ 365</span>
+</div>
+
+<div id="loans-container"></div>
+
+<div class="summary" id="summary">
+  <h2>📊 Summary</h2>
+  <div class="summary-grid">
+    <div class="summary-item"><div class="val" id="s-principal">—</div><div class="lbl">Total Principal</div></div>
+    <div class="summary-item total-interest"><div class="val" id="s-interest">—</div><div class="lbl">Total Interest</div></div>
+    <div class="summary-item"><div class="val" id="s-total">—</div><div class="lbl">Total Owed</div></div>
+  </div>
+</div>
+
+<script>
+const loans = [
+  { id: 1, label: "Loan 1", date: "2026-02-04", principal: 67134.01, endDate: "2026-02-28", note: "4th loan", fullMonth: false },
+  { id: 2, label: "Loan 2", date: "2026-02-11", principal: 164204.50, endDate: "2026-02-28", note: "", fullMonth: false },
+  { id: 3, label: "Loan 3", date: "2026-02-25", principal: 208323.27, endDate: "2026-02-28", note: "", fullMonth: false },
+  { id: 4, label: "Loan 4 — $3M", date: "2026-02-27", principal: 3000000.00, endDate: "2026-03-02", note: "Paid 3/2/26", paidBadge: true, fullMonth: false },
+  { id: 5, label: "Loan 5", date: "2026-02-27", principal: 111708.58, endDate: "2026-02-28", note: "", fullMonth: false },
+];
+
+function fmt(n) {
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function calcInterest(principal, annualRate, startDate, endDate, forceFullMonth = false) {
+  if (forceFullMonth) {
+    // Full month: annual rate ÷ 12
+    const monthly = (annualRate / 100) / 12;
+    const interest = principal * monthly;
+    return { days: 30, interest, method: 'monthly', isFullMonth: true };
+  }
+  
+  const s = new Date(startDate + 'T00:00:00');
+  const e = new Date(endDate + 'T00:00:00');
+  const days = Math.round((e - s) / (1000 * 60 * 60 * 24));
+  if (days < 0) return { days: 0, interest: 0, method: 'daily', isFullMonth: false };
+  
+  // Check if it's a full month (28+ days = treat as full month)
+  const isFullMonth = days >= 28;
+  let interest;
+  
+  if (isFullMonth) {
+    // Full month: annual rate ÷ 12
+    const monthly = (annualRate / 100) / 12;
+    interest = principal * monthly;
+  } else {
+    // Partial month: daily rate × days
+    const daily = (annualRate / 100) / 365;
+    interest = principal * daily * days;
+  }
+  
+  return { days, interest, method: isFullMonth ? 'monthly' : 'daily', isFullMonth };
+}
+
+function buildCards() {
+  const container = document.getElementById('loans-container');
+  container.innerHTML = '';
+  loans.forEach(loan => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-header">
+        <span class="loan-label">${loan.label}</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${loan.note ? (loan.paidBadge ? `<span class="paid-badge">✅ ${loan.note}</span>` : `<span class="loan-note">${loan.note}</span>`) : ''}
+          ${loan.isCredit ? '<span class="loan-note" style="color:#f87171;background:#1c0505">Credit / Deduction</span>' : ''}
+        </div>
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.85rem;color:#94a3b8;cursor:pointer">
+          <input type="checkbox" id="fullmonth-${loan.id}" ${loan.fullMonth ? 'checked' : ''} onchange="recalcAll()">
+          <strong style="color:#fbbf24">Full Month</strong>&nbsp;(Principal × Rate ÷ 12)
+        </label>
+      </div>
+      <div class="grid" id="dategrid-${loan.id}" style="${loan.fullMonth ? 'display:none' : ''}">
+        <div class="field"><label>Loan Date</label><input type="date" id="date-${loan.id}" value="${loan.date}" onchange="recalcAll()"></div>
+        <div class="field"><label>Principal ($)</label><input type="number" id="principal-${loan.id}" value="${loan.principal}" step="0.01" onchange="recalcAll()"></div>
+        <div class="field"><label>End / Payoff Date</label><input type="date" id="end-${loan.id}" value="${loan.endDate}" onchange="recalcAll()"></div>
+      </div>
+      <div id="fmgrid-${loan.id}" style="display:${loan.fullMonth ? 'block' : 'none'}">
+        <div class="field" style="max-width:300px"><label>Principal ($)</label><input type="number" id="principal-fm-${loan.id}" value="${loan.principal}" step="0.01" onchange="recalcAll()"></div>
+      </div>
+      <div class="result-row">
+        <div class="result-item"><div class="val days-val" id="days-${loan.id}">—</div><div class="lbl">Period</div></div>
+        <div class="result-item"><div class="val" id="rate-${loan.id}">—</div><div class="lbl">Monthly Rate</div></div>
+        <div class="result-item"><div class="val" id="interest-${loan.id}">—</div><div class="lbl">Total Interest</div></div>
+        <div class="result-item"><div class="val" style="color:#4ade80" id="owed-${loan.id}">—</div><div class="lbl">Principal + Interest</div></div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function recalcAll() {
+  const rate = parseFloat(document.getElementById('globalRate').value) || 8.35;
+  let totalPrincipal = 0, totalInterest = 0;
+
+  loans.forEach(loan => {
+    const isFullMonth = document.getElementById('fullmonth-' + loan.id).checked;
+    
+    // Toggle: show date grid OR full-month principal-only grid
+    document.getElementById('dategrid-' + loan.id).style.display = isFullMonth ? 'none' : 'grid';
+    document.getElementById('fmgrid-' + loan.id).style.display = isFullMonth ? 'block' : 'none';
+    
+    // Sync principal between both fields when toggling
+    const principalDate = document.getElementById('principal-' + loan.id);
+    const principalFM = document.getElementById('principal-fm-' + loan.id);
+    
+    // Use the visible field's value
+    const principal = isFullMonth
+      ? (parseFloat(principalFM.value) || 0)
+      : (parseFloat(principalDate.value) || 0);
+    
+    const startDate = document.getElementById('date-' + loan.id).value;
+    const endDate = document.getElementById('end-' + loan.id).value;
+    
+    const result = calcInterest(principal, rate, startDate, endDate, isFullMonth);
+    const { days, interest, method, isFullMonth: isFM } = result;
+    
+    const monthlyRate = principal * (rate / 100) / 12;
+
+    const periodLabel = isFM ? '📅 Full Month' : (days + 'd');
+    document.getElementById('days-' + loan.id).textContent = periodLabel;
+    document.getElementById('rate-' + loan.id).textContent = fmt(monthlyRate) + '/mo';
+    document.getElementById('interest-' + loan.id).textContent = loan.isCredit ? '-' + fmt(interest) : fmt(interest);
+    document.getElementById('owed-' + loan.id).textContent = loan.isCredit ? fmt(principal - interest) : fmt(principal + interest);
+
+    if (loan.isCredit) {
+      totalInterest -= interest;
+    } else {
+      totalPrincipal += principal;
+      totalInterest += interest;
+    }
+  });
+
+  document.getElementById('s-principal').textContent = fmt(totalPrincipal);
+  document.getElementById('s-interest').textContent = fmt(totalInterest);
+  document.getElementById('s-total').textContent = fmt(totalPrincipal + totalInterest);
+}
+
+buildCards();
+recalcAll();
+</script>
+</body>
+</html>

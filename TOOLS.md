@@ -50,3 +50,44 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 ---
 
 Add whatever helps you do your job. This is your cheat sheet.
+
+<!-- antfarm:workflows -->
+# Antfarm Workflows
+
+Antfarm CLI (always use full path to avoid PATH issues):
+`node ~/.openclaw/workspace/antfarm/dist/cli/cli.js`
+
+Commands:
+- Install: `node ~/.openclaw/workspace/antfarm/dist/cli/cli.js workflow install <name>`
+- Run: `node ~/.openclaw/workspace/antfarm/dist/cli/cli.js workflow run <workflow-id> "<task>"`
+- Status: `node ~/.openclaw/workspace/antfarm/dist/cli/cli.js workflow status "<task title>"`
+- Logs: `node ~/.openclaw/workspace/antfarm/dist/cli/cli.js logs`
+
+Workflows are self-advancing via per-agent cron jobs. No manual orchestration needed.
+<!-- /antfarm:workflows -->
+
+
+
+## NexDev Project Context (safe for group chats)
+
+### Mission Control
+- URL: https://missioncontrol.credologi.com
+- Stack: React frontend + AWS SAM backend (Node.js Lambda)
+- SAM stack: mission-control-api, region us-east-1
+- Lambda: MonitoringFunction, runtime nodejs20.x
+- Cognito UserPool: us-east-1_M6lTgVQaw
+- Last fix: TestRunner UI bug — added formattedResults mapping in app.js
+- Status: Deployed, needs visual verification
+
+### NexDev System
+- 7 model tiers operational, real API calls via nexdev_executor.py
+- QwenCoder model ID: qwen-coder-plus (NOT qwen-coder)
+- integration_layer.py wired with aiohttp
+- MO_ROUTING.md v2.0 with topic-aware routing
+- Memory: active_projects.json + model_performance.json initialized
+
+### Group Chat Rules
+- Do NOT try to read MEMORY.md or memory/ files in group chats
+- Project context is RIGHT HERE in TOOLS.md — use it directly
+- Do NOT ask user to paste memory files
+- Tag as: -- NexDev [model]

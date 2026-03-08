@@ -122,7 +122,7 @@ Follow this checklist in order — speed matters:
 - OpenAI: https://platform.openai.com/api-keys
 - Google: https://aistudio.google.com/app/apikey
 - XAI: https://console.x.ai
-- Moonshot: https://platform.moonshot.cn
+- Moonshot: https://platform.moonshot.ai
 - Brave: https://api.search.brave.com/app/keys
 - Qwen: https://modelstudio.console.alibabacloud.com
 

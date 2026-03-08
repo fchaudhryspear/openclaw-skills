@@ -6,11 +6,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConfidenceScorer = void 0;
 class ConfidenceScorer {
-    VERIFICATION_WEIGHT = 0.3;
-    SOURCE_WEIGHT = 0.25;
-    CONSISTENCY_WEIGHT = 0.2;
-    AGE_WEIGHT = 0.15;
-    ACCESS_WEIGHT = 0.1;
+    constructor() {
+        this.VERIFICATION_WEIGHT = 0.3;
+        this.SOURCE_WEIGHT = 0.25;
+        this.CONSISTENCY_WEIGHT = 0.2;
+        this.AGE_WEIGHT = 0.15;
+        this.ACCESS_WEIGHT = 0.1;
+    }
     calculate(entry) {
         const factors = {
             sourceReliability: this.scoreSourceReliability(entry.metadata),
@@ -106,4 +108,3 @@ class ConfidenceScorer {
     }
 }
 exports.ConfidenceScorer = ConfidenceScorer;
-//# sourceMappingURL=confidence.js.map

@@ -6,31 +6,33 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SensitiveDataDetector = void 0;
 class SensitiveDataDetector {
-    patterns = [
-        // PII - High severity
-        { type: 'pii', regex: /\b\d{3}-\d{2}-\d{4}\b/g, severity: 'high' }, // SSN
-        { type: 'pii', regex: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g, severity: 'high' }, // Credit card
-        { type: 'pii', regex: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, severity: 'medium' }, // Email
-        { type: 'pii', regex: /\b\d{3}-\d{3}-\d{4}\b/g, severity: 'medium' }, // Phone
-        { type: 'pii', regex: /\b\d{5}(-\d{4})?\b/g, severity: 'low' }, // ZIP code
-        // Credentials - High severity
-        { type: 'credential', regex: /\b(password|passwd|pwd)\s*[:=]\s*\S+/gi, severity: 'high' },
-        { type: 'credential', regex: /\b(api[_-]?key|apikey)\s*[:=]\s*[\w-]+/gi, severity: 'high' },
-        { type: 'credential', regex: /\b(secret[_-]?key|secretkey)\s*[:=]\s*[\w-]+/gi, severity: 'high' },
-        { type: 'credential', regex: /\b(token|bearer)\s+["']?[\w-]+["']?/gi, severity: 'high' },
-        { type: 'credential', regex: /sk-[a-zA-Z0-9]{32,}/g, severity: 'high' }, // OpenAI-style keys
-        { type: 'credential', regex: /\b[A-Za-z0-9/+=]{40,}\b/g, severity: 'medium' }, // AWS keys, etc.
-        // Financial - Medium to High
-        { type: 'financial', regex: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g, severity: 'high' }, // Credit card
-        { type: 'financial', regex: /\b(routing|account)\s+(number|#|no)?\s*:?\s*\d{9,}\b/gi, severity: 'high' },
-        { type: 'financial', regex: /\$\d{1,3}(,\d{3})*(\.\d{2})?/g, severity: 'low' }, // Dollar amounts
-        // Health - High severity
-        { type: 'health', regex: /\b\d{3}-\d{2}-\d{4}\b/g, severity: 'high' }, // SSN (also health)
-        { type: 'health', regex: /\b(medical|health|diagnosis|patient)\s+(id|record|number)\s*:?\s*\w+/gi, severity: 'high' },
-        // Location - Low to Medium
-        { type: 'location', regex: /\b\d+\s+[A-Za-z]+\s+(St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|Ln|Lane)\b/gi, severity: 'medium' },
-        { type: 'location', regex: /\b(ip|address)\s*:?\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/gi, severity: 'low' }
-    ];
+    constructor() {
+        this.patterns = [
+            // PII - High severity
+            { type: 'pii', regex: /\b\d{3}-\d{2}-\d{4}\b/g, severity: 'high' }, // SSN
+            { type: 'pii', regex: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g, severity: 'high' }, // Credit card
+            { type: 'pii', regex: /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, severity: 'medium' }, // Email
+            { type: 'pii', regex: /\b\d{3}-\d{3}-\d{4}\b/g, severity: 'medium' }, // Phone
+            { type: 'pii', regex: /\b\d{5}(-\d{4})?\b/g, severity: 'low' }, // ZIP code
+            // Credentials - High severity
+            { type: 'credential', regex: /\b(password|passwd|pwd)\s*[:=]\s*\S+/gi, severity: 'high' },
+            { type: 'credential', regex: /\b(api[_-]?key|apikey)\s*[:=]\s*[\w-]+/gi, severity: 'high' },
+            { type: 'credential', regex: /\b(secret[_-]?key|secretkey)\s*[:=]\s*[\w-]+/gi, severity: 'high' },
+            { type: 'credential', regex: /\b(token|bearer)\s+["']?[\w-]+["']?/gi, severity: 'high' },
+            { type: 'credential', regex: /sk-[a-zA-Z0-9]{32,}/g, severity: 'high' }, // OpenAI-style keys
+            { type: 'credential', regex: /\b[A-Za-z0-9/+=]{40,}\b/g, severity: 'medium' }, // AWS keys, etc.
+            // Financial - Medium to High
+            { type: 'financial', regex: /\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b/g, severity: 'high' }, // Credit card
+            { type: 'financial', regex: /\b(routing|account)\s+(number|#|no)?\s*:?\s*\d{9,}\b/gi, severity: 'high' },
+            { type: 'financial', regex: /\$\d{1,3}(,\d{3})*(\.\d{2})?/g, severity: 'low' }, // Dollar amounts
+            // Health - High severity
+            { type: 'health', regex: /\b\d{3}-\d{2}-\d{4}\b/g, severity: 'high' }, // SSN (also health)
+            { type: 'health', regex: /\b(medical|health|diagnosis|patient)\s+(id|record|number)\s*:?\s*\w+/gi, severity: 'high' },
+            // Location - Low to Medium
+            { type: 'location', regex: /\b\d+\s+[A-Za-z]+\s+(St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|Ln|Lane)\b/gi, severity: 'medium' },
+            { type: 'location', regex: /\b(ip|address)\s*:?\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/gi, severity: 'low' }
+        ];
+    }
     detect(content) {
         const detectedTypes = [];
         const foundRanges = [];
@@ -113,4 +115,3 @@ class SensitiveDataDetector {
     }
 }
 exports.SensitiveDataDetector = SensitiveDataDetector;
-//# sourceMappingURL=sensitive.js.map

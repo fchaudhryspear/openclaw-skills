@@ -1,0 +1,351 @@
+{
+  "PROJ-20260308-002624": {
+    "id": "PROJ-20260308-002624",
+    "title": "Build a REST API for task management with user auth, task CR",
+    "raw_request": "Build a REST API for task management with user auth, task CRUD, and team collaboration. Use Python FastAPI and PostgreSQL.",
+    "current_stage": "blocked",
+    "created_at": "2026-03-08T00:26:24.306624",
+    "updated_at": "2026-03-08T00:26:24.308216",
+    "spec_version": "1",
+    "design_version": null,
+    "impl_version": null,
+    "qa_version": null,
+    "review_gates": {
+      "requirements_review": {
+        "status": "auto_approved",
+        "reviewer": "pipeline",
+        "notes": "Auto-approved"
+      },
+      "design_review": {
+        "status": "pending",
+        "reviewer": null,
+        "notes": ""
+      },
+      "qa_review": {
+        "status": "pending",
+        "reviewer": null,
+        "notes": ""
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-08T00:26:24.306645",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260308-002624' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:26:24.308063",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 1.2340545654296875
+      },
+      {
+        "timestamp": "2026-03-08T00:26:24.308201",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.00095367431640625
+      },
+      {
+        "timestamp": "2026-03-08T00:26:24.308207",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "pipeline",
+        "message": "Auto-approved (auto_approve=True)",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:26:24.308213",
+        "stage": "requirements_review",
+        "action": "blocked",
+        "agent": "pipeline",
+        "message": "Waiting for human review at requirements_review",
+        "artifact_path": null,
+        "duration_ms": null
+      }
+    ],
+    "model_used": {},
+    "total_cost": 0.0,
+    "error": null
+  },
+  "PROJ-20260308-002646": {
+    "id": "PROJ-20260308-002646",
+    "title": "Build a REST API for task management with user auth, task CR",
+    "raw_request": "Build a REST API for task management with user auth, task CRUD, and team collaboration. Use Python FastAPI and PostgreSQL.",
+    "current_stage": "blocked",
+    "created_at": "2026-03-08T00:26:46.564449",
+    "updated_at": "2026-03-08T00:26:46.566261",
+    "spec_version": "1",
+    "design_version": null,
+    "impl_version": null,
+    "qa_version": null,
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-08T00:26:46.566250"
+      },
+      "design_review": {
+        "status": "pending",
+        "reviewer": null,
+        "notes": ""
+      },
+      "qa_review": {
+        "status": "pending",
+        "reviewer": null,
+        "notes": ""
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-08T00:26:46.564465",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260308-002646' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:26:46.565896",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 1.2061595916748047
+      },
+      {
+        "timestamp": "2026-03-08T00:26:46.566070",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.00095367431640625
+      },
+      {
+        "timestamp": "2026-03-08T00:26:46.566077",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "pipeline",
+        "message": "Auto-approved (auto_approve=True)",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:26:46.566252",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:26:46.566258",
+        "stage": "requirements_review",
+        "action": "blocked",
+        "agent": "pipeline",
+        "message": "Waiting for human review at requirements_review",
+        "artifact_path": null,
+        "duration_ms": null
+      }
+    ],
+    "model_used": {},
+    "total_cost": 0.0,
+    "error": null
+  },
+  "PROJ-20260308-002717": {
+    "id": "PROJ-20260308-002717",
+    "title": "Build a REST API for task management with user auth, task CR",
+    "raw_request": "Build a REST API for task management with user auth, task CRUD, and team collaboration. Use Python FastAPI and PostgreSQL.",
+    "current_stage": "complete",
+    "created_at": "2026-03-08T00:27:17.361241",
+    "updated_at": "2026-03-08T00:27:17.365043",
+    "spec_version": "1",
+    "design_version": "1",
+    "impl_version": "1",
+    "qa_version": null,
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-08T00:27:17.363165"
+      },
+      "design_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-08T00:27:17.363922"
+      },
+      "qa_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-08T00:27:17.364924"
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-08T00:27:17.361257",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260308-002717' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.362708",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 1.1529922485351562
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.362942",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.00095367431640625
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.362948",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "pipeline",
+        "message": "Auto-approved (auto_approve=True)",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.363167",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.363173",
+        "stage": "design",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting design",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.363671",
+        "stage": "design",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Stage design completed",
+        "artifact_path": null,
+        "duration_ms": 0.49185752868652344
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.363677",
+        "stage": "design_review",
+        "action": "approved",
+        "agent": "pipeline",
+        "message": "Auto-approved (auto_approve=True)",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.363924",
+        "stage": "design_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.363930",
+        "stage": "development",
+        "action": "started",
+        "agent": "developer",
+        "message": "Starting development",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.364406",
+        "stage": "development",
+        "action": "completed",
+        "agent": "developer",
+        "message": "Stage development completed",
+        "artifact_path": null,
+        "duration_ms": 0.4711151123046875
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.364663",
+        "stage": "qa_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage qa_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.0
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.364669",
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "pipeline",
+        "message": "Auto-approved (auto_approve=True)",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.364925",
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.364930",
+        "stage": "deployment",
+        "action": "started",
+        "agent": "devops_engineer",
+        "message": "Starting deployment",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-08T00:27:17.365040",
+        "stage": "deployment",
+        "action": "completed",
+        "agent": "devops_engineer",
+        "message": "Stage deployment completed",
+        "artifact_path": null,
+        "duration_ms": 0.10609626770019531
+      }
+    ],
+    "model_used": {},
+    "total_cost": 0.0,
+    "error": null
+  }
+}

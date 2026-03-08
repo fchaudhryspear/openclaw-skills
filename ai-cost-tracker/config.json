@@ -1,0 +1,22 @@
+{
+  "aws": {
+    "accessKeyId": "[STORED_IN_AWS_CREDENTIALS]",
+    "secretAccessKey": "[STORED_IN_AWS_CREDENTIALS]",
+    "region": "us-east-1",
+    "note": "Uses ~/.aws/credentials by default"
+  },
+  "providers": {
+    "anthropicApiKey": "[ADD_TO_KEYCHAIN]"
+  },
+  "claudeCsvPath": "~/Downloads/Claude_Billing_Export.csv",
+  "alertThresholds": {
+    "dailyWarning": 5.00,
+    "dailyCritical": 10.00,
+    "monthlyWarning": 100.00,
+    "monthlyCritical": 200.00
+  },
+  "notificationChannels": {
+    "telegram": true,
+    "email": false
+  }
+}

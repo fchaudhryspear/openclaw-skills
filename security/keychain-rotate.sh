@@ -18,6 +18,8 @@ VALID_SERVICES=(
   "moonshot-api-key"
   "brave-api-key"
   "qwen-sg-api-key"
+  "aws-access-key-id"
+  "aws-secret-access-key"
 )
 
 if [[ -z "$SERVICE" || -z "$NEW_KEY" ]]; then

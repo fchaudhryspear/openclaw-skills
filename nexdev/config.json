@@ -1,0 +1,139 @@
+{
+  "version": "3.0",
+  "name": "NexDev Orchestrator v3 — The Sovereign Architect",
+  "created": "2026-03-03",
+  "upgraded": "2026-03-03",
+  "default_tier": "execution",
+  "default_model": "alibaba-sg/qwen3.5-122b-a10b",
+  "clawvault": {
+    "enabled": true,
+    "memory_path": "~/memory/",
+    "search_depth_days": 7,
+    "active_projects_file": "~/memory/active_projects.json",
+    "performance_db": "~/memory/model_performance.json"
+  },
+  "mo_integration": {
+    "enabled": true,
+    "topic_extraction": true,
+    "performance_learning": true,
+    "confidence_scoring": true,
+    "session_awareness": true,
+    "rl_feedback": true,
+    "min_confidence_for_override": 0.85,
+    "min_queries_for_learning": 3
+  },
+  "antfarm_bridge": {
+    "enabled": true,
+    "auto_trigger_workflows": true,
+    "min_keyword_matches": 2,
+    "workflows": ["bug-fix", "feature-dev", "security-audit", "model-orchestrator"]
+  },
+  "protocols": {
+    "self_correction": {
+      "enabled": true,
+      "max_escalations": 3,
+      "escalation_on_lint_fail": true,
+      "escalation_on_test_fail": true
+    },
+    "dependency_guard": {
+      "enabled": true,
+      "strategic_approval_required": true,
+      "auto_reject_gpl": false,
+      "min_downloads": 1000
+    },
+    "context_compression": {
+      "enabled": true,
+      "compress_every_n_prs": 5,
+      "max_summary_tokens": 2000
+    }
+  },
+  "agents": {
+    "shadow_sec": {"enabled": true, "auto_trigger": true},
+    "sre": {"enabled": true, "auto_trigger": true},
+    "archivist": {"enabled": true, "auto_trigger": true}
+  },
+  "cost_limits": {
+    "daily_max_usd": 20.00,
+    "per_query_max_usd": 5.00,
+    "prefer_cheapest_in_tier": true,
+    "use_mo_cost_monitor": true
+  },
+  "phase4": {
+    "track_a_self_healing": {
+      "enabled": true,
+      "auto_remediation": {
+        "auto_apply": false,
+        "max_fix_attempts": 3,
+        "rollback_on_failure": true
+      },
+      "build_recovery": {
+        "max_retry_attempts": 3,
+        "retry_delay_seconds": 60,
+        "auto_apply_fixes": false
+      },
+      "dependency_upgrader": {
+        "auto_upgrade_minor_patch": true,
+        "require_approval_for_major": true,
+        "create_pr_for_major": true,
+        "run_tests_after_upgrade": true
+      }
+    },
+    "track_b_ecosystem": {
+      "enabled": true,
+      "jira_sync": {
+        "direction": "bidirectional",
+        "auto_create_issues": true,
+        "comment_sync": true
+      },
+      "slack_notifier": {
+        "platforms": ["slack", "discord"],
+        "digest_schedule": ["09:00", "13:00", "17:00"],
+        "throttle_max_per_minute": 10
+      },
+      "figma_parser": {
+        "detect_interactions": true,
+        "extract_design_tokens": true,
+        "output_format": "markdown"
+      }
+    },
+    "track_c_hardening": {
+      "enabled": true,
+      "soc2_compliance": {
+        "auto_collect_evidence": true,
+        "collection_interval_hours": 24,
+        "log_retention_days": 365
+      },
+      "sbom_generator": {
+        "formats": ["cyclonedx", "spdx"],
+        "check_vulnerabilities": true,
+        "license_allowlist": ["MIT", "Apache-2.0", "BSD-3-Clause"]
+      },
+      "performance_monitor": {
+        "baseline_period_hours": 24,
+        "alert_threshold_warning_pct": 10,
+        "alert_threshold_critical_pct": 25,
+        "auto_baseline_after_deploy": true
+      }
+    },
+    "track_d_orchestration": {
+      "enabled": true,
+      "pr_optimizer": {
+        "max_reviews_per_person": 3,
+        "expertise_weight": 0.6,
+        "load_balance_weight": 0.3,
+        "auto_assign": false
+      },
+      "flaky_test_detector": {
+        "min_runs_for_flakiness": 10,
+        "quarantine_threshold": 0.85,
+        "auto_quarantine": false
+      },
+      "cache_warmer": {
+        "pre_warm_on_pr_create": true,
+        "min_pr_similarity_threshold": 0.6,
+        "max_cache_size_gb": 10,
+        "lru_eviction": true
+      }
+    }
+  }
+}

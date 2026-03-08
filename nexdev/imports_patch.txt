@@ -1,0 +1,50 @@
+# [NEW] Import Phase 2 Advanced Intelligence Features
+try:
+    from arch_pattern_library import recommend_pattern, search_patterns, init_patterns_db
+except ImportError:
+    def recommend_pattern(*args, **kwargs): return []
+    def search_patterns(*args, **kwargs): return []
+    def init_patterns_db(): pass
+
+try:
+    from refactoring_suggestions import analyze_file_for_refactoring, generate_refactoring_plan
+except ImportError:
+    def analyze_file_for_refactoring(*args, **kwargs): return {"success": False}
+    def generate_refactoring_plan(*args, **kwargs): return ""
+
+# [NEW] Import Phase 3 Team Orchestration Features
+try:
+    from task_decomposer import decompose_epic, generate_project_timeline, export_to_jira_format
+except ImportError:
+    def decompose_epic(*args, **kwargs): return None
+    def generate_project_timeline(*args, **kwargs): return {}
+    def export_to_jira_format(*args, **kwargs): return []
+
+try:
+    from knowledge_base_rag import init_knowledge_db, add_entry, hybrid_search, answer_question, ingest_from_git_repo
+    KNOWLEDGE_DB_READY = True
+except ImportError:
+    def init_knowledge_db(): pass
+    def add_entry(*args, **kwargs): pass
+    def hybrid_search(*args, **kwargs): return []
+    def answer_question(*args, **kwargs): return {"success": False}
+    def ingest_from_git_repo(*args, **kwargs): return {"success": False}
+    KNOWLEDGE_DB_READY = False
+
+try:
+    from adr_manager import init_adrs_directory, save_adr, get_all_adrs, get_adr, search_adrs
+except ImportError:
+    def init_adrs_directory(): pass
+    def save_adr(*args, **kwargs): pass
+    def get_all_adrs(): return []
+    def get_adr(*args, **kwargs): return None
+    def search_adrs(*args, **kwargs): return []
+
+try:
+    from team_analytics import init_analytics_db, add_task, get_team_velocity, get_bug_metrics, generate_sprint_report
+except ImportError:
+    def init_analytics_db(): pass
+    def add_task(*args, **kwargs): pass
+    def get_team_velocity(*args, **kwargs): return {}
+    def get_bug_metrics(*args, **kwargs): return {}
+    def generate_sprint_report(*args, **kwargs): return {}

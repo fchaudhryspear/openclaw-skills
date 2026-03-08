@@ -1,0 +1,177 @@
+{
+  "project_id": "MISSION-CONTROL",
+  "version": "1",
+  "title": "",
+  "summary": "\nMission Control is Credologi's operational dashboard for monitoring and managing:\n- AWS infrastructure (Lambda, API Gateway, DynamoDB, S3, SQS, Cognito)\n- User management via Cognito\n- Security alerts from AWS Security Hub\n- Data pipeline flows (lending data lake)\n- CI/CD pipelines via CodeBuild\n- Cost monitoring and test runner\nCurrent: Lambda Node.js via SAM, React TypeScript Vite, Cognito auth, API Gateway, DynamoDB\n",
+  "user_stories": [
+    {
+      "id": "MISSION-CONTROL-US-001",
+      "title": "User Authentication",
+      "description": "As a user, I want to securely log in and register so that my data is protected.",
+      "acceptance_criteria": [
+        "User can register with email/password",
+        "User can log in with valid credentials",
+        "Invalid credentials show appropriate error",
+        "Password is hashed and stored securely",
+        "Session management with secure tokens"
+      ],
+      "priority": "high",
+      "estimated_complexity": "medium",
+      "dependencies": []
+    },
+    {
+      "id": "MISSION-CONTROL-US-002",
+      "title": "User Profile Management",
+      "description": "As a user, I want to manage my profile so I can keep my information up to date.",
+      "acceptance_criteria": [
+        "User can view their profile",
+        "User can update profile information",
+        "Profile changes are validated",
+        "Admin can manage user roles"
+      ],
+      "priority": "medium",
+      "estimated_complexity": "simple",
+      "dependencies": []
+    },
+    {
+      "id": "MISSION-CONTROL-US-003",
+      "title": "RESTful API Endpoints",
+      "description": "As a developer, I want well-documented API endpoints so I can integrate with the system.",
+      "acceptance_criteria": [
+        "API follows REST conventions",
+        "Proper HTTP status codes returned",
+        "Request/response validation",
+        "API documentation generated (OpenAPI/Swagger)"
+      ],
+      "priority": "high",
+      "estimated_complexity": "medium",
+      "dependencies": []
+    },
+    {
+      "id": "MISSION-CONTROL-US-004",
+      "title": "Data Persistence Layer",
+      "description": "As the system, I need reliable data storage so that user data is safely persisted.",
+      "acceptance_criteria": [
+        "Database schema designed for the domain",
+        "Proper indexes for common queries",
+        "Migration scripts for schema changes",
+        "Backup and recovery procedures defined"
+      ],
+      "priority": "high",
+      "estimated_complexity": "medium",
+      "dependencies": []
+    },
+    {
+      "id": "MISSION-CONTROL-US-005",
+      "title": "User Interface",
+      "description": "As a user, I want an intuitive interface so I can easily use the application.",
+      "acceptance_criteria": [
+        "Responsive design (mobile + desktop)",
+        "Accessible (WCAG 2.1 AA)",
+        "Consistent design system",
+        "Loading states and error handling"
+      ],
+      "priority": "medium",
+      "estimated_complexity": "complex",
+      "dependencies": []
+    },
+    {
+      "id": "MISSION-CONTROL-US-006",
+      "title": "Notification System",
+      "description": "As a user, I want to receive notifications so I stay informed about important events.",
+      "acceptance_criteria": [
+        "Email notifications for key events",
+        "In-app notification center",
+        "Notification preferences configurable",
+        "Notification delivery is reliable"
+      ],
+      "priority": "medium",
+      "estimated_complexity": "medium",
+      "dependencies": []
+    },
+    {
+      "id": "MISSION-CONTROL-US-007",
+      "title": "File Upload",
+      "description": "As a user, I want file upload functionality.",
+      "acceptance_criteria": [
+        "File Upload works as expected"
+      ],
+      "priority": "medium",
+      "estimated_complexity": "medium",
+      "dependencies": []
+    },
+    {
+      "id": "MISSION-CONTROL-US-008",
+      "title": "Analytics Dashboard",
+      "description": "As an admin, I want analytics dashboards so I can understand usage patterns.",
+      "acceptance_criteria": [
+        "Key metrics visualized (charts/graphs)",
+        "Date range filtering",
+        "Export capability (CSV/PDF)",
+        "Real-time or near-real-time data"
+      ],
+      "priority": "medium",
+      "estimated_complexity": "complex",
+      "dependencies": []
+    },
+    {
+      "id": "MISSION-CONTROL-US-009",
+      "title": "Ci Cd",
+      "description": "As a user, I want ci cd functionality.",
+      "acceptance_criteria": [
+        "Ci Cd works as expected"
+      ],
+      "priority": "medium",
+      "estimated_complexity": "medium",
+      "dependencies": []
+    }
+  ],
+  "non_functional_requirements": [
+    {
+      "id": "MISSION-CONTROL-NFR-001",
+      "category": "performance",
+      "description": "API response time under normal load",
+      "metric": "p95 latency < 500ms",
+      "priority": "high"
+    },
+    {
+      "id": "MISSION-CONTROL-NFR-002",
+      "category": "security",
+      "description": "Authentication and authorization",
+      "metric": "OWASP Top 10 vulnerabilities addressed",
+      "priority": "high"
+    },
+    {
+      "id": "MISSION-CONTROL-NFR-003",
+      "category": "reliability",
+      "description": "System availability",
+      "metric": "99.9% uptime SLA",
+      "priority": "medium"
+    }
+  ],
+  "constraints": [
+    "Budget constraint detected: cost"
+  ],
+  "assumptions": [
+    "Modern browser support required",
+    "Internet connectivity required",
+    "Standard REST API patterns"
+  ],
+  "out_of_scope": [
+    "Mobile native apps (unless specified)",
+    "Legacy browser support (IE11)"
+  ],
+  "tech_stack_preferences": [
+    "React",
+    "Node.js",
+    "AWS",
+    "TypeScript",
+    "Lambda"
+  ],
+  "target_users": "End users",
+  "timeline": "TBD",
+  "status": "draft",
+  "created_by": "product_manager",
+  "created_at": "2026-03-08T00:53:40.261192",
+  "review_notes": []
+}

@@ -13,13 +13,12 @@ const DEFAULT_WEIGHTS = {
     temporal: 0.15
 };
 class ContextAwareSearch {
-    entries = new Map();
-    hybridIndex;
-    cache = new Map();
-    cacheSize = 100;
-    cacheHits = 0;
-    totalSearches = 0;
     constructor() {
+        this.entries = new Map();
+        this.cache = new Map();
+        this.cacheSize = 100;
+        this.cacheHits = 0;
+        this.totalSearches = 0;
         this.hybridIndex = {
             tfidf: new Map(),
             documentFrequency: new Map(),
@@ -315,4 +314,3 @@ class ContextAwareSearch {
     }
 }
 exports.ContextAwareSearch = ContextAwareSearch;
-//# sourceMappingURL=search.js.map

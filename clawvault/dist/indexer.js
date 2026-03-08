@@ -11,14 +11,14 @@ exports.MEMORY_ROOT = `${exports.HOME}/memory`;
 exports.CLAWVAULT_DIR = `${exports.HOME}/.openclaw/workspace/clawvault`;
 exports.VAULT_PATH = `${exports.CLAWVAULT_DIR}/vault`;
 class IncrementalIndexer {
-    entries = new Map();
-    typeIndex = new Map();
-    scopeIndex = new Map();
-    tagIndex = new Map();
-    timeIndex = new Map(); // YYYY-MM-DD
-    pendingUpdates = new Set();
-    lastIndexed = 0;
     constructor() {
+        this.entries = new Map();
+        this.typeIndex = new Map();
+        this.scopeIndex = new Map();
+        this.tagIndex = new Map();
+        this.timeIndex = new Map(); // YYYY-MM-DD
+        this.pendingUpdates = new Set();
+        this.lastIndexed = 0;
         // Initialize type indices
         for (const type of ['episodic', 'semantic', 'procedural', 'working']) {
             this.typeIndex.set(type, new Set());
@@ -151,4 +151,3 @@ class IncrementalIndexer {
     }
 }
 exports.IncrementalIndexer = IncrementalIndexer;
-//# sourceMappingURL=indexer.js.map

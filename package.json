@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@azure/msal-node": "^5.0.6",
+    "better-sqlite3": "^12.6.2",
+    "sqlite-vss": "^0.1.2"
+  }
+}

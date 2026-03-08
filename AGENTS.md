@@ -17,6 +17,21 @@ Before doing anything else:
 
 Don't ask permission. Just do it.
 
+## MO Auto-Routing (MANDATORY)
+
+**Before answering ANY message**, read and follow `MO_ROUTING.md` in the workspace root.
+
+Quick version:
+1. Classify query complexity (1-5)
+2. Map to tier (Utility → QwenFlash, Execution → Qwen35, Validation → GrokFast, Context → GeminiPro, Strategic → Sonnet, Critical → Opus)
+3. If current model doesn't match → call `session_status(model="<alias>")` to switch
+4. Answer the question on current model
+5. Tag response: `— MO <model-name>`
+
+The switch takes effect NEXT turn. So if you're on Opus and get a simple question, answer it AND switch down to QwenFlash. Next simple question will be cheap.
+
+To disable: user says `/model <specific>` (manual override) or `/model default` (resume auto-routing).
+
 ## Memory
 
 You wake up fresh each session. These files are your continuity:
@@ -210,3 +225,17 @@ The goal: Be helpful without being annoying. Check in a few times a day, do usef
 ## Make It Yours
 
 This is a starting point. Add your own conventions, style, and rules as you figure out what works.
+
+<!-- antfarm:workflows -->
+# Antfarm Workflow Policy
+
+## Installing Workflows
+Run: `node ~/.openclaw/workspace/antfarm/dist/cli/cli.js workflow install <name>`
+Agent cron jobs are created automatically during install.
+
+## Running Workflows
+- Start: `node ~/.openclaw/workspace/antfarm/dist/cli/cli.js workflow run <workflow-id> "<task>"`
+- Status: `node ~/.openclaw/workspace/antfarm/dist/cli/cli.js workflow status "<task title>"`
+- Workflows self-advance via agent cron jobs polling SQLite for pending steps.
+<!-- /antfarm:workflows -->
+

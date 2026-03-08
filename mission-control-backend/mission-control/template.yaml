@@ -1,134 +1,161 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Credologi Mission Control Backend
-
-Globals:
-  Function:
-    Timeout: 30
-    Runtime: nodejs20.x
-    Architectures:
-      - arm64
+Description: Credologi Mission Control API v2.3.0
 
 Parameters:
   UserPoolId:
     Type: String
     Default: us-east-1_M6lTgVQaw
-  AggregatesTableName:
+    Description: Cognito User Pool ID
+  CorsOrigin:
     Type: String
-    Default: AggregatesTable
+    Default: https://missioncontrol.credologi.com
+    Description: Allowed CORS origin
+
+Globals:
+  Function:
+    Timeout: 60
+    MemorySize: 256
+    Runtime: nodejs20.x
 
 Resources:
-  MissionApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: Prod
-      Auth:
-        DefaultAuthorizer: CognitoAuthorizer
-        Authorizers:
-          CognitoAuthorizer:
-            UserPoolArn: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}
 
+  # ── DynamoDB: Remediation Jobs ─────────────────────────────────────────────
+  RemediationJobsTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    Properties:
+      TableName: mission-control-remediation-jobs
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: jobId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: jobId
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+        - Key: Project
+          Value: MissionControl
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  # ── Lambda: Monitoring + Remediation ──────────────────────────────────────
   MonitoringFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
       Handler: app.lambdaHandler
+      Description: Mission Control API v2.3.0 — monitoring, user management, security alerts, remediation
       Environment:
         Variables:
           USER_POOL_ID: !Ref UserPoolId
-          AGGREGATES_TABLE: !Ref AggregatesTableName
-          CODEBUILD_PROJECT_NAME: credologi-test-suite # Example project name
+          CODEBUILD_PROJECT_NAME: credologi-test-suite
+          CORS_ORIGIN: !Ref CorsOrigin
+          REMEDIATION_TABLE: !Ref RemediationJobsTable
+          AWS_ACCOUNT_ID: !Sub "${AWS::AccountId}"
       Policies:
         - AmazonCognitoPowerUser
+        - AmazonSESFullAccess
         - AWSSecurityHubReadOnlyAccess
+
+        # ── SecurityHub — update workflow status ──────────────────────────────
         - Statement:
             - Effect: Allow
               Action:
-                - dynamodb:Query
-                - dynamodb:GetItem
-              Resource: !GetAtt AggregatesTable.Arn
+                - securityhub:BatchUpdateFindings
+              Resource: "*"
+
+        # ── Secrets Manager ───────────────────────────────────────────────────
         - Statement:
             - Effect: Allow
               Action:
                 - secretsmanager:GetSecretValue
-              Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:snowflake-private-key*
+              Resource: !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:snowflake-lambda-key*
+
+        # ── CodeBuild — test runner + CVE patch jobs ──────────────────────────
         - Statement:
             - Effect: Allow
               Action:
                 - codebuild:StartBuild
                 - codebuild:BatchGetBuilds
-              Resource: !Sub arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/${CODEBUILD_PROJECT_NAME}
-      Events:
-        Health:
-          Type: Api
-          Properties:
-            Path: /health
-            Method: get
-            RestApiId: !Ref MissionApi
-        Flows:
-          Type: Api
-          Properties:
-            Path: /flows
-            Method: get
-            RestApiId: !Ref MissionApi
-        SecurityAlerts:
-          Type: Api
-          Properties:
-            Path: /security-alerts
-            Method: get
-            RestApiId: !Ref MissionApi
-        ListUsers:
-          Type: Api
-          Properties:
-            Path: /users
-            Method: get
-            RestApiId: !Ref MissionApi
-        CreateUser:
-          Type: Api
-          Properties:
-            Path: /users
-            Method: post
-            RestApiId: !Ref MissionApi
-        UserActions:
-          Type: Api
-          Properties:
-            Path: /users/{username}/{action}
-            Method: post
-            RestApiId: !Ref MissionApi
-        RunTests:
-          Type: Api
-          Properties:
-            Path: /run-tests
-            Method: post
-            RestApiId: !Ref MissionApi
-        TestStatus:
-          Type: Api
-          Properties:
-            Path: /test-status
-            Method: get
-            RestApiId: !Ref MissionApi
+              Resource: !Sub arn:aws:codebuild:${AWS::Region}:${AWS::AccountId}:project/credologi-test-suite
 
-  AggregatesTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: Date
-          AttributeType: S
-        - AttributeName: FlowType
-          AttributeType: S
-      KeySchema:
-        - AttributeName: Date
-          KeyType: HASH
-        - AttributeName: FlowType
-          KeyType: RANGE
-      BillingMode: PAY_PER_REQUEST
-      StreamSpecification:
-        StreamViewType: NEW_AND_OLD_IMAGES
+        # ── DynamoDB — remediation job tracking ───────────────────────────────
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:CreateTable
+                - dynamodb:DescribeTable
+                - dynamodb:ListTables
+                - dynamodb:PutItem
+                - dynamodb:GetItem
+                - dynamodb:UpdateItem
+                - dynamodb:DeleteItem
+                - dynamodb:Query
+              Resource: !GetAtt RemediationJobsTable.Arn
+
+        # ── S3 — bucket hardening (block public access + encryption) ──────────
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:PutBucketPublicAccessBlock
+                - s3:PutEncryptionConfiguration
+                - s3:GetBucketPublicAccessBlock
+                - s3:GetEncryptionConfiguration
+                - s3:ListAllMyBuckets
+              Resource: "*"
+
+        # ── SSM — config enforcement automation ───────────────────────────────
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ssm:StartAutomationExecution
+                - ssm:GetAutomationExecution
+                - ssm:DescribeAutomationExecutions
+              Resource: "*"
+
+        # ── IAM — read-only for playbook generation ───────────────────────────
+        - Statement:
+            - Effect: Allow
+              Action:
+                - iam:GetPolicy
+                - iam:GetPolicyVersion
+                - iam:ListAttachedRolePolicies
+                - iam:ListRolePolicies
+                - iam:GetRolePolicy
+              Resource: "*"
+
+        # ── Lambda — read-only for CVE resource discovery ─────────────────────
+        - Statement:
+            - Effect: Allow
+              Action:
+                - lambda:ListFunctions
+                - lambda:GetFunction
+                - lambda:ListTags
+              Resource: "*"
+
+      Events:
+        Root:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+        ProxyAll:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
 
 Outputs:
-  ApiUrl:
+  MonitoringApi:
     Description: API Gateway endpoint URL
-    Value: !Sub "https://${MissionApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
   MonitoringFunction:
-    Description: Monitoring Lambda Function ARN
+    Description: Lambda Function ARN
     Value: !GetAtt MonitoringFunction.Arn
+  RemediationTable:
+    Description: DynamoDB table for remediation job tracking
+    Value: !Ref RemediationJobsTable

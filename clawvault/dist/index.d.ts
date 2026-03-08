@@ -1,119 +1,39 @@
-/**
- * ClawVault - AI Agent Memory System
- * Phase 1 + Phase 2 + Phase 3 Integration with Advanced Features
- */
-import { MemoryEntry, MemoryType, MemoryScope, ConfidenceScore, SearchResult, ContextMessage, SearchFilters, SearchOptions } from './types';
-export interface ClawVaultConfig {
-    enableSensitiveDetection?: boolean;
-    minConfidenceThreshold?: number;
-    autoIndex?: boolean;
-    defaultScope?: MemoryScope;
-}
-export interface StoreOptions {
-    type?: MemoryType;
-    scope?: MemoryScope;
-    tags?: string[];
-    source?: string;
-    skipSensitiveCheck?: boolean;
-}
 export declare class ClawVault {
-    private indexer;
-    private searcher;
-    private confidenceScorer;
-    private sensitiveDetector;
-    private semanticBuilder;
-    private vectorStore;
-    private consolidationModule;
-    private cache;
-    private safetyModule;
-    private sessionManager;
-    private config;
-    constructor(config?: ClawVaultConfig);
+    constructor();
     /**
-     * Store a new memory entry
+     * Add a memory entry with validation
+     * @param {string} key - Unique identifier for the memory
+     * @param {string} value - Content of the memory
+     * @returns {string} - Memory ID
      */
-    store(content: string, options?: StoreOptions): MemoryEntry;
+    addMemory(key: any, value: any): any;
     /**
-     * Retrieve a memory entry by ID
+     * Query memories by key
+     * @param {string} key - Key to search for
+     * @returns {object[]} - Matching memories
      */
-    retrieve(id: string): MemoryEntry | undefined;
+    queryMemories(key: any): any;
     /**
-     * Update an existing memory entry
+     * List all memories
+     * @returns {object[]} - All memories
      */
-    update(id: string, updates: {
-        content?: string;
-        tags?: string[];
-    }): MemoryEntry | undefined;
+    listMemories(): any[];
     /**
-     * Delete a memory entry
+     * Delete a memory by ID
+     * @param {string} id - Memory ID to delete
      */
-    delete(id: string): boolean;
+    deleteMemory(id: any): void;
     /**
-     * Search memories with context awareness
-     * API: search(query, contextMessages[], options)
+     * Update a memory by ID
+     * @param {string} id - Memory ID to update
+     * @param {string} value - New content for the memory
      */
-    search(query: string, contextMessages?: ContextMessage[], options?: SearchOptions & SearchFilters): SearchResult[];
+    updateMemory(id: any, value: any): void;
     /**
-     * Get memories by type
+     * Search memories by content
+     * @param {string} query - Search term
+     * @returns {object[]} - Matching memories
      */
-    getByType(type: MemoryType): MemoryEntry[];
-    /**
-     * Get memories by scope
-     */
-    getByScope(scope: MemoryScope): MemoryEntry[];
-    /**
-     * Get recent memories
-     */
-    getRecent(limit?: number): MemoryEntry[];
-    /**
-     * Get memories by tags
-     */
-    getByTags(tags: string[]): MemoryEntry[];
-    /**
-     * Get confidence score for an entry
-     */
-    getConfidence(id: string): ConfidenceScore | undefined;
-    /**
-     * Check content for sensitive data
-     */
-    checkSensitive(content: string): import("./types").SensitiveDataDetection;
-    /**
-     * Get all statistics
-     */
-    getStats(): {
-        index: import("./indexer").IndexStats;
-        search: {
-            totalSearches: number;
-            cacheHits: number;
-            cacheHitRate: number;
-            indexedEntries: number;
-            cacheSize: number;
-        };
-    };
-    /**
-     * Export all memories
-     */
-    export(): MemoryEntry[];
-    /**
-     * Import memories
-     */
-    import(entries: MemoryEntry[]): void;
-    /**
-     * Clear all memories
-     */
-    clear(): void;
-    private generateId;
+    searchMemories(query: any): any;
 }
-export * from './types';
-export { ConfidenceScorer } from './confidence';
-export { SensitiveDataDetector } from './sensitive';
-export { SemanticLayerBuilder } from './semantic';
-export { IncrementalIndexer } from './indexer';
-export { ContextAwareSearch } from './search';
-export { generateEmbedding, cosineSimilarity } from './embeddings';
-export { VectorStore, getVectorStore } from './vector-store';
-export { ConsolidationModule, consolidationModule, consolidate, findDuplicates, bulkConsolidate } from './consolidation';
-export { MemoryCache, globalCache, getCached } from './cache';
-export { SafetyModule, safetyModule, canAddMemory, enforceSizeLimits, getSafetyStats, healthCheck } from './safety';
-export { SessionManager, sessionManager, startSession, endSession, acquireLock, getCurrentSession, SessionInfo } from './session-manager';
 //# sourceMappingURL=index.d.ts.map

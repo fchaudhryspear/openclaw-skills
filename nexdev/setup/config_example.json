@@ -1,0 +1,308 @@
+{
+  "phase4_config_example": {
+    "description": "Example configuration for Phase 4 modules - copy these sections into your main config.json",
+    "last_updated": "2026-03-03"
+  },
+  
+  "track_a_self_healing": {
+    "auto_remediation": {
+      "auto_apply": false,
+      "max_fix_attempts": 3,
+      "rollback_on_failure": true,
+      "notify_on_success": true,
+      "severity_thresholds": {
+        "critical": ["memory_error", "security"],
+        "high": ["database_error", "connection_error"],
+        "medium": ["timeout", "type_error"],
+        "low": ["name_error", "syntax_error"]
+      }
+    },
+    
+    "build_recovery": {
+      "max_retry_attempts": 3,
+      "retry_delay_seconds": 60,
+      "auto_apply_fixes": false,
+      "require_approval_for": ["security", "production"],
+      "supported_cis": ["github-actions", "gitlab-ci", "jenkins", "circleci"]
+    },
+    
+    "dependency_upgrader": {
+      "auto_upgrade_minor_patch": true,
+      "require_approval_for_major": true,
+      "create_pr_for_major": true,
+      "run_tests_after_upgrade": true,
+      "blocked_packages": [],
+      "allowed_packages": [],
+      "schedule": {
+        "enabled": true,
+        "day_of_week": "sunday",
+        "time": "02:00"
+      }
+    }
+  },
+  
+  "track_b_ecosystem": {
+    "jira_sync": {
+      "url": "https://your-domain.atlassian.net",
+      "email": "your-email@example.com",
+      "api_token": "ATATT3xFfGF0...",
+      "project_key": "YOUR",
+      "sync": {
+        "enabled": true,
+        "direction": "bidirectional",
+        "interval_minutes": 15,
+        "auto_create_issues": true,
+        "comment_sync": true,
+        "attachment_sync": false
+      },
+      "field_mapping": {
+        "github_issue_id": "customfield_10001",
+        "github_pr_url": "customfield_10002",
+        "sync_timestamp": "customfield_10003"
+      },
+      "labels": {
+        "sync_labels": true,
+        "label_prefix": "github:"
+      }
+    },
+    
+    "slack_notifier": {
+      "platforms": {
+        "slack": {
+          "enabled": true,
+          "token": "xoxb-your-bot-token-here",
+          "channels": {
+            "general": "#general",
+            "deployments": "#deployments",
+            "incidents": "#incidents",
+            "reviews": "#code-reviews"
+          }
+        },
+        "discord": {
+          "enabled": false,
+          "webhook_url": "https://discord.com/api/webhooks/..."
+        },
+        "teams": {
+          "enabled": false,
+          "webhook_url": "https://outlook.office.com/webhook/..."
+        }
+      },
+      "routing": {
+        "pr_events": "reviews",
+        "build_events": "general",
+        "deployment_events": "deployments",
+        "incident_events": "incidents",
+        "default": "general"
+      },
+      "digest": {
+        "enabled": true,
+        "schedule": ["09:00", "13:00", "17:00"],
+        "timezone": "America/Chicago"
+      },
+      "mentions": {
+        "on_critical": true,
+        "on_deployment_failure": true,
+        "on_security_alert": true,
+        "users_to_mention": []
+      },
+      "throttle": {
+        "max_per_minute": 10,
+        "cooldown_seconds": 5
+      }
+    },
+    
+    "figma_parser": {
+      "api_token": "fig_rAbCDeFgHiJkLmNoPqRsTuVwXyZ...",
+      "detection": {
+        "min_confidence": 0.7,
+        "detect_interactions": true,
+        "detect_responsiveness": true,
+        "extract_design_tokens": true
+      },
+      "output": {
+        "format": "markdown",
+        "include_mockup_references": true,
+        "generate_user_stories": true
+      },
+      "framework": {
+        "preferred": "react",
+        "ui_library": "tailwind"
+      }
+    }
+  },
+  
+  "track_c_hardening": {
+    "soc2_compliance": {
+      "organization": {
+        "name": "Your Company Inc.",
+        "industry": "Technology",
+        "systems_under_review": ["api-server", "data-pipeline", "web-app"]
+      },
+      "retention": {
+        "log_retention_days": 365,
+        "evidence_retention_years": 7
+      },
+      "automation": {
+        "auto_collect_evidence": true,
+        "collection_interval_hours": 24,
+        "notify_on_non_compliance": true
+      },
+      "integrations": {
+        "aws_cloudwatch": true,
+        "github_actions": true,
+        "slack_alerts": true,
+        "jira_ticketing": false
+      }
+    },
+    
+    "sbom_generator": {
+      "output": {
+        "formats": ["cyclonedx", "spdx"],
+        "include_dev_dependencies": false,
+        "include_transitive": true
+      },
+      "scanning": {
+        "check_vulnerabilities": true,
+        "check_licenses": true,
+        "license_allowlist": [
+          "MIT",
+          "Apache-2.0",
+          "BSD-3-Clause",
+          "ISC"
+        ],
+        "license_denylist": [
+          "GPL-3.0",
+          "AGPL-3.0"
+        ]
+      },
+      "vulnerability_sources": {
+        "osv": true,
+        "nvd": false,
+        "github_advisories": true
+      }
+    },
+    
+    "performance_monitor": {
+      "monitoring": {
+        "interval_seconds": 60,
+        "baseline_period_hours": 24,
+        "comparison_window_hours": 1,
+        "auto_baseline_after_deploy": true
+      },
+      "thresholds": {
+        "latency_p50": {"warning": 10, "critical": 25},
+        "latency_p95": {"warning": 15, "critical": 30},
+        "latency_p99": {"warning": 20, "critical": 40},
+        "throughput_rps": {"warning": -10, "critical": -20},
+        "error_rate_percent": {"warning": 50, "critical": 100}
+      },
+      "alerting": {
+        "enabled": true,
+        "channels": ["slack", "email"],
+        "cooldown_minutes": 30,
+        "escalation_timeout_hours": 2
+      },
+      "integrations": {
+        "cloudwatch": true,
+        "datadog": false,
+        "newrelic": false,
+        "prometheus": false
+      },
+      "retention": {
+        "metrics_days": 90,
+        "baselines_count": 10
+      }
+    }
+  },
+  
+  "track_d_orchestration": {
+    "pr_optimizer": {
+      "github": {
+        "token": "ghp_your_github_token",
+        "owner": "versatly",
+        "repo": "your-repo"
+      },
+      "optimization": {
+        "max_reviews_per_person": 3,
+        "prioritize_by_age": true,
+        "prioritize_by_size": true,
+        "auto_assign": false,
+        "expertise_weight": 0.6,
+        "load_balance_weight": 0.3,
+        "urgency_weight": 0.1
+      },
+      "priority_rules": {
+        "hotfix_multiplier": 3.0,
+        "bug_multiplier": 1.5,
+        "feature_multiplier": 1.0,
+        "docs_multiplier": 0.5,
+        "max_age_hours": 48,
+        "max_lines_for_fast_track": 100
+      },
+      "reviewer_matching": {
+        "min_expertise_match": 0.3,
+        "prefer_same_team": true,
+        "exclude_bots": ["dependabot", "renovate"]
+      }
+    },
+    
+    "flaky_test_detector": {
+      "analysis": {
+        "min_runs_for_flakiness": 10,
+        "analysis_window_days": 30,
+        "auto_quarantine": false,
+        "quarantine_threshold": 0.85
+      },
+      "detection": {
+        "consecutive_passes_to_unquarantine": 5,
+        "failure_patterns": [
+          "timeout",
+          "race condition",
+          "intermittent",
+          "async",
+          "timing"
+        ]
+      },
+      "reporting": {
+        "frequency": "weekly",
+        "notify_channels": ["slack"],
+        "include_trends": true
+      },
+      "integrations": {
+        "github_actions": true,
+        "jenkins": false,
+        "circleci": false
+      }
+    },
+    
+    "cache_warmer": {
+      "caching": {
+        "max_cache_size_gb": 10,
+        "cache_ttl_days": 30,
+        "lru_eviction": true,
+        "compression": true
+      },
+      "prediction": {
+        "min_pr_similarity_threshold": 0.6,
+        "lookback_builds": 50,
+        "feature_weights": {
+          "changed_files": 0.4,
+          "branch_similarity": 0.3,
+          "author_history": 0.2,
+          "time_of_day": 0.1
+        }
+      },
+      "warmup": {
+        "pre_warm_on_pr_create": true,
+        "pre_warm_timeout_seconds": 120,
+        "parallel_warmups": 3
+      },
+      "integrations": {
+        "github_actions": true,
+        "circleci": false,
+        "gitlab_ci": false,
+        "jenkins": false
+      }
+    }
+  }
+}

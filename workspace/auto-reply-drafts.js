@@ -74,15 +74,73 @@ async function getWritingStyle(accountName) {
 }
 
 async function detectQuestions(subject, body) {
-  const prompt = `Does this email contain direct questions that require a response from the recipient?
+  const subjectLower = (subject || '').toLowerCase();
+  const bodyLower = (body || '').toLowerCase();
+  
+  // PRE-FILTER: Auto-skip common non-actionable email types BEFORE AI analysis
+  const skipPatterns = [
+    // Bank/Financial Statements
+    'statement is now available',
+    'paperless statement',
+    'your statement',
+    'account summary',
+    'transaction alert',
+    'payment received',
+    'payment confirmation',
+    'receipt for your purchase',
+    'invoice #',
+    
+    // Marketing/Sales
+    'exclusive offer',
+    'limited time',
+    'special promotion',
+    'meetings availability',
+    'schedule a call',
+    'introductory call',
+    'discovery call',
+    'partnership opportunity',
+    'we would love to connect',
+    'would you be interested',
+    
+    // Automated Notifications
+    'no reply needed',
+    'this is an automated',
+    'please do not reply',
+    'newsletter',
+    'digest',
+    'weekly roundup',
+    'unsubscribe',
+    
+    // Informational Only
+    'fyi',
+    'for your information',
+    'just sharing',
+    ' heads up'
+  ];
+  
+  for (const pattern of skipPatterns) {
+    if (subjectLower.includes(pattern) || bodyLower.includes(pattern)) {
+      console.log(`   → Skipped (pattern match: "${pattern}")`);
+      return { requiresResponse: false };
+    }
+  }
+  
+  // AI ANALYSIS: Check for actual questions requiring response
+  const prompt = `Does this email contain direct questions or requests that require an action/response from Faisal?
 
 Subject: ${subject}
 Body: ${body.substring(0, 1500)}
 
-Return JSON only:
-{"requiresResponse":true/false,"questions":["q1","q2"],"context":"what they're asking about"}
+STRICT SKIP LIST - Return requiresResponse: false for:
+- Bank statements, transaction confirmations, receipts
+- Marketing/sales emails, meeting solicitations from strangers
+- Newsletters, automated notifications, "no reply needed"
+- Purely informational emails (FYI, just sharing, heads up)
+- Cold outreach, sponsorship requests, partnership pitches
 
-Skip: FYI emails, automated notifications, newsletters, cold outreach.
+Return JSON only (no explanation):
+{"requiresResponse":true/false,"questions":["q1","q2"],"context":"brief context if true"}
+
 JSON only:`;
 
   try {
@@ -154,9 +212,23 @@ EXAMPLE GOOD RESPONSES:
 Return ONLY the plain text email body:`;
 
   const response = await complete(prompt, 'draft');
-  // Wrap in simple HTML
-  const html = '<p>' + response.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
-  return html;
+  
+  // Create HTML reply with original email appended below
+  const replyHtml = '<p>' + response.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
+  
+  // Original email separator and content
+  const originalHtml = `
+<hr style="border: none; border-top: 1px solid #ccc; margin: 20px 0;">
+<div style="background-color: #f5f5f5; padding: 15px; border-left: 3px solid #ddd; margin-top: 20px;">
+<p style="margin: 0 0 10px 0; font-size: 13px; color: #666;"><strong>Original Message:</strong></p>
+<p style="margin: 0 0 5px 0; font-size: 13px;"><strong>From:</strong> ${senderName}</p>
+<p style="margin: 0 0 5px 0; font-size: 13px;"><strong>Subject:</strong> ${subject}</p>
+<p style="margin: 0 0 10px 0; font-size: 13px;"><strong>Date:</strong> ${(new Date()).toLocaleString()}</p>
+<hr style="border: none; border-top: 1px dashed #ccc; margin: 10px 0;">
+<div style="font-size: 14px; line-height: 1.6; color: #333; white-space: pre-wrap;">${body}</div>
+</div>`;
+
+  return replyHtml + originalHtml;
 }
 
 async function main() {

@@ -1,0 +1,538 @@
+#!/usr/bin/env python3
+"""
+NexDev v3.0 - Track B: Ecosystem
+Jira Synchronization Engine
+
+Bidirectional sync between GitHub Issues/PRs ↔ Jira tickets
+Maps: github_pr -> jira_issue, jira_status -> github_branch_state
+"""
+
+import json
+import requests
+import re
+from pathlib import Path
+from typing import Optional, Dict, List, Tuple
+from datetime import datetime, timedelta
+
+
+class JiraSync:
+    """Bidirectional GitHub-Jira synchronization"""
+    
+    # Status mapping between GitHub and Jira
+    STATUS_MAP = {
+        'github': {
+            'open': ['To Do', 'In Progress'],
+            'closed': ['Done', 'Closed', 'Released']
+        },
+        'jira': {
+            'todo': ['To Do', 'Backlog'],
+            'in_progress': ['In Progress', 'In Review'],
+            'done': ['Done', 'Closed', 'Released', 'Verified']
+        }
+    }
+    
+    ISSUE_TYPE_MAP = {
+        'bug': 'Bug',
+        'enhancement': 'Story',
+        'feature': 'Story',
+        'task': 'Task',
+        'documentation': 'Documentation'
+    }
+    
+    def __init__(self, config_path: str = None):
+        self.config = self._load_config(config_path)
+        self.sync_log = Path.home() / '.openclaw' / 'workspace' / 'nexdev' / 'logs' / 'jira_sync.jsonl'
+        self.sync_state = Path.home() / '.openclaw' / 'workspace' / 'nexdev' / 'jira_sync_state.json'
+        self.log_dir = Path.home() / '.openclaw' / 'workspace' / 'nexdev' / 'logs'
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        
+    def _load_config(self, config_path: str) -> Dict:
+        default_config = {
+            'jira': {
+                'url': '',
+                'email': '',
+                'api_token': '',
+                'project_key': ''
+            },
+            'github': {
+                'token': '',
+                'owner': '',
+                'repo': ''
+            },
+            'sync': {
+                'enabled': True,
+                'direction': 'bidirectional',  # github_to_jira, jira_to_github, bidirectional
+                'interval_minutes': 15,
+                'auto_create_issues': True,
+                'comment_sync': True,
+                'attachment_sync': False
+            },
+            'field_mapping': {
+                'github_issue_id': 'customfield_10001',  # Custom field to store GitHub ID
+                'github_pr_url': 'customfield_10002',
+                'sync_timestamp': 'customfield_10003'
+            },
+            'labels': {
+                'sync_labels': True,
+                'label_prefix': 'github:'
+            }
+        }
+        
+        if config_path and Path(config_path).exists():
+            try:
+                with open(config_path) as f:
+                    user_config = json.load(f)
+                    default_config.update(user_config)
+            except Exception:
+                pass
+                
+        return default_config
+        
+    def authenticate(self) -> Tuple[bool, str]:
+        """Authenticate with both Jira and GitHub"""
+        jira_config = self.config['jira']
+        github_config = self.config['github']
+        
+        # Test Jira authentication
+        if jira_config['url']:
+            try:
+                auth_string = f"{jira_config['email']}:{jira_config['api_token']}"
+                headers = {
+                    'Authorization': f"Basic {self._base64_encode(auth_string)}",
+                    'Content-Type': 'application/json'
+                }
+                
+                response = requests.get(
+                    f"{jira_config['url']}/rest/api/2/mypermissions",
+                    headers=headers,
+                    timeout=10
+                )
+                
+                if response.status_code != 200:
+                    return False, f"Jira auth failed: {response.status_code} {response.text}"
+                    
+            except Exception as e:
+                return False, f"Jira connection error: {str(e)}"
+                
+        # Test GitHub authentication
+        if github_config['token']:
+            try:
+                headers = {
+                    'Authorization': f"token {github_config['token']}",
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+                
+                response = requests.get(
+                    'https://api.github.com/user',
+                    headers=headers,
+                    timeout=10
+                )
+                
+                if response.status_code != 200:
+                    return False, f"GitHub auth failed: {response.status_code}"
+                    
+            except Exception as e:
+                return False, f"GitHub connection error: {str(e)}"
+                
+        return True, "Authenticated successfully"
+        
+    def _base64_encode(self, text: str) -> str:
+        import base64
+        return base64.b64encode(text.encode()).decode()
+        
+    def sync_github_to_jira(self, github_owner: str = None, github_repo: str = None) -> Dict:
+        """
+        Sync GitHub issues/PRs to Jira
+        
+        Args:
+            github_owner: GitHub repository owner
+            github_repo: GitHub repository name
+            
+        Returns:
+            Sync results summary
+        """
+        owner = github_owner or self.config['github']['owner']
+        repo = github_repo or self.config['github']['repo']
+        
+        result = {
+            'timestamp': datetime.now().isoformat(),
+            'direction': 'github_to_jira',
+            'repo': f"{owner}/{repo}",
+            'issues_processed': 0,
+            'created': 0,
+            'updated': 0,
+            'errors': []
+        }
+        
+        # Fetch GitHub issues
+        issues = self._fetch_github_issues(owner, repo)
+        
+        for issue in issues:
+            try:
+                sync_result = self._process_github_issue(issue, owner, repo)
+                
+                if sync_result['status'] == 'created':
+                    result['created'] += 1
+                elif sync_result['status'] == 'updated':
+                    result['updated'] += 1
+                    
+                result['issues_processed'] += 1
+                
+                if sync_result.get('error'):
+                    result['errors'].append({
+                        'issue_number': issue['number'],
+                        'error': sync_result['error']
+                    })
+                    
+            except Exception as e:
+                result['errors'].append({
+                    'issue_number': issue['number'],
+                    'error': str(e)
+                })
+                
+        self._log_sync(result)
+        return result
+        
+    def _fetch_github_issues(self, owner: str, repo: str) -> List[Dict]:
+        """Fetch issues and PRs from GitHub"""
+        token = self.config['github']['token']
+        headers = {
+            'Authorization': f"token {token}",
+            'Accept': 'application/vnd.github.v3+json'
+        }
+        
+        issues = []
+        page = 1
+        
+        # Fetch open issues
+        while True:
+            response = requests.get(
+                f"https://api.github.com/repos/{owner}/{repo}/issues",
+                headers=headers,
+                params={
+                    'state': 'open',
+                    'per_page': 100,
+                    'page': page
+                },
+                timeout=30
+            )
+            
+            if response.status_code != 200:
+                break
+                
+            page_issues = response.json()
+            if not page_issues:
+                break
+                
+            issues.extend(page_issues)
+            page += 1
+            
+            if len(page_issues) < 100:
+                break
+                
+        return issues
+        
+    def _process_github_issue(self, issue: Dict, owner: str, repo: str) -> Dict:
+        """Process a single GitHub issue/PR"""
+        # Check if already synced
+        existing_jira_key = self._find_existing_jira_ticket(issue['number'])
+        
+        if existing_jira_key:
+            # Update existing ticket
+            return self._update_jira_ticket(existing_jira_key, issue, owner, repo)
+        else:
+            # Create new ticket
+            if self.config['sync']['auto_create_issues']:
+                return self._create_jira_ticket(issue, owner, repo)
+            else:
+                return {'status': 'skipped', 'reason': 'Auto-create disabled'}
+                
+    def _create_jira_ticket(self, issue: Dict, owner: str, repo: str) -> Dict:
+        """Create new Jira ticket from GitHub issue"""
+        jira_config = self.config['jira']
+        
+        # Determine issue type
+        issue_type = 'Story'  # Default
+        if 'bug' in [label['name'].lower() for label in issue.get('labels', [])]:
+            issue_type = 'Bug'
+        elif 'enhancement' in [label['name'].lower() for label in issue.get('labels', [])]:
+            issue_type = 'Story'
+            
+        # Build Jira issue payload
+        fields = {
+            'project': {'key': jira_config['project_key']},
+            'issuetype': {'name': issue_type},
+            'summary': issue['title'],
+            'description': self._format_jira_description(issue),
+            'priority': self._map_priority(issue.get('milestone')),
+            'labels': [f"github:{owner}/{repo}#{issue['number']}"]
+        }
+        
+        # Assign if specified
+        if issue.get('assignee'):
+            fields['assignee'] = {'name': issue['assignee']['login']}
+            
+        # Map GitHub labels to Jira labels
+        if self.config['labels']['sync_labels']:
+            prefix = self.config['labels']['label_prefix']
+            fields['labels'].extend([f"{prefix}{label['name']}" for label in issue.get('labels', [])])
+            
+        # Create the issue
+        auth_string = f"{jira_config['email']}:{jira_config['api_token']}"
+        headers = {
+            'Authorization': f"Basic {self._base64_encode(auth_string)}",
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.post(
+            f"{jira_config['url']}/rest/api/2/issue",
+            headers=headers,
+            json={'fields': fields},
+            timeout=30
+        )
+        
+        if response.status_code not in [200, 201]:
+            return {
+                'status': 'error',
+                'error': f"Jira API error: {response.status_code} {response.text}"
+            }
+            
+        jira_key = response.json()['key']
+        
+        # Store GitHub link in custom field
+        github_url = f"https://github.com/{owner}/{repo}/issues/{issue['number']}"
+        self._update_custom_field(jira_key, self.config['field_mapping']['github_pr_url'], github_url)
+        
+        return {
+            'status': 'created',
+            'jira_key': jira_key,
+            'github_number': issue['number']
+        }
+        
+    def _update_jira_ticket(self, jira_key: str, issue: Dict, owner: str, repo: str) -> Dict:
+        """Update existing Jira ticket with GitHub changes"""
+        jira_config = self.config['jira']
+        
+        # Prepare updates
+        updates = {}
+        
+        # Update status if needed
+        github_state = issue['state']
+        current_status = self._get_jira_ticket_status(jira_key)
+        
+        desired_status = 'Done' if github_state == 'closed' else 'In Progress'
+        
+        if current_status != desired_status:
+            updates['status'] = desired_status
+            
+        # Update description if changed
+        expected_desc = self._format_jira_description(issue)
+        # Would compare with actual description - simplified here
+        
+        # Update assignee
+        if issue.get('assignee'):
+            updates['assignee'] = {'name': issue['assignee']['login']}
+            
+        # Perform update
+        if updates:
+            headers = {
+                'Authorization': f"Basic {self._base64_encode(f\"{jira_config['email']}:{jira_config['api_token']}\")}",
+                'Content-Type': 'application/json'
+            }
+            
+            update_payload = {'update': {}}
+            
+            if 'status' in updates:
+                # Transition issue
+                transitions = self._get_transitions(jira_key)
+                target_transition = next(
+                    (t for t in transitions if t['name'].lower() == updates['status'].lower()),
+                    None
+                )
+                
+                if target_transition:
+                    requests.post(
+                        f"{jira_config['url']}/rest/api/2/issue/{jira_key}/transitions",
+                        headers=headers,
+                        json={'transition': {'id': target_transition['id']}},
+                        timeout=30
+                    )
+                    
+            if 'assignee' in updates:
+                update_payload['update']['assignee'] = [{'set': updates['assignee']}]
+                
+            if update_payload['update']:
+                requests.put(
+                    f"{jira_config['url']}/rest/api/2/issue/{jira_key}",
+                    headers=headers,
+                    json=update_payload,
+                    timeout=30
+                )
+                
+        return {
+            'status': 'updated',
+            'jira_key': jira_key,
+            'github_number': issue['number']
+        }
+        
+    def _format_jira_description(self, issue: Dict) -> str:
+        """Format GitHub issue as Jira description"""
+        lines = [
+            f"h3. Original Issue: {issue['title']}",
+            "",
+            f"gh[{issue['html_url']}]",
+            "",
+            issue.get('body', 'No description provided'),
+            "",
+            "---",
+            f"*Labels:* {', '.join([label['name'] for label in issue.get('labels', [])])}",
+            f"*Author:* {issue['user']['login']}",
+            f"*Created:* {issue['created_at']}",
+            f"*State:* {issue['state']}"
+        ]
+        
+        return "\n".join(lines)
+        
+    def _find_existing_jira_ticket(self, github_number: int) -> Optional[str]:
+        """Find existing Jira ticket for GitHub issue"""
+        jira_config = self.config['jira']
+        
+        query = f"labels ~ 'github:#{github_number}' OR labels ~ '#{github_number}'"
+        
+        headers = {
+            'Authorization': f"Basic {self._base64_encode(f\"{jira_config['email']}:{jira_config['api_token']}\")}",
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.get(
+            f"{jira_config['url']}/rest/api/2/search",
+            headers=headers,
+            params={'jql': query, 'maxResults': 1},
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            results = response.json().get('issues', [])
+            if results:
+                return results[0]['key']
+                
+        return None
+        
+    def _get_jira_ticket_status(self, jira_key: str) -> str:
+        """Get current status of Jira ticket"""
+        jira_config = self.config['jira']
+        
+        headers = {
+            'Authorization': f"Basic {self._base64_encode(f\"{jira_config['email']}:{jira_config['api_token']}\")}",
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.get(
+            f"{jira_config['url']}/rest/api/2/issue/{jira_key}",
+            headers=headers,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            return response.json()['fields']['status']['name']
+            
+        return None
+        
+    def _get_transitions(self, jira_key: str) -> List[Dict]:
+        """Get available status transitions for Jira ticket"""
+        jira_config = self.config['jira']
+        
+        headers = {
+            'Authorization': f"Basic {self._base64_encode(f\"{jira_config['email']}:{jira_config['api_token']}\")}",
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.get(
+            f"{jira_config['url']}/rest/api/2/issue/{jira_key}/transitions",
+            headers=headers,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            return response.json().get('transitions', [])
+            
+        return []
+        
+    def _update_custom_field(self, jira_key: str, field_id: str, value: str):
+        """Update a custom field on Jira ticket"""
+        jira_config = self.config['jira']
+        
+        headers = {
+            'Authorization': f"Basic {self._base64_encode(f\"{jira_config['email']}:{jira_config['api_token']}\")}",
+            'Content-Type': 'application/json'
+        }
+        
+        update_payload = {
+            'update': {
+                field_id: [{'set': value}]
+            }
+        }
+        
+        requests.put(
+            f"{jira_config['url']}/rest/api/2/issue/{jira_key}",
+            headers=headers,
+            json=update_payload,
+            timeout=30
+        )
+        
+    def _map_priority(self, milestone: Dict) -> Dict:
+        """Map GitHub priority to Jira priority"""
+        return {'name': 'Medium'}  # Simplified
+        
+    def _log_sync(self, result: Dict):
+        """Log sync operation"""
+        result['timestamp'] = datetime.now().isoformat()
+        
+        with open(self.sync_log, 'a') as f:
+            f.write(json.dumps(result) + '\n')
+
+
+# CLI Entry Point
+if __name__ == '__main__':
+    import sys
+    
+    print("NexDev Jira Sync Engine v3.0")
+    print("=" * 50)
+    
+    sync = JiraSync()
+    
+    if len(sys.argv) < 2:
+        print("\nUsage:")
+        print("  python jira_sync.py auth")
+        print("  python jira_sync.py sync-github-to-jira [owner/repo]")
+        print("  python jira_sync.py sync-jira-to-github [project-key]")
+        print("  python jira_sync.py sync-full")
+        sys.exit(1)
+        
+    command = sys.argv[1]
+    
+    if command == 'auth':
+        success, message = sync.authenticate()
+        print(f"Authentication: {'✅' if success else '❌'} {message}")
+        
+    elif command == 'sync-github-to-jira':
+        repo_spec = sys.argv[2] if len(sys.argv) > 2 else None
+        
+        if repo_spec:
+            parts = repo_spec.split('/')
+            owner, repo = parts[0], parts[1] if len(parts) > 1 else parts[0]
+            result = sync.sync_github_to_jira(owner, repo)
+        else:
+            result = sync.sync_github_to_jira()
+            
+        print(json.dumps(result, indent=2))
+        
+    elif command == 'sync-full':
+        print("Running full bidirectional sync...")
+        
+        github_to_jira = sync.sync_github_to_jira()
+        print(f"\nGitHub → Jira: {github_to_jira['created']} created, {github_to_jira['updated']} updated")
+        
+        # Note: sync_jira_to_github would be implemented similarly
+        
+        print("\n✅ Sync complete")

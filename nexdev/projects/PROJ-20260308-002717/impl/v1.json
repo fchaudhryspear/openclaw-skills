@@ -1,0 +1,66 @@
+{
+  "files": [
+    {
+      "path": "app/main.py",
+      "language": "python",
+      "description": "Main FastAPI application",
+      "content": "#!/usr/bin/env python3\n\"\"\"Auto-generated FastAPI application\"\"\"\nfrom fastapi import FastAPI, Depends, HTTPException, status\nfrom fastapi.middleware.cors import CORSMiddleware\nfrom pydantic import BaseModel\nfrom typing import Optional, List\nimport uvicorn\n\napp = FastAPI(title=\"Generated App\", version=\"1.0.0\")\n\n# CORS\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"*\"],\n    allow_credentials=True,\n    allow_methods=[\"*\"],\n    allow_headers=[\"*\"],\n)\n\n# Auth dependency (placeholder)\nasync def get_current_user():\n    # TODO: Implement JWT validation\n    return {\"id\": \"user-1\", \"role\": \"admin\"}\n\n# Health check\n@app.get(\"/api/health\")\nasync def health():\n    return {\"status\": \"healthy\", \"version\": \"1.0.0\"}\n\n\n@app.post(\"/api/auth/register\")\nasync def auth_register(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Register a new user\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Register a new user\", \"status\": \"ok\"}\n\n@app.post(\"/api/auth/login\")\nasync def auth_login(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Authenticate user\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Authenticate user\", \"status\": \"ok\"}\n\n@app.post(\"/api/auth/logout\")\nasync def auth_logout(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Logout user\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Logout user\", \"status\": \"ok\"}\n\n@app.post(\"/api/auth/refresh\")\nasync def auth_refresh(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Refresh auth token\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Refresh auth token\", \"status\": \"ok\"}\n\n@app.get(\"/api/users/me\")\nasync def users_me(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Get current user profile\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Get current user profile\", \"status\": \"ok\"}\n\n@app.put(\"/api/users/me\")\nasync def users_me(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Update current user profile\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Update current user profile\", \"status\": \"ok\"}\n\n@app.get(\"/api/users\")\nasync def users(, current_user: dict = Depends(get_current_user)):\n    \"\"\"List users (admin)\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"List users (admin)\", \"status\": \"ok\"}\n\n@app.get(\"/api/users/:id\")\nasync def users_id(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Get user by ID\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Get user by ID\", \"status\": \"ok\"}\n\n@app.get(\"/api/users/me\")\nasync def users_me(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Get current user profile\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Get current user profile\", \"status\": \"ok\"}\n\n@app.put(\"/api/users/me\")\nasync def users_me(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Update current user profile\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Update current user profile\", \"status\": \"ok\"}\n\n@app.get(\"/api/users\")\nasync def users(, current_user: dict = Depends(get_current_user)):\n    \"\"\"List users (admin)\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"List users (admin)\", \"status\": \"ok\"}\n\n@app.get(\"/api/users/:id\")\nasync def users_id(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Get user by ID\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Get user by ID\", \"status\": \"ok\"}\n\n@app.get(\"/api/users/me\")\nasync def users_me(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Get current user profile\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Get current user profile\", \"status\": \"ok\"}\n\n@app.put(\"/api/users/me\")\nasync def users_me(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Update current user profile\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Update current user profile\", \"status\": \"ok\"}\n\n@app.get(\"/api/users\")\nasync def users(, current_user: dict = Depends(get_current_user)):\n    \"\"\"List users (admin)\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"List users (admin)\", \"status\": \"ok\"}\n\n@app.get(\"/api/users/:id\")\nasync def users_id(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Get user by ID\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Get user by ID\", \"status\": \"ok\"}\n\n@app.get(\"/api/health\")\nasync def health():\n    \"\"\"Health check endpoint\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Health check endpoint\", \"status\": \"ok\"}\n\n\nif __name__ == \"__main__\":\n    uvicorn.run(app, host=\"0.0.0.0\", port=8000)\n"
+    },
+    {
+      "path": "app/models.py",
+      "language": "python",
+      "description": "Database models (SQLAlchemy)",
+      "content": "\"\"\"Auto-generated database models\"\"\"\n\nfrom sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Boolean\nfrom sqlalchemy.dialects.postgresql import UUID\nfrom sqlalchemy.ext.declarative import declarative_base\nfrom datetime import datetime\nimport uuid\n\nBase = declarative_base()\n\n\nclass Users(Base):\n    \"\"\"User accounts\"\"\"\n    __tablename__ = \"users\"\n\n    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)\n    email = Column(String, nullable=False)\n    password_hash = Column(String, nullable=False)\n    name = Column(String, nullable=True)\n    role = Column(String, nullable=False)\n    created_at = Column(DateTime, nullable=False)\n    updated_at = Column(DateTime, nullable=False)\n"
+    },
+    {
+      "path": "config.py",
+      "language": "python",
+      "description": "Application configuration",
+      "content": "\"\"\"Application configuration\"\"\"\nimport os\n\nclass Config:\n    SECRET_KEY = os.getenv(\"SECRET_KEY\", \"change-me-in-production\")\n    DATABASE_URL = os.getenv(\"DATABASE_URL\", \"postgresql://localhost:5432/app\")\n    DEBUG = os.getenv(\"DEBUG\", \"false\").lower() == \"true\"\n    API_VERSION = \"1.0.0\"\n    CORS_ORIGINS = os.getenv(\"CORS_ORIGINS\", \"*\").split(\",\")\n"
+    },
+    {
+      "path": "Dockerfile",
+      "language": "dockerfile",
+      "description": "Container definition",
+      "content": "FROM python:3.12-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nEXPOSE 8000\nCMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n"
+    },
+    {
+      "path": "requirements.txt",
+      "language": "text",
+      "description": "Python dependencies",
+      "content": "alembic>=1.13\nbcrypt>=4.1\nfastapi>=0.110.0\nhttpx>=0.27\npsycopg2-binary>=2.9\npydantic>=2.6\npython-jose[cryptography]>=3.3\nsqlalchemy>=2.0\nuvicorn>=0.29.0"
+    }
+  ],
+  "test_files": [
+    {
+      "path": "tests/test_main.py",
+      "language": "python",
+      "description": "Tests for app/main.py",
+      "content": "import pytest\n\nimport pytest\nfrom unittest.mock import Mock, patch, MagicMock\n\n\n# Tests for: Test get_current_user\n\ndef test_get_current_user_returns_expected_type():\n    \"\"\"Test that function returns expected type\"\"\"\n    result = get_current_user()\n    assert result is not None\n    # assert isinstance(result, expected_type)\n\n\ndef test_get_current_user_handles_empty_input():\n    \"\"\"Test empty input handling\"\"\"\n    result = get_current_user(\"\")\n    assert result is not None  # or raises\n\n\ndef test_get_current_user_handles_none():\n    \"\"\"Test None handling\"\"\"\n    with pytest.raises((TypeError, ValueError)):\n        get_current_user(None)\n\n\ndef test_get_current_user_idempotent():\n    \"\"\"Test that repeated calls produce same result\"\"\"\n    result1 = get_current_user(\"same_input\")\n    result2 = get_current_user(\"same_input\")\n    assert result1 == result2\n\nimport pytest\nfrom unittest.mock import Mock, patch, MagicMock\n\n\n# Tests for: Health check endpoint\n\ndef test_health_valid_input():\n    \"\"\"Test with valid input\"\"\"\n    assert health(\"valid_input\") is True\n\n\ndef test_health_empty_input():\n    \"\"\"Test with empty input\"\"\"\n    assert health(\"\") is False\n\n\ndef test_health_none_input():\n    \"\"\"Test with None input\"\"\"\n    with pytest.raises(TypeError):\n        health(None)\n\n\ndef test_health_boundary_values():\n    \"\"\"Test boundary values\"\"\"\n    # Min boundary\n    assert health(\"a\") is True  # or False depending on rules\n    \n    # Max boundary\n    assert health(\"a\" * 10000) is False  # Likely exceeds limits\n\n\ndef test_health_special_characters():\n    \"\"\"Test with special characters\"\"\"\n    assert health(\"<script>alert('xss')</script>\") is False\n    assert health(\"Robert'); DROP TABLE users;--\") is False\n\nimport pytest\nfrom unittest.mock import Mock, patch, MagicMock\n\n\n# Tests for: Health check endpoint\n\ndef test_health_valid_input():\n    \"\"\"Test with valid input\"\"\"\n    assert health(\"valid_input\") is True\n\n\ndef test_health_empty_input():\n    \"\"\"Test with empty input\"\"\"\n    assert health(\"\") is False\n\n\ndef test_health_none_input():\n    \"\"\"Test with None input\"\"\"\n    with pytest.raises(TypeError):\n        health(None)\n\n\ndef test_health_boundary_values():\n    \"\"\"Test boundary values\"\"\"\n    # Min boundary\n    assert health(\"a\") is True  # or False depending on rules\n    \n    # Max boundary\n    assert health(\"a\" * 10000) is False  # Likely exceeds limits\n\n\ndef test_health_special_characters():\n    \"\"\"Test with special characters\"\"\"\n    assert health(\"<script>alert('xss')</script>\") is False\n    assert health(\"Robert'); DROP TABLE users;--\") is False\n"
+    },
+    {
+      "path": "tests/test_models.py",
+      "language": "python",
+      "description": "Tests for app/models.py",
+      "content": "import pytest\n\n\n\nclass TestUsers:\n\n    \"\"\"Tests for Users\"\"\"\n\n\n    def setup_method(self):\n\n        self.instance = Users()\n\n\n    def test_init(self):\n\n        assert self.instance is not None\n"
+    },
+    {
+      "path": "tests/test_config.py",
+      "language": "python",
+      "description": "Tests for config.py",
+      "content": "import pytest\n\n\n\nclass TestConfig:\n\n    \"\"\"Tests for Config\"\"\"\n\n\n    def setup_method(self):\n\n        self.instance = Config()\n\n\n    def test_init(self):\n\n        assert self.instance is not None\n"
+    }
+  ],
+  "dependencies": {},
+  "build_commands": [
+    "docker build -t app ."
+  ],
+  "run_commands": [
+    "docker run -p 8000:8000 app"
+  ],
+  "environment_variables": [
+    "DATABASE_URL",
+    "SECRET_KEY",
+    "API_KEY"
+  ]
+}
