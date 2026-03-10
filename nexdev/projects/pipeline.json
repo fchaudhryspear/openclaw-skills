@@ -1,179 +1,11 @@
 {
-  "PROJ-20260308-002624": {
-    "id": "PROJ-20260308-002624",
-    "title": "Build a REST API for task management with user auth, task CR",
-    "raw_request": "Build a REST API for task management with user auth, task CRUD, and team collaboration. Use Python FastAPI and PostgreSQL.",
-    "current_stage": "blocked",
-    "created_at": "2026-03-08T00:26:24.306624",
-    "updated_at": "2026-03-08T00:26:24.308216",
-    "spec_version": "1",
-    "design_version": null,
-    "impl_version": null,
-    "qa_version": null,
-    "review_gates": {
-      "requirements_review": {
-        "status": "auto_approved",
-        "reviewer": "pipeline",
-        "notes": "Auto-approved"
-      },
-      "design_review": {
-        "status": "pending",
-        "reviewer": null,
-        "notes": ""
-      },
-      "qa_review": {
-        "status": "pending",
-        "reviewer": null,
-        "notes": ""
-      }
-    },
-    "events": [
-      {
-        "timestamp": "2026-03-08T00:26:24.306645",
-        "stage": "intake",
-        "action": "started",
-        "agent": "pipeline",
-        "message": "Project 'PROJ-20260308-002624' created from request",
-        "artifact_path": null,
-        "duration_ms": null
-      },
-      {
-        "timestamp": "2026-03-08T00:26:24.308063",
-        "stage": "requirements",
-        "action": "completed",
-        "agent": "product_manager",
-        "message": "Stage requirements completed",
-        "artifact_path": null,
-        "duration_ms": 1.2340545654296875
-      },
-      {
-        "timestamp": "2026-03-08T00:26:24.308201",
-        "stage": "requirements_review",
-        "action": "completed",
-        "agent": "product_manager",
-        "message": "Stage requirements_review completed",
-        "artifact_path": null,
-        "duration_ms": 0.00095367431640625
-      },
-      {
-        "timestamp": "2026-03-08T00:26:24.308207",
-        "stage": "requirements_review",
-        "action": "approved",
-        "agent": "pipeline",
-        "message": "Auto-approved (auto_approve=True)",
-        "artifact_path": null,
-        "duration_ms": null
-      },
-      {
-        "timestamp": "2026-03-08T00:26:24.308213",
-        "stage": "requirements_review",
-        "action": "blocked",
-        "agent": "pipeline",
-        "message": "Waiting for human review at requirements_review",
-        "artifact_path": null,
-        "duration_ms": null
-      }
-    ],
-    "model_used": {},
-    "total_cost": 0.0,
-    "error": null
-  },
-  "PROJ-20260308-002646": {
-    "id": "PROJ-20260308-002646",
-    "title": "Build a REST API for task management with user auth, task CR",
-    "raw_request": "Build a REST API for task management with user auth, task CRUD, and team collaboration. Use Python FastAPI and PostgreSQL.",
-    "current_stage": "blocked",
-    "created_at": "2026-03-08T00:26:46.564449",
-    "updated_at": "2026-03-08T00:26:46.566261",
-    "spec_version": "1",
-    "design_version": null,
-    "impl_version": null,
-    "qa_version": null,
-    "review_gates": {
-      "requirements_review": {
-        "status": "approved",
-        "reviewer": "human",
-        "notes": "",
-        "timestamp": "2026-03-08T00:26:46.566250"
-      },
-      "design_review": {
-        "status": "pending",
-        "reviewer": null,
-        "notes": ""
-      },
-      "qa_review": {
-        "status": "pending",
-        "reviewer": null,
-        "notes": ""
-      }
-    },
-    "events": [
-      {
-        "timestamp": "2026-03-08T00:26:46.564465",
-        "stage": "intake",
-        "action": "started",
-        "agent": "pipeline",
-        "message": "Project 'PROJ-20260308-002646' created from request",
-        "artifact_path": null,
-        "duration_ms": null
-      },
-      {
-        "timestamp": "2026-03-08T00:26:46.565896",
-        "stage": "requirements",
-        "action": "completed",
-        "agent": "product_manager",
-        "message": "Stage requirements completed",
-        "artifact_path": null,
-        "duration_ms": 1.2061595916748047
-      },
-      {
-        "timestamp": "2026-03-08T00:26:46.566070",
-        "stage": "requirements_review",
-        "action": "completed",
-        "agent": "product_manager",
-        "message": "Stage requirements_review completed",
-        "artifact_path": null,
-        "duration_ms": 0.00095367431640625
-      },
-      {
-        "timestamp": "2026-03-08T00:26:46.566077",
-        "stage": "requirements_review",
-        "action": "approved",
-        "agent": "pipeline",
-        "message": "Auto-approved (auto_approve=True)",
-        "artifact_path": null,
-        "duration_ms": null
-      },
-      {
-        "timestamp": "2026-03-08T00:26:46.566252",
-        "stage": "requirements_review",
-        "action": "approved",
-        "agent": "human",
-        "message": "Approved: No notes",
-        "artifact_path": null,
-        "duration_ms": null
-      },
-      {
-        "timestamp": "2026-03-08T00:26:46.566258",
-        "stage": "requirements_review",
-        "action": "blocked",
-        "agent": "pipeline",
-        "message": "Waiting for human review at requirements_review",
-        "artifact_path": null,
-        "duration_ms": null
-      }
-    ],
-    "model_used": {},
-    "total_cost": 0.0,
-    "error": null
-  },
-  "PROJ-20260308-002717": {
-    "id": "PROJ-20260308-002717",
-    "title": "Build a REST API for task management with user auth, task CR",
-    "raw_request": "Build a REST API for task management with user auth, task CRUD, and team collaboration. Use Python FastAPI and PostgreSQL.",
+  "PROJ-20260309-062458": {
+    "id": "PROJ-20260309-062458",
+    "title": "Build a Python CLI tool for converting CSV files to JSON wit",
+    "raw_request": "Build a Python CLI tool for converting CSV files to JSON with error handling",
     "current_stage": "complete",
-    "created_at": "2026-03-08T00:27:17.361241",
-    "updated_at": "2026-03-08T00:27:17.365043",
+    "created_at": "2026-03-09T06:24:58.952726",
+    "updated_at": "2026-03-09T06:26:03.172964",
     "spec_version": "1",
     "design_version": "1",
     "impl_version": "1",
@@ -183,60 +15,51 @@
         "status": "approved",
         "reviewer": "human",
         "notes": "",
-        "timestamp": "2026-03-08T00:27:17.363165"
+        "timestamp": "2026-03-09T06:25:14.606670"
       },
       "design_review": {
         "status": "approved",
         "reviewer": "human",
         "notes": "",
-        "timestamp": "2026-03-08T00:27:17.363922"
+        "timestamp": "2026-03-09T06:25:28.149335"
       },
       "qa_review": {
         "status": "approved",
         "reviewer": "human",
         "notes": "",
-        "timestamp": "2026-03-08T00:27:17.364924"
+        "timestamp": "2026-03-09T06:26:03.172164"
       }
     },
     "events": [
       {
-        "timestamp": "2026-03-08T00:27:17.361257",
+        "timestamp": "2026-03-09T06:24:58.952745",
         "stage": "intake",
         "action": "started",
         "agent": "pipeline",
-        "message": "Project 'PROJ-20260308-002717' created from request",
+        "message": "Project 'PROJ-20260309-062458' created from request",
         "artifact_path": null,
         "duration_ms": null
       },
       {
-        "timestamp": "2026-03-08T00:27:17.362708",
+        "timestamp": "2026-03-09T06:25:14.604941",
         "stage": "requirements",
         "action": "completed",
         "agent": "product_manager",
         "message": "Stage requirements completed",
         "artifact_path": null,
-        "duration_ms": 1.1529922485351562
+        "duration_ms": 15651.952028274536
       },
       {
-        "timestamp": "2026-03-08T00:27:17.362942",
+        "timestamp": "2026-03-09T06:25:14.605924",
         "stage": "requirements_review",
         "action": "completed",
         "agent": "product_manager",
         "message": "Stage requirements_review completed",
         "artifact_path": null,
-        "duration_ms": 0.00095367431640625
+        "duration_ms": 0.015974044799804688
       },
       {
-        "timestamp": "2026-03-08T00:27:17.362948",
-        "stage": "requirements_review",
-        "action": "approved",
-        "agent": "pipeline",
-        "message": "Auto-approved (auto_approve=True)",
-        "artifact_path": null,
-        "duration_ms": null
-      },
-      {
-        "timestamp": "2026-03-08T00:27:17.363167",
+        "timestamp": "2026-03-09T06:25:14.606681",
         "stage": "requirements_review",
         "action": "approved",
         "agent": "human",
@@ -245,7 +68,7 @@
         "duration_ms": null
       },
       {
-        "timestamp": "2026-03-08T00:27:17.363173",
+        "timestamp": "2026-03-09T06:25:14.606711",
         "stage": "design",
         "action": "started",
         "agent": "architect",
@@ -254,25 +77,16 @@
         "duration_ms": null
       },
       {
-        "timestamp": "2026-03-08T00:27:17.363671",
+        "timestamp": "2026-03-09T06:25:28.148249",
         "stage": "design",
         "action": "completed",
         "agent": "architect",
         "message": "Stage design completed",
         "artifact_path": null,
-        "duration_ms": 0.49185752868652344
+        "duration_ms": 13541.483163833618
       },
       {
-        "timestamp": "2026-03-08T00:27:17.363677",
-        "stage": "design_review",
-        "action": "approved",
-        "agent": "pipeline",
-        "message": "Auto-approved (auto_approve=True)",
-        "artifact_path": null,
-        "duration_ms": null
-      },
-      {
-        "timestamp": "2026-03-08T00:27:17.363924",
+        "timestamp": "2026-03-09T06:25:28.149345",
         "stage": "design_review",
         "action": "approved",
         "agent": "human",
@@ -281,7 +95,7 @@
         "duration_ms": null
       },
       {
-        "timestamp": "2026-03-08T00:27:17.363930",
+        "timestamp": "2026-03-09T06:25:28.149377",
         "stage": "development",
         "action": "started",
         "agent": "developer",
@@ -290,34 +104,34 @@
         "duration_ms": null
       },
       {
-        "timestamp": "2026-03-08T00:27:17.364406",
+        "timestamp": "2026-03-09T06:26:03.167071",
+        "stage": "development",
+        "action": "llm_fallback",
+        "agent": "pipeline",
+        "message": "LLM failed ('SDLCPipeline' object has no attribute '_execute_stage_rules'), falling back to rules",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:26:03.170151",
         "stage": "development",
         "action": "completed",
         "agent": "developer",
         "message": "Stage development completed",
         "artifact_path": null,
-        "duration_ms": 0.4711151123046875
+        "duration_ms": 35020.731925964355
       },
       {
-        "timestamp": "2026-03-08T00:27:17.364663",
+        "timestamp": "2026-03-09T06:26:03.171260",
         "stage": "qa_review",
         "action": "completed",
         "agent": "product_manager",
         "message": "Stage qa_review completed",
         "artifact_path": null,
-        "duration_ms": 0.0
+        "duration_ms": 0.0069141387939453125
       },
       {
-        "timestamp": "2026-03-08T00:27:17.364669",
-        "stage": "qa_review",
-        "action": "approved",
-        "agent": "pipeline",
-        "message": "Auto-approved (auto_approve=True)",
-        "artifact_path": null,
-        "duration_ms": null
-      },
-      {
-        "timestamp": "2026-03-08T00:27:17.364925",
+        "timestamp": "2026-03-09T06:26:03.172174",
         "stage": "qa_review",
         "action": "approved",
         "agent": "human",
@@ -326,7 +140,7 @@
         "duration_ms": null
       },
       {
-        "timestamp": "2026-03-08T00:27:17.364930",
+        "timestamp": "2026-03-09T06:26:03.172201",
         "stage": "deployment",
         "action": "started",
         "agent": "devops_engineer",
@@ -335,17 +149,1522 @@
         "duration_ms": null
       },
       {
-        "timestamp": "2026-03-08T00:27:17.365040",
+        "timestamp": "2026-03-09T06:26:03.172944",
         "stage": "deployment",
         "action": "completed",
         "agent": "devops_engineer",
         "message": "Stage deployment completed",
         "artifact_path": null,
-        "duration_ms": 0.10609626770019531
+        "duration_ms": 0.7190704345703125
       }
     ],
-    "model_used": {},
-    "total_cost": 0.0,
+    "model_used": {
+      "requirements": "alibaba-sg/qwen-turbo",
+      "design": "alibaba-sg/qwen3.5-122b-a10b"
+    },
+    "total_cost": 0.001568,
+    "error": null
+  },
+  "PROJ-20260309-062648": {
+    "id": "PROJ-20260309-062648",
+    "title": "Build a Python function that validates email addresses",
+    "raw_request": "Build a Python function that validates email addresses",
+    "current_stage": "complete",
+    "created_at": "2026-03-09T06:26:48.238788",
+    "updated_at": "2026-03-09T06:28:34.851169",
+    "spec_version": "1",
+    "design_version": "1",
+    "impl_version": "1",
+    "qa_version": null,
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:27:01.037502"
+      },
+      "design_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:27:15.844716"
+      },
+      "qa_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:28:34.850363"
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-09T06:26:48.238806",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260309-062648' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:27:01.034725",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 12795.526027679443
+      },
+      {
+        "timestamp": "2026-03-09T06:27:01.036218",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.016689300537109375
+      },
+      {
+        "timestamp": "2026-03-09T06:27:01.037514",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:27:01.037549",
+        "stage": "design",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting design",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:27:15.842876",
+        "stage": "design",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Stage design completed",
+        "artifact_path": null,
+        "duration_ms": 14805.268049240112
+      },
+      {
+        "timestamp": "2026-03-09T06:27:15.844726",
+        "stage": "design_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:27:15.844759",
+        "stage": "development",
+        "action": "started",
+        "agent": "developer",
+        "message": "Starting development",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:28:34.843144",
+        "stage": "development",
+        "action": "llm_fallback",
+        "agent": "pipeline",
+        "message": "LLM failed ('SDLCPipeline' object has no attribute '_execute_stage_rules'), falling back to rules",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:28:34.846375",
+        "stage": "development",
+        "action": "completed",
+        "agent": "developer",
+        "message": "Stage development completed",
+        "artifact_path": null,
+        "duration_ms": 79001.57117843628
+      },
+      {
+        "timestamp": "2026-03-09T06:28:34.848748",
+        "stage": "qa_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage qa_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.010967254638671875
+      },
+      {
+        "timestamp": "2026-03-09T06:28:34.850374",
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:28:34.850406",
+        "stage": "deployment",
+        "action": "started",
+        "agent": "devops_engineer",
+        "message": "Starting deployment",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:28:34.851147",
+        "stage": "deployment",
+        "action": "completed",
+        "agent": "devops_engineer",
+        "message": "Stage deployment completed",
+        "artifact_path": null,
+        "duration_ms": 0.7171630859375
+      }
+    ],
+    "model_used": {
+      "requirements": "alibaba-sg/qwen-turbo",
+      "design": "alibaba-sg/qwen3.5-122b-a10b"
+    },
+    "total_cost": 0.0014980000000000002,
+    "error": null
+  },
+  "PROJ-20260309-062910": {
+    "id": "PROJ-20260309-062910",
+    "title": "Build a Python CLI tool that converts CSV to JSON with error",
+    "raw_request": "Build a Python CLI tool that converts CSV to JSON with error handling and validation",
+    "current_stage": "complete",
+    "created_at": "2026-03-09T06:29:10.960913",
+    "updated_at": "2026-03-09T06:30:21.844280",
+    "spec_version": "1",
+    "design_version": "1",
+    "impl_version": "1",
+    "qa_version": null,
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:29:26.739399"
+      },
+      "design_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:29:40.174124"
+      },
+      "qa_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:30:21.843644"
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-09T06:29:10.960931",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260309-062910' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:29:26.735442",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 15774.00279045105
+      },
+      {
+        "timestamp": "2026-03-09T06:29:26.737624",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.015020370483398438
+      },
+      {
+        "timestamp": "2026-03-09T06:29:26.739410",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:29:26.739440",
+        "stage": "design",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting design",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:29:40.171708",
+        "stage": "design",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Stage design completed",
+        "artifact_path": null,
+        "duration_ms": 13432.213068008423
+      },
+      {
+        "timestamp": "2026-03-09T06:29:40.174139",
+        "stage": "design_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:29:40.174174",
+        "stage": "development",
+        "action": "started",
+        "agent": "developer",
+        "message": "Starting development",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:30:21.839728",
+        "stage": "development",
+        "action": "completed",
+        "agent": "developer",
+        "message": "Stage development completed",
+        "artifact_path": null,
+        "duration_ms": 41665.49110412598
+      },
+      {
+        "timestamp": "2026-03-09T06:30:21.842105",
+        "stage": "qa_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage qa_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.010967254638671875
+      },
+      {
+        "timestamp": "2026-03-09T06:30:21.843651",
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:30:21.843672",
+        "stage": "deployment",
+        "action": "started",
+        "agent": "devops_engineer",
+        "message": "Starting deployment",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:30:21.844265",
+        "stage": "deployment",
+        "action": "completed",
+        "agent": "devops_engineer",
+        "message": "Stage deployment completed",
+        "artifact_path": null,
+        "duration_ms": 0.5748271942138672
+      }
+    ],
+    "model_used": {
+      "requirements": "alibaba-sg/qwen-turbo",
+      "design": "alibaba-sg/qwen3.5-122b-a10b"
+    },
+    "total_cost": 0.001716,
+    "error": null
+  },
+  "PROJ-20260309-063054": {
+    "id": "PROJ-20260309-063054",
+    "title": "Build a hello world Python script",
+    "raw_request": "Build a hello world Python script",
+    "current_stage": "testing",
+    "created_at": "2026-03-09T06:30:54.591588",
+    "updated_at": "2026-03-09T06:31:10.225284",
+    "spec_version": "1",
+    "design_version": "1",
+    "impl_version": "1",
+    "qa_version": null,
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:31:02.264221"
+      },
+      "design_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:31:07.381071"
+      },
+      "qa_review": {
+        "status": "pending",
+        "reviewer": null,
+        "notes": ""
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-09T06:30:54.591604",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260309-063054' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:31:02.259041",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 7666.942119598389
+      },
+      {
+        "timestamp": "2026-03-09T06:31:02.262744",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.0069141387939453125
+      },
+      {
+        "timestamp": "2026-03-09T06:31:02.264240",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:31:02.264287",
+        "stage": "design",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting design",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:31:07.379428",
+        "stage": "design",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Stage design completed",
+        "artifact_path": null,
+        "duration_ms": 5115.088939666748
+      },
+      {
+        "timestamp": "2026-03-09T06:31:07.381082",
+        "stage": "design_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:31:07.381116",
+        "stage": "development",
+        "action": "started",
+        "agent": "developer",
+        "message": "Starting development",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:31:10.225197",
+        "stage": "development",
+        "action": "completed",
+        "agent": "developer",
+        "message": "Stage development completed",
+        "artifact_path": null,
+        "duration_ms": 2844.027042388916
+      }
+    ],
+    "model_used": {
+      "requirements": "alibaba-sg/qwen-turbo",
+      "design": "alibaba-sg/qwen3.5-122b-a10b",
+      "development": "alibaba-sg/qwen-coder"
+    },
+    "total_cost": 0.000982,
+    "error": null
+  },
+  "PROJ-20260309-063128": {
+    "id": "PROJ-20260309-063128",
+    "title": "Build a Python CLI tool that validates and converts CSV file",
+    "raw_request": "Build a Python CLI tool that validates and converts CSV files to JSON format with proper error handling",
+    "current_stage": "complete",
+    "created_at": "2026-03-09T06:31:28.579499",
+    "updated_at": "2026-03-09T06:32:45.349432",
+    "spec_version": "1",
+    "design_version": "1",
+    "impl_version": "1",
+    "qa_version": null,
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:31:44.771269"
+      },
+      "design_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:31:59.430718"
+      },
+      "qa_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:32:45.348951"
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-09T06:31:28.579515",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260309-063128' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:31:44.765699",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 16185.606956481934
+      },
+      {
+        "timestamp": "2026-03-09T06:31:44.768765",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.014066696166992188
+      },
+      {
+        "timestamp": "2026-03-09T06:31:44.771288",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:31:44.771315",
+        "stage": "design",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting design",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:31:59.427472",
+        "stage": "design",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Stage design completed",
+        "artifact_path": null,
+        "duration_ms": 14656.112909317017
+      },
+      {
+        "timestamp": "2026-03-09T06:31:59.430738",
+        "stage": "design_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:31:59.430775",
+        "stage": "development",
+        "action": "started",
+        "agent": "developer",
+        "message": "Starting development",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:32:45.346055",
+        "stage": "development",
+        "action": "completed",
+        "agent": "developer",
+        "message": "Stage development completed",
+        "artifact_path": null,
+        "duration_ms": 45915.23623466492
+      },
+      {
+        "timestamp": "2026-03-09T06:32:45.347598",
+        "stage": "qa_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage qa_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.0040531158447265625
+      },
+      {
+        "timestamp": "2026-03-09T06:32:45.348965",
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:32:45.348984",
+        "stage": "deployment",
+        "action": "started",
+        "agent": "devops_engineer",
+        "message": "Starting deployment",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:32:45.349420",
+        "stage": "deployment",
+        "action": "completed",
+        "agent": "devops_engineer",
+        "message": "Stage deployment completed",
+        "artifact_path": null,
+        "duration_ms": 0.42176246643066406
+      }
+    ],
+    "model_used": {
+      "requirements": "alibaba-sg/qwen-turbo",
+      "design": "alibaba-sg/qwen3.5-122b-a10b"
+    },
+    "total_cost": 0.001701,
+    "error": null
+  },
+  "PROJ-20260309-063405": {
+    "id": "PROJ-20260309-063405",
+    "title": "Build a Python function that validates email addresses and p",
+    "raw_request": "Build a Python function that validates email addresses and phone numbers",
+    "current_stage": "complete",
+    "created_at": "2026-03-09T06:34:05.026009",
+    "updated_at": "2026-03-09T06:35:14.887872",
+    "spec_version": "1",
+    "design_version": "1",
+    "impl_version": "1",
+    "qa_version": null,
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:34:14.686277"
+      },
+      "design_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:34:32.911185"
+      },
+      "qa_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:35:14.887110"
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-09T06:34:05.026025",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260309-063405' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:34:14.680421",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 9653.766870498657
+      },
+      {
+        "timestamp": "2026-03-09T06:34:14.683986",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.017881393432617188
+      },
+      {
+        "timestamp": "2026-03-09T06:34:14.686292",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:34:14.686317",
+        "stage": "design",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting design",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:34:32.907308",
+        "stage": "design",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Stage design completed",
+        "artifact_path": null,
+        "duration_ms": 18220.942974090576
+      },
+      {
+        "timestamp": "2026-03-09T06:34:32.911215",
+        "stage": "design_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:34:32.911256",
+        "stage": "development",
+        "action": "started",
+        "agent": "developer",
+        "message": "Starting development",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:35:14.880058",
+        "stage": "development",
+        "action": "completed",
+        "agent": "developer",
+        "message": "Stage development completed",
+        "artifact_path": null,
+        "duration_ms": 41968.7397480011
+      },
+      {
+        "timestamp": "2026-03-09T06:35:14.883940",
+        "stage": "qa_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage qa_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.015974044799804688
+      },
+      {
+        "timestamp": "2026-03-09T06:35:14.887123",
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:35:14.887153",
+        "stage": "deployment",
+        "action": "started",
+        "agent": "devops_engineer",
+        "message": "Starting deployment",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:35:14.887852",
+        "stage": "deployment",
+        "action": "completed",
+        "agent": "devops_engineer",
+        "message": "Stage deployment completed",
+        "artifact_path": null,
+        "duration_ms": 0.6737709045410156
+      }
+    ],
+    "model_used": {
+      "requirements": "alibaba-sg/qwen-turbo",
+      "design": "alibaba-sg/qwen3.5-122b-a10b",
+      "development": "alibaba-sg/qwen-coder"
+    },
+    "total_cost": 0.005243,
+    "error": null
+  },
+  "PROJ-20260309-063722": {
+    "id": "PROJ-20260309-063722",
+    "title": "Build a Python module that parses and validates JSON configu",
+    "raw_request": "Build a Python module that parses and validates JSON configuration files",
+    "current_stage": "complete",
+    "created_at": "2026-03-09T06:37:22.630131",
+    "updated_at": "2026-03-09T06:38:47.664187",
+    "spec_version": "1",
+    "design_version": "1",
+    "impl_version": "1",
+    "qa_version": "1",
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:37:35.255133"
+      },
+      "design_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:37:49.261352"
+      },
+      "qa_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:38:47.662821"
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-09T06:37:22.630147",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260309-063722' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:37:35.247826",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 12616.989850997925
+      },
+      {
+        "timestamp": "2026-03-09T06:37:35.251970",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.017881393432617188
+      },
+      {
+        "timestamp": "2026-03-09T06:37:35.255150",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:37:35.255174",
+        "stage": "design",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting design",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:37:49.256981",
+        "stage": "design",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Stage design completed",
+        "artifact_path": null,
+        "duration_ms": 14001.760959625244
+      },
+      {
+        "timestamp": "2026-03-09T06:37:49.261375",
+        "stage": "design_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:37:49.261414",
+        "stage": "development",
+        "action": "started",
+        "agent": "developer",
+        "message": "Starting development",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:38:21.645072",
+        "stage": "development",
+        "action": "completed",
+        "agent": "developer",
+        "message": "Stage development completed",
+        "artifact_path": null,
+        "duration_ms": 32383.606910705566
+      },
+      {
+        "timestamp": "2026-03-09T06:38:21.645173",
+        "stage": "testing",
+        "action": "started",
+        "agent": "qa_engineer",
+        "message": "Starting testing",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:38:47.656832",
+        "stage": "testing",
+        "action": "completed",
+        "agent": "qa_engineer",
+        "message": "Stage testing completed",
+        "artifact_path": null,
+        "duration_ms": 26011.57808303833
+      },
+      {
+        "timestamp": "2026-03-09T06:38:47.662847",
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:38:47.662896",
+        "stage": "deployment",
+        "action": "started",
+        "agent": "devops_engineer",
+        "message": "Starting deployment",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:38:47.664081",
+        "stage": "deployment",
+        "action": "completed",
+        "agent": "devops_engineer",
+        "message": "Stage deployment completed",
+        "artifact_path": null,
+        "duration_ms": 1.15203857421875
+      },
+      {
+        "timestamp": "2026-03-09T06:38:47.664123",
+        "stage": "complete",
+        "action": "started",
+        "agent": "product_manager",
+        "message": "Starting complete",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:38:47.664173",
+        "stage": "complete",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage complete completed",
+        "artifact_path": null,
+        "duration_ms": 0.0247955322265625
+      }
+    ],
+    "model_used": {
+      "requirements": "alibaba-sg/qwen-turbo",
+      "design": "alibaba-sg/qwen3.5-122b-a10b",
+      "development": "alibaba-sg/qwen-coder",
+      "test_generation": "alibaba-sg/qwen-coder",
+      "qa": "google/gemini-2.5-flash"
+    },
+    "total_cost": 0.006175999999999999,
+    "error": null
+  },
+  "PROJ-20260309-064431": {
+    "id": "PROJ-20260309-064431",
+    "title": "Build a Python module that validates email addresses and for",
+    "raw_request": "Build a Python module that validates email addresses and formats phone numbers",
+    "current_stage": "complete",
+    "created_at": "2026-03-09T06:44:31.398236",
+    "updated_at": "2026-03-09T06:47:00.671425",
+    "spec_version": "1",
+    "design_version": "1",
+    "impl_version": "3",
+    "qa_version": "1",
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:44:43.608892"
+      },
+      "design_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:44:54.604284"
+      },
+      "qa_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T06:47:00.670703"
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-09T06:44:31.398252",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260309-064431' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:44:43.600466",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 12201.353073120117
+      },
+      {
+        "timestamp": "2026-03-09T06:44:43.605065",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.012874603271484375
+      },
+      {
+        "timestamp": "2026-03-09T06:44:43.608902",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:44:43.608928",
+        "stage": "design",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting design",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:44:54.600116",
+        "stage": "design",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Stage design completed",
+        "artifact_path": null,
+        "duration_ms": 10991.138696670532
+      },
+      {
+        "timestamp": "2026-03-09T06:44:54.604299",
+        "stage": "design_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:44:54.604337",
+        "stage": "development",
+        "action": "started",
+        "agent": "developer",
+        "message": "Starting development",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:45:20.394152",
+        "stage": "development",
+        "action": "completed",
+        "agent": "developer",
+        "message": "Stage development completed",
+        "artifact_path": null,
+        "duration_ms": 25789.76082801819
+      },
+      {
+        "timestamp": "2026-03-09T06:45:20.394261",
+        "stage": "testing",
+        "action": "started",
+        "agent": "qa_engineer",
+        "message": "Starting testing",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:45:20.418745",
+        "stage": "testing",
+        "action": "started",
+        "agent": "qa",
+        "message": "Testing initial",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:45:37.692895",
+        "stage": "testing",
+        "action": "fix_requested",
+        "agent": "qa",
+        "message": "Round 0: grade=C-, sending back to developer",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:45:51.538199",
+        "stage": "testing",
+        "action": "code_fixed",
+        "agent": "developer",
+        "message": "Developer fixed code (v2), 5 files",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:45:51.538269",
+        "stage": "testing",
+        "action": "fix_round",
+        "agent": "qa",
+        "message": "Testing round 1",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:46:18.289191",
+        "stage": "testing",
+        "action": "fix_requested",
+        "agent": "qa",
+        "message": "Round 1: grade=C-, sending back to developer",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:46:39.119338",
+        "stage": "testing",
+        "action": "code_fixed",
+        "agent": "developer",
+        "message": "Developer fixed code (v3), 7 files",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:46:39.119424",
+        "stage": "testing",
+        "action": "fix_round",
+        "agent": "qa",
+        "message": "Testing round 2",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:47:00.664450",
+        "stage": "testing",
+        "action": "passed",
+        "agent": "qa",
+        "message": "QA passed (round 2): grade=A, score=90",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:47:00.665822",
+        "stage": "testing",
+        "action": "completed",
+        "agent": "qa_engineer",
+        "message": "Stage testing completed",
+        "artifact_path": null,
+        "duration_ms": 100271.46124839783
+      },
+      {
+        "timestamp": "2026-03-09T06:47:00.670714",
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:47:00.670738",
+        "stage": "deployment",
+        "action": "started",
+        "agent": "devops_engineer",
+        "message": "Starting deployment",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:47:00.671350",
+        "stage": "deployment",
+        "action": "completed",
+        "agent": "devops_engineer",
+        "message": "Stage deployment completed",
+        "artifact_path": null,
+        "duration_ms": 0.5929470062255859
+      },
+      {
+        "timestamp": "2026-03-09T06:47:00.671380",
+        "stage": "complete",
+        "action": "started",
+        "agent": "product_manager",
+        "message": "Starting complete",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T06:47:00.671415",
+        "stage": "complete",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage complete completed",
+        "artifact_path": null,
+        "duration_ms": 0.015735626220703125
+      }
+    ],
+    "model_used": {
+      "requirements": "alibaba-sg/qwen-turbo",
+      "design": "alibaba-sg/qwen3.5-122b-a10b",
+      "development": "alibaba-sg/qwen-coder",
+      "test_generation": "alibaba-sg/qwen-coder",
+      "qa": "google/gemini-2.5-flash",
+      "fix_round_1": "alibaba-sg/qwen-coder",
+      "fix_round_2": "alibaba-sg/qwen-coder"
+    },
+    "total_cost": 0.01079,
+    "error": null
+  },
+  "PROJ-20260309-150553": {
+    "id": "PROJ-20260309-150553",
+    "title": "Build a Python REST API with FastAPI for user registration a",
+    "raw_request": "Build a Python REST API with FastAPI for user registration and login with JWT auth and password hashing",
+    "current_stage": "complete",
+    "created_at": "2026-03-09T15:05:53.211754",
+    "updated_at": "2026-03-09T15:08:12.523669",
+    "spec_version": "1",
+    "design_version": "1",
+    "impl_version": "1",
+    "qa_version": "1",
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T15:06:08.272455"
+      },
+      "design_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T15:06:34.165882"
+      },
+      "qa_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T15:08:12.522887"
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-09T15:05:53.211771",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260309-150553' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:06:08.261949",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 15048.901796340942
+      },
+      {
+        "timestamp": "2026-03-09T15:06:08.267412",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.011920928955078125
+      },
+      {
+        "timestamp": "2026-03-09T15:06:08.272472",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:06:08.272513",
+        "stage": "design",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting design",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:06:34.160083",
+        "stage": "design",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Stage design completed",
+        "artifact_path": null,
+        "duration_ms": 25887.50982284546
+      },
+      {
+        "timestamp": "2026-03-09T15:06:34.165910",
+        "stage": "design_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:06:34.165950",
+        "stage": "development",
+        "action": "started",
+        "agent": "developer",
+        "message": "Starting development",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:07:31.586103",
+        "stage": "development",
+        "action": "completed",
+        "agent": "developer",
+        "message": "Stage development completed",
+        "artifact_path": null,
+        "duration_ms": 57420.1078414917
+      },
+      {
+        "timestamp": "2026-03-09T15:07:31.586177",
+        "stage": "testing",
+        "action": "started",
+        "agent": "qa_engineer",
+        "message": "Starting testing",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:07:31.609966",
+        "stage": "testing",
+        "action": "started",
+        "agent": "qa",
+        "message": "Testing initial",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:08:12.515963",
+        "stage": "testing",
+        "action": "llm_fallback",
+        "agent": "pipeline",
+        "message": "LLM failed ('list' object has no attribute 'get'), falling back to rules",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:08:12.518094",
+        "stage": "testing",
+        "action": "completed",
+        "agent": "qa_engineer",
+        "message": "Stage testing completed",
+        "artifact_path": null,
+        "duration_ms": 40931.88500404358
+      },
+      {
+        "timestamp": "2026-03-09T15:08:12.522901",
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:08:12.522924",
+        "stage": "deployment",
+        "action": "started",
+        "agent": "devops_engineer",
+        "message": "Starting deployment",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:08:12.523603",
+        "stage": "deployment",
+        "action": "completed",
+        "agent": "devops_engineer",
+        "message": "Stage deployment completed",
+        "artifact_path": null,
+        "duration_ms": 0.6601810455322266
+      },
+      {
+        "timestamp": "2026-03-09T15:08:12.523628",
+        "stage": "complete",
+        "action": "started",
+        "agent": "product_manager",
+        "message": "Starting complete",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:08:12.523659",
+        "stage": "complete",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage complete completed",
+        "artifact_path": null,
+        "duration_ms": 0.012874603271484375
+      }
+    ],
+    "model_used": {
+      "requirements": "alibaba-sg/qwen-turbo",
+      "design": "alibaba-sg/qwen3.5-122b-a10b",
+      "development": "alibaba-sg/qwen-coder"
+    },
+    "total_cost": 0.007365,
+    "error": null
+  },
+  "PROJ-20260309-151353": {
+    "id": "PROJ-20260309-151353",
+    "title": "Build a Python CLI that reads a CSV file and generates a sum",
+    "raw_request": "Build a Python CLI that reads a CSV file and generates a summary report with statistics",
+    "current_stage": "design_review",
+    "created_at": "2026-03-09T15:13:53.950922",
+    "updated_at": "2026-03-09T15:14:23.427425",
+    "spec_version": "1",
+    "design_version": "1",
+    "impl_version": null,
+    "qa_version": null,
+    "review_gates": {
+      "requirements_review": {
+        "status": "approved",
+        "reviewer": "human",
+        "notes": "",
+        "timestamp": "2026-03-09T15:14:06.571040"
+      },
+      "design_review": {
+        "status": "pending",
+        "reviewer": null,
+        "notes": ""
+      },
+      "qa_review": {
+        "status": "pending",
+        "reviewer": null,
+        "notes": ""
+      }
+    },
+    "events": [
+      {
+        "timestamp": "2026-03-09T15:13:53.950941",
+        "stage": "intake",
+        "action": "started",
+        "agent": "pipeline",
+        "message": "Project 'PROJ-20260309-151353' created from request",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:14:06.561225",
+        "stage": "requirements",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements completed",
+        "artifact_path": null,
+        "duration_ms": 12609.088897705078
+      },
+      {
+        "timestamp": "2026-03-09T15:14:06.567127",
+        "stage": "requirements_review",
+        "action": "completed",
+        "agent": "product_manager",
+        "message": "Stage requirements_review completed",
+        "artifact_path": null,
+        "duration_ms": 0.02288818359375
+      },
+      {
+        "timestamp": "2026-03-09T15:14:06.571048",
+        "stage": "requirements_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: No notes",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:14:06.571071",
+        "stage": "design",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting design",
+        "artifact_path": null,
+        "duration_ms": null
+      },
+      {
+        "timestamp": "2026-03-09T15:14:23.427347",
+        "stage": "design",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Stage design completed",
+        "artifact_path": null,
+        "duration_ms": 16856.229066848755
+      }
+    ],
+    "model_used": {
+      "requirements": "alibaba-sg/qwen-turbo",
+      "design": "alibaba-sg/qwen3.5-122b-a10b"
+    },
+    "total_cost": 0.00171,
     "error": null
   }
 }

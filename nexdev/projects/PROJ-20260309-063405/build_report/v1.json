@@ -1,0 +1,64 @@
+{
+  "syntax_checks": [
+    {
+      "file": "main.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "email_validator.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "phone_validator.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_email_validator.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_phone_validator.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_api.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    }
+  ],
+  "lint_results": [],
+  "build_result": {
+    "status": "skipped",
+    "reason": "No requirements.txt"
+  },
+  "test_results": [
+    {
+      "runner": "pytest",
+      "exit_code": 1,
+      "status": "fail",
+      "output": "...F..FF.                                                                [100%]\n=================================== FAILURES ===================================\n_____________________ TestAPI.test_validate_invalid_phone ______________________\ntests/test_api.py:29: in test_validate_invalid_phone\n    self.assertEqual(response.status_code, 400)\nE   AssertionError: 200 != 400\n_____________________ TestEmailValidator.test_valid_emails _____________________\ntests/test_email_validator.py:9: in test_valid_emails\n    self.assertTrue(validate_email(\"user@123.123.123.123\"))\nE   AssertionError: False is not true\n____________________ TestPhoneValidator.test_invalid_phones ____________________\ntests/test_phone_validator.py:12: in test_invalid_phones\n    self.assertFalse(validate_phone(\"123456789\"))\nE   AssertionError: True is not false\n=============================== warnings summary ===============================\ntests/test_api.py::TestAPI::test_validate_batch\n  /private/var/folders/_g/7k61hsyn307czz_gqc6xy2xc0000gn/T/nexdev_build_dg8164am/app/main.py:64: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).\n    \"processed_at\": datetime.utcnow().isoformat()\n\ntests/test_api.py::TestAPI::test_validate_email\n  /private/var/folders/_g/7k61hsyn307czz_gqc6xy2xc0000gn/T/nexdev_build_dg8164am/app/main.py:31: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).\n    \"timestamp\": datetime.utcnow().isoformat()\n\ntests/test_api.py::TestAPI::test_validate_invalid_phone\ntests/test_api.py::TestAPI::test_validate_phone\n  /private/var/folders/_g/7k61hsyn307czz_gqc6xy2xc0000gn/T/nexdev_build_dg8164am/app/main.py:42: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in ",
+      "summary_line": "3 failed, 6 passed, 4 warnings in 0.22s"
+    }
+  ],
+  "summary": {
+    "grade": "C-",
+    "verdict": "Tests failed \u2014 implementation has issues",
+    "syntax": "6/6 files pass",
+    "lint_issues": 0,
+    "build": "skipped",
+    "tests": "fail"
+  },
+  "timestamp": "2026-03-09T06:36:44.118189",
+  "files_written": 9
+}

@@ -1,0 +1,58 @@
+{
+  "files": [
+    {
+      "path": "app/main.py",
+      "language": "Python",
+      "description": "Main entry point for the FastAPI application.",
+      "content": "from fastapi import FastAPI, HTTPException\nfrom pydantic import BaseModel\nfrom datetime import datetime\nimport re\nfrom app.validators.email_validator import validate_email\nfrom app.validators.phone_validator import validate_phone\n\napp = FastAPI()\n\nclass EmailRequest(BaseModel):\n    email: str\n\nclass PhoneRequest(BaseModel):\n    phone: str\n\nclass BatchItem(BaseModel):\n    type: str\n    value: str\n\nclass BatchRequest(BaseModel):\n    items: list[BatchItem]\n\n@app.post(\"/v1/validate/email\")\ndef validate_email_endpoint(request: EmailRequest):\n    sanitized_email = request.email.strip()[:256]\n    if not validate_email(sanitized_email):\n        raise HTTPException(status_code=400, detail=\"Invalid email address\")\n    return {\n        \"valid\": True,\n        \"input\": sanitized_email,\n        \"timestamp\": datetime.utcnow().isoformat()\n    }\n\n@app.post(\"/v1/validate/phone\")\ndef validate_phone_endpoint(request: PhoneRequest):\n    sanitized_phone = request.phone.strip()[:256]\n    if not validate_phone(sanitized_phone):\n        raise HTTPException(status_code=400, detail=\"Invalid phone number\")\n    return {\n        \"valid\": True,\n        \"input\": sanitized_phone,\n        \"timestamp\": datetime.utcnow().isoformat()\n    }\n\n@app.post(\"/v1/validate/batch\")\ndef validate_batch_endpoint(request: BatchRequest):\n    results = []\n    for item in request.items[:100]:\n        sanitized_value = item.value.strip()[:256]\n        if item.type == \"email\":\n            valid = validate_email(sanitized_value)\n        elif item.type == \"phone\":\n            valid = validate_phone(sanitized_value)\n        else:\n            valid = False\n        results.append({\n            \"type\": item.type,\n            \"value\": sanitized_value,\n            \"valid\": valid,\n            \"error\": None if valid else \"Invalid format\"\n        })\n    return {\n        \"results\": results,\n        \"processed_at\": datetime.utcnow().isoformat()\n    }\n\n@app.get(\"/health/liveness\")\ndef liveness():\n    return {\"status\": \"ok\"}\n\n@app.get(\"/health/readiness\")\ndef readiness():\n    return {\"status\": \"ok\"}\n"
+    },
+    {
+      "path": "app/validators/email_validator.py",
+      "language": "Python",
+      "description": "Email validation logic using regex.",
+      "content": "import re\n\ndef validate_email(email: str) -> bool:\n    # Simple regex for basic email validation\n    email_regex = re.compile(\n        r\"^(?P<local>[a-zA-Z0-9._%+-]+)@(?P<domain>[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$\",\n        re.IGNORECASE\n    )\n    match = email_regex.match(email)\n    if not match:\n        return False\n    domain = match.group('domain')\n    if '..' in domain or domain.startswith('.') or domain.endswith('.'):  # Basic domain checks\n        return False\n    return True\n"
+    },
+    {
+      "path": "app/validators/phone_validator.py",
+      "language": "Python",
+      "description": "Phone number validation logic using regex.",
+      "content": "import re\n\ndef validate_phone(phone: str) -> bool:\n    # Regex for E.164 aligned phone numbers\n    phone_regex = re.compile(\n        r\"^\\+?[1-9]\\d{1,14}$\",\n        re.IGNORECASE\n    )\n    return bool(phone_regex.match(phone))\n"
+    }
+  ],
+  "test_files": [
+    {
+      "path": "tests/test_email_validator.py",
+      "language": "Python",
+      "description": "Unit tests for the email validator.",
+      "content": "import unittest\nfrom app.validators.email_validator import validate_email\n\nclass TestEmailValidator(unittest.TestCase):\n    def test_valid_emails(self):\n        self.assertTrue(validate_email(\"user@example.com\"))\n        self.assertTrue(validate_email(\"user.name+tag+sorting@example.com\"))\n        self.assertTrue(validate_email(\"user@sub.example.com\"))\n        self.assertTrue(validate_email(\"user@123.123.123.123\"))\n        self.assertTrue(validate_email(\"user@[IPv6:2001:db8::1]\"))\n\n    def test_invalid_emails(self):\n        self.assertFalse(validate_email(\"plainaddress\"))\n        self.assertFalse(validate_email(\"@missingusername.com\"))\n        self.assertFalse(validate_email(\"username@.com\"))\n        self.assertFalse(validate_email(\"username@com\"))\n        self.assertFalse(validate_email(\"username@domain..com\"))\n\nif __name__ == '__main__':\n    unittest.main()\n"
+    },
+    {
+      "path": "tests/test_phone_validator.py",
+      "language": "Python",
+      "description": "Unit tests for the phone validator.",
+      "content": "import unittest\nfrom app.validators.phone_validator import validate_phone\n\nclass TestPhoneValidator(unittest.TestCase):\n    def test_valid_phones(self):\n        self.assertTrue(validate_phone(\"+1234567890\"))\n        self.assertTrue(validate_phone(\"1234567890\"))\n        self.assertTrue(validate_phone(\"+919876543210\"))\n        self.assertTrue(validate_phone(\"919876543210\"))\n\n    def test_invalid_phones(self):\n        self.assertFalse(validate_phone(\"123456789\"))\n        self.assertFalse(validate_phone(\"+123456789\"))\n        self.assertFalse(validate_phone(\"12345678901234567890\"))\n        self.assertFalse(validate_phone(\"+12345678901234567890\"))\n        self.assertFalse(validate_phone(\"abc1234567890\"))\n\nif __name__ == '__main__':\n    unittest.main()\n"
+    },
+    {
+      "path": "tests/test_api.py",
+      "language": "Python",
+      "description": "Integration tests for the API endpoints.",
+      "content": "import unittest\nimport json\nfrom fastapi.testclient import TestClient\nfrom app.main import app\n\nclass TestAPI(unittest.TestCase):\n    client = TestClient(app)\n\n    def test_validate_email(self):\n        response = self.client.post(\"/v1/validate/email\", json={\"email\": \"user@example.com\"})\n        self.assertEqual(response.status_code, 200)\n        data = response.json()\n        self.assertTrue(data[\"valid\"])\n        self.assertEqual(data[\"input\"], \"user@example.com\")\n\n    def test_validate_invalid_email(self):\n        response = self.client.post(\"/v1/validate/email\", json={\"email\": \"invalid-email\"})\n        self.assertEqual(response.status_code, 400)\n\n    def test_validate_phone(self):\n        response = self.client.post(\"/v1/validate/phone\", json={\"phone\": \"+1234567890\"})\n        self.assertEqual(response.status_code, 200)\n        data = response.json()\n        self.assertTrue(data[\"valid\"])\n        self.assertEqual(data[\"input\"], \"+1234567890\")\n\n    def test_validate_invalid_phone(self):\n        response = self.client.post(\"/v1/validate/phone\", json={\"phone\": \"123456789\"})\n        self.assertEqual(response.status_code, 400)\n\n    def test_validate_batch(self):\n        response = self.client.post(\"/v1/validate/batch\", json={\"items\": [{\"type\": \"email\", \"value\": \"user@example.com\"}, {\"type\": \"phone\", \"value\": \"+1234567890\"}]})\n        self.assertEqual(response.status_code, 200)\n        data = response.json()\n        self.assertEqual(len(data[\"results\"]), 2)\n        self.assertTrue(data[\"results\"][0][\"valid\"])\n        self.assertTrue(data[\"results\"][1][\"valid\"])\n\nif __name__ == '__main__':\n    unittest.main()\n"
+    }
+  ],
+  "dependencies": {
+    "fastapi": "^0.111.1",
+    "uvicorn": "^0.23.2",
+    "pydantic": "^1.12.3",
+    "unittest": "*"
+  },
+  "build_commands": [
+    "pip install -r requirements.txt"
+  ],
+  "run_commands": [
+    "uvicorn app.main:app --host 0.0.0.0 --port 8000"
+  ],
+  "environment_variables": [
+    "UVICORN_HOST=0.0.0.0",
+    "UVICORN_PORT=8000"
+  ]
+}

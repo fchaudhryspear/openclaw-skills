@@ -120,10 +120,11 @@ class TokenEstimator:
         query_lower = query.lower()
         
         patterns = {
-            "code_gen":     r"(write|create|build|implement|generate|code|function|class|api|endpoint)",
-            "architecture": r"(design|architect|system|infrastructure|microservice|serverless|scalab)",
-            "debug":        r"(fix|debug|error|bug|issue|broken|failing|crash|exception|traceback)",
-            "refactor":     r"(refactor|optimize|improve|clean|modernize|upgrade|migrate)",
+            "security_audit": r"(security audit|penetration test|vulnerability|owasp|threat model|compliance audit)",
+            "architecture": r"(design|architect|system design|infrastructure|microservice|serverless|scalab|distributed)",
+            "debug":        r"(fix|debug|error|bug|issue|broken|failing|crash|exception|traceback|typeerror|valueerror)",
+            "refactor":     r"(refactor|optimize|improve|clean up|modernize|upgrade|migrate)",
+            "code_gen":     r"(write|create|build|implement|generate|code|function|class|api|endpoint|component)",
             "summarize":    r"(summar|explain|what is|describe|overview|tldr|brief)",
             "creative":     r"(write a story|blog|article|essay|creative|narrative|poem)",
             "simple_qa":    r"(what|who|when|where|how much|how many|is it|can you|list)",

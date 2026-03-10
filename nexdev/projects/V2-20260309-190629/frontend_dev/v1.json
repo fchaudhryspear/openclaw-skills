@@ -1,0 +1,73 @@
+{
+  "files": [
+    {
+      "path": "src/main.tsx",
+      "language": "tsx",
+      "description": "Main entry point of the React application.",
+      "content": "import React from 'react';\nimport ReactDOM from 'react-dom';\nimport { BrowserRouter } from 'react-router-dom';\nimport App from './App';\n\nReactDOM.render(\n  <React.StrictMode>\n    <BrowserRouter>\n      <App />\n    </BrowserRouter>\n  </React.StrictMode>,\n  document.getElementById('root')\n);"
+    },
+    {
+      "path": "src/App.tsx",
+      "language": "tsx",
+      "description": "Root component of the application with routing setup.",
+      "content": "import React from 'react';\nimport { Routes, Route } from 'react-router-dom';\nimport Login from './pages/Login';\nimport Dashboard from './pages/Dashboard';\nimport TaskDetail from './pages/TaskDetail';\nimport WorkspaceSettings from './pages/WorkspaceSettings';\nimport ProtectedRoute from './components/ProtectedRoute';\n\nconst App: React.FC = () => {\n  return (\n    <div className='bg-gray-100 min-h-screen'>\n      <Routes>\n        <Route path='/login' element={<Login />} />\n        <Route element={<ProtectedRoute />}>          \n          <Route path='/' element={<Dashboard />} />\n          <Route path='/tasks/:taskId' element={<TaskDetail />} />\n          <Route path='/workspaces/:workspaceId/settings' element={<WorkspaceSettings />} />\n        </Route>\n      </Routes>\n    </div>\n  );\n};\n\nexport default App;"
+    },
+    {
+      "path": "src/pages/Login.tsx",
+      "language": "tsx",
+      "description": "Login page component.",
+      "content": "import React, { useState } from 'react';\nimport axios from 'axios';\nimport { useNavigate } from 'react-router-dom';\n\nconst Login: React.FC = () => {\n  const [email, setEmail] = useState('');\n  const [password, setPassword] = useState('');\n  const navigate = useNavigate();\n\n  const handleSubmit = async (e: React.FormEvent) => {\n    e.preventDefault();\n    try {\n      const response = await axios.post('/api/auth/login', { email, password });\n      localStorage.setItem('token', response.data.token);\n      navigate('/');\n    } catch (error) {\n      console.error('Login failed:', error);\n    }\n  };\n\n  return (\n    <div className='flex justify-center items-center h-screen'>\n      <form onSubmit={handleSubmit} className='bg-white p-8 rounded shadow-md w-full max-w-sm'>\n        <h2 className='text-2xl font-bold mb-6'>Login</h2>\n        <div className='mb-4'>\n          <label htmlFor='email' className='block text-gray-700 text-sm font-bold mb-2'>Email</label>\n          <input type='email' id='email' value={email} onChange={(e) => setEmail(e.target.value)} className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline' required />\n        </div>\n        <div className='mb-6'>\n          <label htmlFor='password' className='block text-gray-700 text-sm font-bold mb-2'>Password</label>\n          <input type='password' id='password' value={password} onChange={(e) => setPassword(e.target.value)} className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline' required />\n        </div>\n        <button type='submit' className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline'>Sign In</button>\n      </form>\n    </div>\n  );\n};\n\nexport default Login;"
+    },
+    {
+      "path": "src/pages/Dashboard.tsx",
+      "language": "tsx",
+      "description": "Dashboard page component.",
+      "content": "import React, { useEffect, useState } from 'react';\nimport axios from 'axios';\nimport TaskCard from '../components/TaskCard';\nimport { useWebSocket } from '@react-websocket/client';\n\nconst Dashboard: React.FC = () => {\n  const [tasks, setTasks] = useState([]);\n  const [notifications, setNotifications] = useState([]);\n\n  useEffect(() => {\n    const fetchTasks = async () => {\n      try {\n        const response = await axios.get('/api/workspaces/1/tasks');\n        setTasks(response.data);\n      } catch (error) {\n        console.error('Failed to fetch tasks:', error);\n      }\n    };\n    fetchTasks();\n  }, []);\n\n  const { lastMessage } = useWebSocket('ws://localhost:8000/ws');\n\n  useEffect(() => {\n    if (lastMessage !== null) {\n      setNotifications(prev => [...prev, JSON.parse(lastMessage.data)]);\n    }\n  }, [lastMessage]);\n\n  return (\n    <div className='p-4'>\n      <h1 className='text-3xl font-bold mb-4'>Dashboard</h1>\n      <div className='mb-4'>\n        <h2 className='text-xl font-bold mb-2'>Notifications</h2>\n        <ul>\n          {notifications.map((notification, index) => (\n            <li key={index} className='bg-white p-4 mb-2 rounded shadow-md'>{notification.message}</li>\n          ))}\n        </ul>\n      </div>\n      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>\n        {tasks.map(task => (\n          <TaskCard key={task.id} task={task} />\n        ))}\n      </div>\n    </div>\n  );\n};\n\nexport default Dashboard;"
+    },
+    {
+      "path": "src/pages/TaskDetail.tsx",
+      "language": "tsx",
+      "description": "Task detail page component.",
+      "content": "import React, { useEffect, useState } from 'react';\nimport { useParams } from 'react-router-dom';\nimport axios from 'axios';\n\nconst TaskDetail: React.FC = () => {\n  const { taskId } = useParams<{ taskId: string }>();\n  const [task, setTask] = useState<any>(null);\n\n  useEffect(() => {\n    const fetchTask = async () => {\n      try {\n        const response = await axios.get(`/api/tasks/${taskId}`);\n        setTask(response.data);\n      } catch (error) {\n        console.error('Failed to fetch task:', error);\n      }\n    };\n    fetchTask();\n  }, [taskId]);\n\n  if (!task) return <div>Loading...</div>;\n\n  return (\n    <div className='p-4'>\n      <h1 className='text-3xl font-bold mb-4'>Task Detail</h1>\n      <div className='bg-white p-8 rounded shadow-md'>\n        <h2 className='text-xl font-bold mb-2'>{task.title}</h2>\n        <p className='text-gray-700 mb-4'>{task.description}</p>\n        <p><strong>Status:</strong> {task.status}</p>\n        <p><strong>Due Date:</strong> {new Date(task.dueDate).toLocaleDateString()}</p>\n        <p><strong>Priority:</strong> {task.priority}</p>\n      </div>\n    </div>\n  );\n};\n\nexport default TaskDetail;"
+    },
+    {
+      "path": "src/pages/WorkspaceSettings.tsx",
+      "language": "tsx",
+      "description": "Workspace settings page component.",
+      "content": "import React, { useEffect, useState } from 'react';\nimport { useParams } from 'react-router-dom';\nimport axios from 'axios';\n\nconst WorkspaceSettings: React.FC = () => {\n  const { workspaceId } = useParams<{ workspaceId: string }>();\n  const [workspace, setWorkspace] = useState<any>(null);\n\n  useEffect(() => {\n    const fetchWorkspace = async () => {\n      try {\n        const response = await axios.get(`/api/workspaces/${workspaceId}`);\n        setWorkspace(response.data);\n      } catch (error) {\n        console.error('Failed to fetch workspace:', error);\n      }\n    };\n    fetchWorkspace();\n  }, [workspaceId]);\n\n  if (!workspace) return <div>Loading...</div>;\n\n  return (\n    <div className='p-4'>\n      <h1 className='text-3xl font-bold mb-4'>Workspace Settings</h1>\n      <div className='bg-white p-8 rounded shadow-md'>\n        <h2 className='text-xl font-bold mb-2'>{workspace.name}</h2>\n        <p className='text-gray-700 mb-4'>{workspace.description}</p>\n        <p><strong>Owner:</strong> {workspace.owner.email}</p>\n        <p><strong>Members:</strong> {workspace.members.map((member: any) => member.email).join(', ')}</p>\n      </div>\n    </div>\n  );\n};\n\nexport default WorkspaceSettings;"
+    },
+    {
+      "path": "src/components/TaskCard.tsx",
+      "language": "tsx",
+      "description": "Task card component for displaying task details.",
+      "content": "import React from 'react';\nimport { Link } from 'react-router-dom';\n\ninterface Task {\n  id: number;\n  title: string;\n  description: string;\n  status: string;\n  dueDate: string;\n  priority: string;\n}\n\nconst TaskCard: React.FC<{ task: Task }> = ({ task }) => {\n  return (\n    <Link to={`/tasks/${task.id}`} className='block bg-white p-4 rounded shadow-md hover:shadow-lg transition-shadow duration-300'>\n      <h3 className='text-lg font-bold mb-2'>{task.title}</h3>\n      <p className='text-gray-700 mb-2'>{task.description}</p>\n      <p><strong>Status:</strong> {task.status}</p>\n      <p><strong>Due Date:</strong> {new Date(task.dueDate).toLocaleDateString()}</p>\n      <p><strong>Priority:</strong> {task.priority}</p>\n    </Link>\n  );\n};\n\nexport default TaskCard;"
+    },
+    {
+      "path": "src/components/ProtectedRoute.tsx",
+      "language": "tsx",
+      "description": "Protected route component to handle authentication checks.",
+      "content": "import React from 'react';\nimport { Navigate, Outlet } from 'react-router-dom';\n\nconst ProtectedRoute: React.FC = () => {\n  const isAuthenticated = !!localStorage.getItem('token');\n\n  if (!isAuthenticated) {\n    return <Navigate to='/login' replace />;\n  }\n\n  return <Outlet />;\n};\n\nexport default ProtectedRoute;"
+    },
+    {
+      "path": "src/styles/global.css",
+      "language": "css",
+      "description": "Global styles for the application.",
+      "content": "@tailwind base;\n@tailwind components;\n@tailwind utilities;\n\nbody {\n  margin: 0;\n  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;\n}"
+    }
+  ],
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.3.0",
+    "axios": "^0.27.2",
+    "@react-websocket/client": "^1.0.0",
+    "tailwindcss": "^3.0.24",
+    "autoprefixer": "^10.4.7",
+    "postcss": "^8.4.14"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  }
+}

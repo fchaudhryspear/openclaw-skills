@@ -199,29 +199,38 @@ class MOOrchestrator:
         query_lower = query.lower()
         word_count = len(query.split())
         
-        # Simple heuristics
-        score = 2  # Default medium
+        # Start with task-type baseline (strongest signal)
+        task_baseline = {
+            "simple_qa": 1, "summarize": 1,
+            "debug": 2, "refactor": 3,
+            "code_gen": 2, "creative": 3,
+            "architecture": 4, "security_audit": 5,
+            "production_deploy": 4, "default": 2,
+        }
+        score = task_baseline.get(task_type, 2)
         
-        if word_count < 10:
-            score = 1
-        elif word_count > 100:
+        # Length adjustment (subtle)
+        if word_count > 50:
             score += 1
+        elif word_count > 100:
+            score += 2
         
-        # Complexity indicators
+        # Complexity indicators boost
         complex_words = ["architecture", "system design", "migration", "enterprise",
                         "distributed", "microservice", "security audit", "compliance",
-                        "scalability", "fault-tolerant", "real-time"]
+                        "scalability", "fault-tolerant", "real-time", "production",
+                        "multi-tenant", "high-availability", "disaster recovery"]
         for word in complex_words:
             if word in query_lower:
                 score += 1
                 break
         
-        # Task type boost
-        task_boost = {
-            "architecture": 1, "security_audit": 2, "production_deploy": 2,
-            "simple_qa": -1, "summarize": -1,
-        }
-        score += task_boost.get(task_type, 0)
+        # Scale/scope indicators
+        scale_words = ["10m", "million", "enterprise", "platform", "saas", "full"]
+        for word in scale_words:
+            if word in query_lower:
+                score += 1
+                break
         
         return max(1, min(5, score))
     

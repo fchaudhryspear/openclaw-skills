@@ -1,0 +1,928 @@
+{
+  "V2-20260309-190629": {
+    "id": "V2-20260309-190629",
+    "raw_request": "Build a SaaS task management app with React frontend, FastAPI backend, PostgreSQL, JWT auth, team workspaces, and real-time notifications via WebSocket",
+    "current_stage": "complete",
+    "events": [
+      {
+        "stage": "intake",
+        "action": "created",
+        "agent": "pipeline",
+        "message": "Project created: Build a SaaS task management app with React frontend, FastAPI backend, PostgreSQ",
+        "timestamp": "2026-03-09T19:06:29.364474"
+      },
+      {
+        "stage": "feedback_synthesis",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:06:29.364598"
+      },
+      {
+        "stage": "ux_research",
+        "action": "started",
+        "agent": "ux_researcher",
+        "message": "Starting ux_research",
+        "timestamp": "2026-03-09T19:06:29.364602"
+      },
+      {
+        "stage": "ux_research",
+        "action": "llm_parse_fail",
+        "agent": "ux_researcher",
+        "message": "LLM returned non-JSON: Failed to parse JSON",
+        "timestamp": "2026-03-09T19:06:51.930318"
+      },
+      {
+        "stage": "task_breakdown",
+        "action": "started",
+        "agent": "senior_project_manager",
+        "message": "Starting task_breakdown",
+        "timestamp": "2026-03-09T19:06:51.931523"
+      },
+      {
+        "stage": "task_breakdown",
+        "action": "completed",
+        "agent": "senior_project_manager",
+        "message": "Completed in 33407ms",
+        "timestamp": "2026-03-09T19:07:25.340708",
+        "duration_ms": 33406.95285797119
+      },
+      {
+        "stage": "ideation_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:07:25.341605"
+      },
+      {
+        "stage": "architecture",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting architecture",
+        "timestamp": "2026-03-09T19:07:25.342335"
+      },
+      {
+        "stage": "architecture",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Completed in 63602ms",
+        "timestamp": "2026-03-09T19:08:28.947126",
+        "duration_ms": 63602.34808921814
+      },
+      {
+        "stage": "identity_design",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:08:28.947165"
+      },
+      {
+        "stage": "architecture_review",
+        "action": "awaiting_review",
+        "agent": "pipeline",
+        "message": "Awaiting approval",
+        "timestamp": "2026-03-09T19:08:28.948209"
+      },
+      {
+        "stage": "architecture_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:08:28.949038"
+      },
+      {
+        "stage": "frontend_dev",
+        "action": "started",
+        "agent": "frontend_developer",
+        "message": "Starting frontend_dev",
+        "timestamp": "2026-03-09T19:08:28.949734"
+      },
+      {
+        "stage": "frontend_dev",
+        "action": "completed",
+        "agent": "frontend_developer",
+        "message": "Completed in 55555ms",
+        "timestamp": "2026-03-09T19:09:24.505672",
+        "duration_ms": 55554.56781387329
+      },
+      {
+        "stage": "ai_dev",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:09:24.506847"
+      },
+      {
+        "stage": "unit_testing",
+        "action": "started",
+        "agent": "test_engineer",
+        "message": "Starting unit_testing",
+        "timestamp": "2026-03-09T19:09:24.506876"
+      },
+      {
+        "stage": "unit_testing",
+        "action": "completed",
+        "agent": "test_engineer",
+        "message": "Completed in 57287ms",
+        "timestamp": "2026-03-09T19:10:21.795130",
+        "duration_ms": 57286.82804107666
+      },
+      {
+        "stage": "accessibility_audit",
+        "action": "started",
+        "agent": "accessibility_auditor",
+        "message": "Starting accessibility_audit",
+        "timestamp": "2026-03-09T19:10:21.796357"
+      },
+      {
+        "stage": "accessibility_audit",
+        "action": "llm_parse_fail",
+        "agent": "accessibility_auditor",
+        "message": "LLM returned non-JSON: Failed to parse JSON",
+        "timestamp": "2026-03-09T19:10:41.409024"
+      },
+      {
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:10:41.413065"
+      },
+      {
+        "stage": "monitoring",
+        "action": "started",
+        "agent": "analytics_reporter",
+        "message": "Starting monitoring",
+        "timestamp": "2026-03-09T19:10:41.414013"
+      },
+      {
+        "stage": "monitoring",
+        "action": "llm_parse_fail",
+        "agent": "analytics_reporter",
+        "message": "LLM returned non-JSON: Failed to parse JSON",
+        "timestamp": "2026-03-09T19:10:59.386084"
+      }
+    ],
+    "artifacts": {},
+    "model_used": {
+      "task_breakdown": "alibaba-sg/qwen-turbo",
+      "architecture": "alibaba-sg/qwen3.5-122b-a10b",
+      "frontend_dev": "alibaba-sg/qwen-coder",
+      "unit_testing": "alibaba-sg/qwen-coder"
+    },
+    "total_cost": 0.015215,
+    "skipped_stages": [
+      "ai_dev",
+      "feedback_synthesis",
+      "identity_design"
+    ],
+    "review_gates": {
+      "ideation_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:07:25.341592",
+        "notes": ""
+      },
+      "architecture_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:08:28.949024",
+        "notes": ""
+      },
+      "qa_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:10:41.413045",
+        "notes": ""
+      }
+    },
+    "created_at": "2026-03-09T19:39:50.400000"
+  },
+  "V2-20260309-191155": {
+    "id": "V2-20260309-191155",
+    "raw_request": "Build a SaaS project tracker with React frontend, FastAPI backend, PostgreSQL, JWT auth",
+    "current_stage": "backend_dev",
+    "events": [
+      {
+        "stage": "intake",
+        "action": "created",
+        "agent": "pipeline",
+        "message": "Project created: Build a SaaS project tracker with React frontend, FastAPI backend, PostgreSQL, J",
+        "timestamp": "2026-03-09T19:11:55.578925"
+      },
+      {
+        "stage": "feedback_synthesis",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:11:55.579159"
+      },
+      {
+        "stage": "ux_research",
+        "action": "started",
+        "agent": "ux_researcher",
+        "message": "Starting ux_research",
+        "timestamp": "2026-03-09T19:11:55.579163"
+      },
+      {
+        "stage": "ux_research",
+        "action": "llm_parse_fail",
+        "agent": "ux_researcher",
+        "message": "LLM returned non-JSON: Failed to parse JSON",
+        "timestamp": "2026-03-09T19:12:16.110281"
+      },
+      {
+        "stage": "task_breakdown",
+        "action": "started",
+        "agent": "senior_project_manager",
+        "message": "Starting task_breakdown",
+        "timestamp": "2026-03-09T19:12:16.113187"
+      },
+      {
+        "stage": "task_breakdown",
+        "action": "completed",
+        "agent": "senior_project_manager",
+        "message": "Completed in 33403ms",
+        "timestamp": "2026-03-09T19:12:49.517969",
+        "duration_ms": 33402.57716178894
+      },
+      {
+        "stage": "ideation_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:12:49.519452"
+      },
+      {
+        "stage": "architecture",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting architecture",
+        "timestamp": "2026-03-09T19:12:49.520598"
+      },
+      {
+        "stage": "architecture",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Completed in 72203ms",
+        "timestamp": "2026-03-09T19:14:01.724707",
+        "duration_ms": 72203.00102233887
+      },
+      {
+        "stage": "identity_design",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:14:01.724728"
+      },
+      {
+        "stage": "architecture_review",
+        "action": "awaiting_review",
+        "agent": "pipeline",
+        "message": "Awaiting approval",
+        "timestamp": "2026-03-09T19:14:01.725577"
+      },
+      {
+        "stage": "architecture_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:14:01.726277"
+      }
+    ],
+    "artifacts": {},
+    "model_used": {
+      "task_breakdown": "alibaba-sg/qwen-turbo",
+      "architecture": "alibaba-sg/qwen3.5-122b-a10b"
+    },
+    "total_cost": 0.005954,
+    "skipped_stages": [
+      "ai_dev",
+      "feedback_synthesis",
+      "mobile_dev",
+      "identity_design"
+    ],
+    "review_gates": {
+      "ideation_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:12:49.519440",
+        "notes": ""
+      },
+      "architecture_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:14:01.726269",
+        "notes": ""
+      }
+    },
+    "created_at": "2026-03-09T19:39:50.400013"
+  },
+  "V2-20260309-192151": {
+    "id": "V2-20260309-192151",
+    "raw_request": "Build a REST API with FastAPI for task management",
+    "current_stage": "legal_precheck",
+    "events": [
+      {
+        "stage": "intake",
+        "action": "created",
+        "agent": "pipeline",
+        "message": "Project created: Build a REST API with FastAPI for task management",
+        "timestamp": "2026-03-09T19:21:51.261644"
+      },
+      {
+        "stage": "feedback_synthesis",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:21:51.261937"
+      },
+      {
+        "stage": "ux_research",
+        "action": "started",
+        "agent": "ux_researcher",
+        "message": "Starting ux_research",
+        "timestamp": "2026-03-09T19:21:51.261942"
+      },
+      {
+        "stage": "ux_research",
+        "action": "llm_parse_fail",
+        "agent": "ux_researcher",
+        "message": "LLM returned non-JSON: Failed to parse JSON",
+        "timestamp": "2026-03-09T19:22:12.607294"
+      },
+      {
+        "stage": "task_breakdown",
+        "action": "started",
+        "agent": "senior_project_manager",
+        "message": "Starting task_breakdown",
+        "timestamp": "2026-03-09T19:22:12.610741"
+      },
+      {
+        "stage": "task_breakdown",
+        "action": "completed",
+        "agent": "senior_project_manager",
+        "message": "Completed in 29594ms",
+        "timestamp": "2026-03-09T19:22:42.206254",
+        "duration_ms": 29593.639850616455
+      },
+      {
+        "stage": "ideation_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:22:42.207916"
+      }
+    ],
+    "artifacts": {},
+    "model_used": {
+      "task_breakdown": "alibaba-sg/qwen-turbo"
+    },
+    "total_cost": 0.00076,
+    "skipped_stages": [
+      "ai_dev",
+      "feedback_synthesis",
+      "mobile_dev",
+      "identity_design"
+    ],
+    "review_gates": {
+      "ideation_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:22:42.207904",
+        "notes": ""
+      }
+    },
+    "created_at": "2026-03-09T19:39:50.400020"
+  },
+  "V2-20260309-192321": {
+    "id": "V2-20260309-192321",
+    "raw_request": "Build a backend-only REST API with FastAPI for task management with JWT auth",
+    "current_stage": "complete",
+    "events": [
+      {
+        "stage": "intake",
+        "action": "created",
+        "agent": "pipeline",
+        "message": "Project created: Build a backend-only REST API with FastAPI for task management with JWT auth",
+        "timestamp": "2026-03-09T19:23:21.250769"
+      },
+      {
+        "stage": "feedback_synthesis",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:23:21.251125"
+      },
+      {
+        "stage": "ux_research",
+        "action": "started",
+        "agent": "ux_researcher",
+        "message": "Starting ux_research",
+        "timestamp": "2026-03-09T19:23:21.251130"
+      },
+      {
+        "stage": "ux_research",
+        "action": "llm_parse_fail",
+        "agent": "ux_researcher",
+        "message": "LLM returned non-JSON: Failed to parse JSON",
+        "timestamp": "2026-03-09T19:23:42.566705"
+      },
+      {
+        "stage": "task_breakdown",
+        "action": "started",
+        "agent": "senior_project_manager",
+        "message": "Starting task_breakdown",
+        "timestamp": "2026-03-09T19:23:42.570003"
+      },
+      {
+        "stage": "task_breakdown",
+        "action": "completed",
+        "agent": "senior_project_manager",
+        "message": "Completed in 30360ms",
+        "timestamp": "2026-03-09T19:24:12.932557",
+        "duration_ms": 30360.35990715027
+      },
+      {
+        "stage": "ideation_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:24:12.934724"
+      },
+      {
+        "stage": "architecture",
+        "action": "started",
+        "agent": "architect",
+        "message": "Starting architecture",
+        "timestamp": "2026-03-09T19:24:12.936357"
+      },
+      {
+        "stage": "architecture",
+        "action": "completed",
+        "agent": "architect",
+        "message": "Completed in 32639ms",
+        "timestamp": "2026-03-09T19:24:45.577617",
+        "duration_ms": 32639.335870742798
+      },
+      {
+        "stage": "identity_design",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:24:45.577656"
+      },
+      {
+        "stage": "architecture_review",
+        "action": "awaiting_review",
+        "agent": "pipeline",
+        "message": "Awaiting approval",
+        "timestamp": "2026-03-09T19:24:45.579737"
+      },
+      {
+        "stage": "architecture_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:24:45.581687"
+      },
+      {
+        "stage": "frontend_dev",
+        "action": "started",
+        "agent": "frontend_developer",
+        "message": "Starting frontend_dev",
+        "timestamp": "2026-03-09T19:24:45.583233"
+      },
+      {
+        "stage": "frontend_dev",
+        "action": "completed",
+        "agent": "frontend_developer",
+        "message": "Completed in 46120ms",
+        "timestamp": "2026-03-09T19:25:31.704056",
+        "duration_ms": 46119.52519416809
+      },
+      {
+        "stage": "mobile_dev",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:25:31.704099"
+      },
+      {
+        "stage": "ai_dev",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:25:31.704113"
+      },
+      {
+        "stage": "api_testing",
+        "action": "started",
+        "agent": "api_tester",
+        "message": "Starting api_testing",
+        "timestamp": "2026-03-09T19:25:31.706696"
+      },
+      {
+        "stage": "api_testing",
+        "action": "completed",
+        "agent": "api_tester",
+        "message": "Completed in 43397ms",
+        "timestamp": "2026-03-09T19:26:15.106191",
+        "duration_ms": 43397.44997024536
+      },
+      {
+        "stage": "qa_review",
+        "action": "awaiting_review",
+        "agent": "pipeline",
+        "message": "Awaiting approval",
+        "timestamp": "2026-03-09T19:26:15.108383"
+      },
+      {
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:26:15.110239"
+      },
+      {
+        "stage": "monitoring",
+        "action": "started",
+        "agent": "analytics_reporter",
+        "message": "Starting monitoring",
+        "timestamp": "2026-03-09T19:26:15.111711"
+      },
+      {
+        "stage": "monitoring",
+        "action": "llm_parse_fail",
+        "agent": "analytics_reporter",
+        "message": "LLM returned non-JSON: Failed to parse JSON",
+        "timestamp": "2026-03-09T19:26:32.487984"
+      }
+    ],
+    "artifacts": {},
+    "model_used": {
+      "task_breakdown": "alibaba-sg/qwen-turbo",
+      "architecture": "alibaba-sg/qwen3.5-122b-a10b",
+      "frontend_dev": "alibaba-sg/qwen-coder",
+      "api_testing": "alibaba-sg/qwen-coder"
+    },
+    "total_cost": 0.0114,
+    "skipped_stages": [
+      "ai_dev",
+      "feedback_synthesis",
+      "mobile_dev",
+      "identity_design"
+    ],
+    "review_gates": {
+      "ideation_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:24:12.934711",
+        "notes": ""
+      },
+      "architecture_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:24:45.581669",
+        "notes": ""
+      },
+      "qa_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:26:15.110231",
+        "notes": ""
+      }
+    },
+    "created_at": "2026-03-09T19:39:50.400025"
+  },
+  "V2-20260309-192738": {
+    "id": "V2-20260309-192738",
+    "raw_request": "Build a backend-only REST API",
+    "current_stage": "intake",
+    "events": [
+      {
+        "stage": "intake",
+        "action": "created",
+        "agent": "pipeline",
+        "message": "Project created: Build a backend-only REST API",
+        "timestamp": "2026-03-09T19:27:38.753944"
+      }
+    ],
+    "artifacts": {},
+    "model_used": {},
+    "total_cost": 0.0,
+    "skipped_stages": [
+      "ai_dev",
+      "feedback_synthesis",
+      "mobile_dev",
+      "identity_design"
+    ],
+    "review_gates": {},
+    "created_at": "2026-03-09T19:39:50.400030"
+  },
+  "V2-20260309-192750": {
+    "id": "V2-20260309-192750",
+    "raw_request": "Build a backend-only REST API",
+    "current_stage": "intake",
+    "events": [
+      {
+        "stage": "intake",
+        "action": "created",
+        "agent": "pipeline",
+        "message": "Project created: Build a backend-only REST API",
+        "timestamp": "2026-03-09T19:27:50.018012"
+      }
+    ],
+    "artifacts": {},
+    "model_used": {},
+    "total_cost": 0.0,
+    "skipped_stages": [
+      "ai_dev",
+      "feedback_synthesis",
+      "mobile_dev",
+      "identity_design"
+    ],
+    "review_gates": {},
+    "created_at": "2026-03-09T19:39:50.400034"
+  },
+  "V2-20260309-192756": {
+    "id": "V2-20260309-192756",
+    "raw_request": "Build a backend-only REST API",
+    "current_stage": "intake",
+    "events": [
+      {
+        "stage": "intake",
+        "action": "created",
+        "agent": "pipeline",
+        "message": "Project created: Build a backend-only REST API",
+        "timestamp": "2026-03-09T19:27:56.900399"
+      }
+    ],
+    "artifacts": {},
+    "model_used": {},
+    "total_cost": 0.0,
+    "skipped_stages": [
+      "feedback_synthesis",
+      "ui_design",
+      "accessibility_audit",
+      "ai_dev",
+      "frontend_dev",
+      "mobile_dev",
+      "identity_design"
+    ],
+    "review_gates": {},
+    "created_at": "2026-03-09T19:39:50.400037"
+  },
+  "V2-20260309-192807": {
+    "id": "V2-20260309-192807",
+    "raw_request": "Build a backend-only REST API with FastAPI and JWT auth",
+    "current_stage": "intake",
+    "events": [
+      {
+        "stage": "intake",
+        "action": "created",
+        "agent": "pipeline",
+        "message": "Project created: Build a backend-only REST API with FastAPI and JWT auth",
+        "timestamp": "2026-03-09T19:28:07.021125"
+      }
+    ],
+    "artifacts": {},
+    "model_used": {},
+    "total_cost": 0.0,
+    "skipped_stages": [
+      "feedback_synthesis",
+      "ui_design",
+      "accessibility_audit",
+      "ai_dev",
+      "frontend_dev",
+      "mobile_dev",
+      "identity_design"
+    ],
+    "review_gates": {},
+    "created_at": "2026-03-09T19:39:50.400041"
+  },
+  "V2-20260309-192822": {
+    "id": "V2-20260309-192822",
+    "raw_request": "Build a backend-only REST API with FastAPI for a todo app with JWT auth and PostgreSQL",
+    "current_stage": "monitoring",
+    "events": [
+      {
+        "stage": "intake",
+        "action": "created",
+        "agent": "pipeline",
+        "message": "Project created: Build a backend-only REST API with FastAPI for a todo app with JWT auth and Post",
+        "timestamp": "2026-03-09T19:28:22.001839"
+      },
+      {
+        "stage": "feedback_synthesis",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:28:22.002236"
+      },
+      {
+        "stage": "ux_research",
+        "action": "started",
+        "agent": "ux_researcher",
+        "message": "Starting ux_research",
+        "timestamp": "2026-03-09T19:28:22.002241"
+      },
+      {
+        "stage": "ux_research",
+        "action": "llm_parse_fail",
+        "agent": "ux_researcher",
+        "message": "LLM returned non-JSON: Failed to parse JSON",
+        "timestamp": "2026-03-09T19:28:41.326616"
+      },
+      {
+        "stage": "task_breakdown",
+        "action": "started",
+        "agent": "senior_project_manager",
+        "message": "Starting task_breakdown",
+        "timestamp": "2026-03-09T19:28:41.330472"
+      },
+      {
+        "stage": "task_breakdown",
+        "action": "completed",
+        "agent": "senior_project_manager",
+        "message": "Completed in 20832ms",
+        "timestamp": "2026-03-09T19:29:02.164498",
+        "duration_ms": 20832.12399482727
+      },
+      {
+        "stage": "ideation_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:29:02.167402"
+      },
+      {
+        "stage": "legal_precheck",
+        "action": "started",
+        "agent": "legal_compliance",
+        "message": "Starting legal_precheck",
+        "timestamp": "2026-03-09T19:29:02.167436"
+      },
+      {
+        "stage": "legal_precheck",
+        "action": "completed",
+        "agent": "legal_compliance",
+        "message": "Completed in 18783ms",
+        "timestamp": "2026-03-09T19:29:20.952176",
+        "duration_ms": 18783.423900604248
+      },
+      {
+        "stage": "identity_design",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:29:20.955374"
+      },
+      {
+        "stage": "ui_design",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:29:20.955393"
+      },
+      {
+        "stage": "architecture_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:29:20.955414"
+      },
+      {
+        "stage": "backend_dev",
+        "action": "started",
+        "agent": "developer",
+        "message": "Starting backend_dev",
+        "timestamp": "2026-03-09T19:29:20.955445"
+      },
+      {
+        "stage": "backend_dev",
+        "action": "completed",
+        "agent": "developer",
+        "message": "Completed in 62760ms",
+        "timestamp": "2026-03-09T19:30:23.717201",
+        "duration_ms": 62760.34426689148
+      },
+      {
+        "stage": "frontend_dev",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped",
+        "timestamp": "2026-03-09T19:30:23.717239"
+      },
+      {
+        "stage": "mobile_dev",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped",
+        "timestamp": "2026-03-09T19:30:23.717249"
+      },
+      {
+        "stage": "ai_dev",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped",
+        "timestamp": "2026-03-09T19:30:23.717260"
+      },
+      {
+        "stage": "api_testing",
+        "action": "started",
+        "agent": "api_tester",
+        "message": "Starting api_testing",
+        "timestamp": "2026-03-09T19:30:23.720386"
+      },
+      {
+        "stage": "api_testing",
+        "action": "completed",
+        "agent": "api_tester",
+        "message": "Completed in 38404ms",
+        "timestamp": "2026-03-09T19:31:02.126149",
+        "duration_ms": 38403.90992164612
+      },
+      {
+        "stage": "accessibility_audit",
+        "action": "skipped",
+        "agent": "pipeline",
+        "message": "Skipped (not in scope)",
+        "timestamp": "2026-03-09T19:31:02.126182"
+      },
+      {
+        "stage": "qa_review",
+        "action": "approved",
+        "agent": "human",
+        "message": "Approved: OK",
+        "timestamp": "2026-03-09T19:31:02.129294"
+      },
+      {
+        "stage": "deployment",
+        "action": "started",
+        "agent": "devops",
+        "message": "Starting deployment",
+        "timestamp": "2026-03-09T19:31:02.129323"
+      },
+      {
+        "stage": "deployment",
+        "action": "completed",
+        "agent": "devops",
+        "message": "Completed in 12219ms",
+        "timestamp": "2026-03-09T19:31:14.349551",
+        "duration_ms": 12218.734979629517
+      }
+    ],
+    "artifacts": {},
+    "model_used": {
+      "task_breakdown": "alibaba-sg/qwen-turbo",
+      "legal_precheck": "alibaba-sg/qwen3.5-122b-a10b",
+      "backend_dev": "alibaba-sg/qwen-coder",
+      "api_testing": "alibaba-sg/qwen-coder",
+      "deployment": "google/gemini-2.5-flash"
+    },
+    "total_cost": 0.012237,
+    "skipped_stages": [
+      "feedback_synthesis",
+      "ui_design",
+      "accessibility_audit",
+      "ai_dev",
+      "frontend_dev",
+      "mobile_dev",
+      "identity_design"
+    ],
+    "review_gates": {
+      "ideation_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:29:02.167386",
+        "notes": ""
+      },
+      "architecture_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:29:20.955405",
+        "notes": ""
+      },
+      "qa_review": {
+        "status": "approved",
+        "timestamp": "2026-03-09T19:31:02.129282",
+        "notes": ""
+      }
+    },
+    "created_at": "2026-03-09T19:39:50.400045"
+  },
+  "V2-20260309-193809": {
+    "id": "V2-20260309-193809",
+    "raw_request": "Build a machine learning pipeline for image classification",
+    "current_stage": "intake",
+    "events": [
+      {
+        "stage": "intake",
+        "action": "created",
+        "agent": "pipeline",
+        "message": "Project created: Build a machine learning pipeline for image classification",
+        "timestamp": "2026-03-09T19:38:09.363845"
+      }
+    ],
+    "artifacts": {},
+    "model_used": {},
+    "total_cost": 0.0,
+    "skipped_stages": [
+      "feedback_synthesis",
+      "mobile_dev",
+      "identity_design"
+    ],
+    "review_gates": {},
+    "created_at": "2026-03-09T19:39:50.400049"
+  }
+}

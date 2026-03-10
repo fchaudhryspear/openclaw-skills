@@ -1,0 +1,76 @@
+{
+  "architecture_pattern": "Single-Process CLI Application",
+  "summary": "A lightweight, single-threaded Python CLI tool that reads CSV files incrementally, validates structure and content, and converts to JSON with configurable output format. Designed for simplicity, portability, and robust error reporting without external dependencies.",
+  "components": [
+    {
+      "name": "CLI Entrypoint",
+      "type": "application",
+      "responsibility": "Parses command-line arguments, orchestrates workflow, handles help/usage, and manages exit codes",
+      "technology": "Python argparse",
+      "interfaces": [
+        "accepts --input, --output, --format, --continue-on-error, --stdout"
+      ]
+    },
+    {
+      "name": "CSV Validator",
+      "type": "service",
+      "responsibility": "Validates CSV syntax (e.g., consistent column count, delimiter consistency), detects empty lines, checks for header presence, and reports structural errors",
+      "technology": "Python csv module + custom logic",
+      "interfaces": [
+        "validate(file_path: str) -> ValidationResult"
+      ]
+    },
+    {
+      "name": "CSV Reader",
+      "type": "service",
+      "responsibility": "Streams CSV rows iteratively to minimize memory usage; supports optional header detection and field mapping",
+      "technology": "Python csv.DictReader / csv.reader",
+      "interfaces": [
+        "read_rows(file_path: str, skip_header: bool = True) -> Iterator[dict | list]"
+      ]
+    },
+    {
+      "name": "JSON Converter",
+      "type": "service",
+      "responsibility": "Transforms validated CSV rows into JSON structures (list-of-objects or object-with-keyed-records), applies field mappings, and serializes output",
+      "technology": "Python json module",
+      "interfaces": [
+        "convert(rows: Iterator, format: str = 'array', key_field: str = None, field_map: dict = None) -> str"
+      ]
+    },
+    {
+      "name": "Error Handler",
+      "type": "utility",
+      "responsibility": "Centralizes error logging, formatting, and recovery decisions (e.g., continue vs. abort on row-level errors)",
+      "technology": "Python logging + custom exception handling",
+      "interfaces": [
+        "log_error(context: str, message: str, fatal: bool = False)",
+        "should_continue() -> bool"
+      ]
+    }
+  ],
+  "api_endpoints": [],
+  "database_schema": [],
+  "tech_stack": {
+    "backend": "Python 3.8+",
+    "frontend": "CLI (no GUI)",
+    "database": "None",
+    "cache": "None",
+    "queue": "None"
+  },
+  "deployment_strategy": "Distribute as standalone executable via PyInstaller or as source package installable via pip (e.g., `pip install .`). No server or runtime infrastructure required.",
+  "security_considerations": [
+    "Input file paths are validated to prevent path traversal (e.g., reject '../' patterns)",
+    "No code execution or template injection \u2014 only parsing of structured data",
+    "File I/O is read-only unless explicit output path is provided; original CSV is never modified",
+    "No network calls or external resource access"
+  ],
+  "scalability_notes": [
+    "Uses streaming CSV reading to support files >1GB with constant memory footprint (~O(columns) per row)",
+    "No parallelism \u2014 intentional for simplicity and determinism; sufficient for typical CLI use cases",
+    "Extensible architecture allows future plugins (e.g., custom validators) without core changes"
+  ],
+  "project_id": "PROJ-20260309-063128",
+  "version": "1",
+  "spec_version": "1"
+}

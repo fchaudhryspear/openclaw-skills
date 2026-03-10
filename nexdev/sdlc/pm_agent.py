@@ -13,7 +13,7 @@ import re
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 
-from contracts import (
+from .contracts import (
     SpecificationDocument, UserStory, NonFunctionalRequirement,
     ArtifactStore, ArtifactStatus, AgentRole
 )

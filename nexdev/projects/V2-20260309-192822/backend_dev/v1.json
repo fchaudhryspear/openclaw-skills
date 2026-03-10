@@ -1,0 +1,79 @@
+{
+  "files": [
+    {
+      "path": "app/main.py",
+      "language": "Python",
+      "description": "Main entry point for the FastAPI application.",
+      "content": "from fastapi import FastAPI\nfrom app.routers import users, todos\nfrom app.database import engine, Base\n\nBase.metadata.create_all(bind=engine)\n\napp = FastAPI()\n\napp.include_router(users.router, prefix=\"/api/v1/users\", tags=[\"users\"])\napp.include_router(todos.router, prefix=\"/api/v1/todos\", tags=[\"todos\"])"
+    },
+    {
+      "path": "app/database.py",
+      "language": "Python",
+      "description": "Database configuration using SQLAlchemy.",
+      "content": "from sqlalchemy import create_engine\nfrom sqlalchemy.ext.declarative import declarative_base\nfrom sqlalchemy.orm import sessionmaker\nimport os\n\nSQLALCHEMY_DATABASE_URL = os.getenv(\"DATABASE_URL\", \"postgresql://user:password@localhost/todoapp\")\n\nengine = create_engine(SQLALCHEMY_DATABASE_URL)\nSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)\nBase = declarative_base()"
+    },
+    {
+      "path": "app/models.py",
+      "language": "Python",
+      "description": "Database models for users and todos.",
+      "content": "from sqlalchemy import Column, Integer, String, ForeignKey\nfrom sqlalchemy.orm import relationship\nfrom app.database import Base\nfrom passlib.context import CryptContext\n\ncpwd_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\n\nclass User(Base):\n    __tablename__ = \"users\"\n    id = Column(Integer, primary_key=True, index=True)\n    email = Column(String, unique=True, index=True)\n    hashed_password = Column(String)\n    todos = relationship(\"Todo\", back_populates=\"owner\")\n\nclass Todo(Base):\n    __tablename__ = \"todos\"\n    id = Column(Integer, primary_key=True, index=True)\n    title = Column(String, index=True)\n    description = Column(String, index=True)\n    owner_id = Column(Integer, ForeignKey(\"users.id\"))\n    owner = relationship(\"User\", back_populates=\"todos\")"
+    },
+    {
+      "path": "app/schemas.py",
+      "language": "Python",
+      "description": "Pydantic schemas for request/response validation.",
+      "content": "from pydantic import BaseModel\nfrom typing import Optional\n\nclass UserCreate(BaseModel):\n    email: str\n    password: str\n\nclass User(BaseModel):\n    id: int\n    email: str\n    class Config:\n        orm_mode = True\n\nclass TodoCreate(BaseModel):\n    title: str\n    description: Optional[str] = None\n\nclass Todo(BaseModel):\n    id: int\n    title: str\n    description: Optional[str] = None\n    owner_id: int\n    class Config:\n        orm_mode = True"
+    },
+    {
+      "path": "app/routers/users.py",
+      "language": "Python",
+      "description": "Router for user-related endpoints.",
+      "content": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom fastapi.security import OAuth2PasswordRequestForm\nfrom sqlalchemy.orm import Session\nfrom jose import JWTError, jwt\nfrom datetime import datetime, timedelta\nfrom app import models, schemas, database\ncpwd_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\nSECRET_KEY = \"your_secret_key\"\nALGORITHM = \"HS256\"\nACCESS_TOKEN_EXPIRE_MINUTES = 30\n\nrouter = APIRouter()\n\ndef get_db():\n    db = database.SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\n\ndef verify_password(plain_password, hashed_password):\n    return cpwd_context.verify(plain_password, hashed_password)\n\ndef get_password_hash(password):\n    return cpwd_context.hash(password)\n\ndef authenticate_user(db, email: str, password: str):\n    user = db.query(models.User).filter(models.User.email == email).first()\n    if not user:\n        return False\n    if not verify_password(password, user.hashed_password):\n        return False\n    return user\n\ndef create_access_token(data: dict, expires_delta: Optional[timedelta] = None):\n    to_encode = data.copy()\n    if expires_delta:\n        expire = datetime.utcnow() + expires_delta\n    else:\n        expire = datetime.utcnow() + timedelta(minutes=15)\n    to_encode.update({\"exp\": expire})\n    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)\n    return encoded_jwt\n\n@router.post(\"/register\", response_model=schemas.User)\ndef register_user(user: schemas.UserCreate, db: Session = Depends(get_db)):\n    hashed_password = get_password_hash(user.password)\n    db_user = models.User(email=user.email, hashed_password=hashed_password)\n    db.add(db_user)\n    db.commit()\n    db.refresh(db_user)\n    return db_user\n\n@router.post(\"/token\")\ndef login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):\n    user = authenticate_user(db, form_data.username, form_data.password)\n    if not user:\n        raise HTTPException(\n            status_code=status.HTTP_401_UNAUTHORIZED,\n            detail=\"Incorrect username or password\",\n            headers={\"WWW-Authenticate\": \"Bearer\"},\n        )\n    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)\n    access_token = create_access_token(\n        data={\"sub\": user.email}, expires_delta=access_token_expires\n    )\n    return {\"access_token\": access_token, \"token_type\": \"bearer\"}"
+    },
+    {
+      "path": "app/routers/todos.py",
+      "language": "Python",
+      "description": "Router for todo-related endpoints.",
+      "content": "from fastapi import APIRouter, Depends, HTTPException\nfrom sqlalchemy.orm import Session\nfrom app import models, schemas, database\n\nrouter = APIRouter()\n\ndef get_db():\n    db = database.SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\n\n@router.post(\"/\", response_model=schemas.Todo)\ndef create_todo(todo: schemas.TodoCreate, db: Session = Depends(get_db)):\n    db_todo = models.Todo(**todo.dict())\n    db.add(db_todo)\n    db.commit()\n    db.refresh(db_todo)\n    return db_todo\n\n@router.get(\"/{todo_id}\", response_model=schemas.Todo)\ndef read_todo(todo_id: int, db: Session = Depends(get_db)):\n    db_todo = db.query(models.Todo).filter(models.Todo.id == todo_id).first()\n    if db_todo is None:\n        raise HTTPException(status_code=404, detail=\"Todo not found\")\n    return db_todo\n\n@router.put(\"/{todo_id}\", response_model=schemas.Todo)\ndef update_todo(todo_id: int, todo: schemas.TodoCreate, db: Session = Depends(get_db)):\n    db_todo = db.query(models.Todo).filter(models.Todo.id == todo_id).first()\n    if db_todo is None:\n        raise HTTPException(status_code=404, detail=\"Todo not found\")\n    for key, value in todo.dict().items():\n        setattr(db_todo, key, value)\n    db.add(db_todo)\n    db.commit()\n    db.refresh(db_todo)\n    return db_todo\n\n@router.delete(\"/{todo_id}\")\ndef delete_todo(todo_id: int, db: Session = Depends(get_db)):\n    db_todo = db.query(models.Todo).filter(models.Todo.id == todo_id).first()\n    if db_todo is None:\n        raise HTTPException(status_code=404, detail=\"Todo not found\")\n    db.delete(db_todo)\n    db.commit()\n    return {\"detail\": \"Todo deleted\"}"
+    },
+    {
+      "path": "app/dependencies.py",
+      "language": "Python",
+      "description": "Dependency functions for authentication.",
+      "content": "from fastapi import Depends, HTTPException, status\nfrom fastapi.security import OAuth2PasswordBearer\nfrom jose import JWTError, jwt\nfrom sqlalchemy.orm import Session\nfrom app import models, database\n\nSECRET_KEY = \"your_secret_key\"\nALGORITHM = \"HS256\"\nOAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl=\"token\")\n\ndef get_db():\n    db = database.SessionLocal()\n    try:\n        yield db\n    finally:\n        db.close()\n\ndef get_current_user(token: str = Depends(OAUTH2_SCHEME), db: Session = Depends(get_db)):\n    credentials_exception = HTTPException(\n        status_code=status.HTTP_401_UNAUTHORIZED,\n        detail=\"Could not validate credentials\",\n        headers={\"WWW-Authenticate\": \"Bearer\"},\n    )\n    try:\n        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])\n        email: str = payload.get(\"sub\")\n        if email is None:\n            raise credentials_exception\n    except JWTError:\n        raise credentials_exception\n    user = db.query(models.User).filter(models.User.email == email).first()\n    if user is None:\n        raise credentials_exception\n    return user"
+    }
+  ],
+  "test_files": [
+    {
+      "path": "tests/test_users.py",
+      "language": "Python",
+      "description": "Unit tests for user-related endpoints.",
+      "content": "from fastapi.testclient import TestClient\nfrom app.main import app\nfrom app.database import Base, engine\nfrom app.models import User\nfrom sqlalchemy.orm import sessionmaker\nimport pytest\n\nSQLALCHEMY_DATABASE_URL = \"sqlite:///./test.db\"\nengine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={\"check_same_thread\": False})\nTestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)\n\nBase.metadata.create_all(bind=engine)\n\ndef override_get_db():\n    try:\n        db = TestingSessionLocal()\n        yield db\n    finally:\n        db.close()\n\napp.dependency_overrides[get_db] = override_get_db\nclient = TestClient(app)\n\ndef test_create_user():\n    response = client.post(\n        \"/api/v1/users/register\",\n        json={\"email\": \"test@example.com\", \"password\": \"testpassword\"},\n    )\n    assert response.status_code == 200\n    assert response.json()[\"email\"] == \"test@example.com\"\n\ndef test_login_user():\n    response = client.post(\n        \"/api/v1/users/token\",\n        data={\"username\": \"test@example.com\", \"password\": \"testpassword\"},\n    )\n    assert response.status_code == 200\n    assert \"access_token\" in response.json()\n    assert response.json()[\"token_type\"] == \"bearer\""
+    },
+    {
+      "path": "tests/test_todos.py",
+      "language": "Python",
+      "description": "Unit tests for todo-related endpoints.",
+      "content": "from fastapi.testclient import TestClient\nfrom app.main import app\nfrom app.database import Base, engine\nfrom app.models import User, Todo\nfrom sqlalchemy.orm import sessionmaker\nimport pytest\n\nSQLALCHEMY_DATABASE_URL = \"sqlite:///./test.db\"\nengine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={\"check_same_thread\": False})\nTestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)\n\nBase.metadata.create_all(bind=engine)\n\ndef override_get_db():\n    try:\n        db = TestingSessionLocal()\n        yield db\n    finally:\n        db.close()\n\napp.dependency_overrides[get_db] = override_get_db\nclient = TestClient(app)\n\ndef test_create_todo():\n    response = client.post(\n        \"/api/v1/todos/\",\n        json={\"title\": \"Test Todo\", \"description\": \"This is a test todo\"},\n        headers={\"Authorization\": \"Bearer your_valid_token_here\"},\n    )\n    assert response.status_code == 200\n    assert response.json()[\"title\"] == \"Test Todo\"\n    assert response.json()[\"description\"] == \"This is a test todo\"\n\ndef test_read_todo():\n    response = client.get(\n        \"/api/v1/todos/1\",\n        headers={\"Authorization\": \"Bearer your_valid_token_here\"},\n    )\n    assert response.status_code == 200\n    assert response.json()[\"title\"] == \"Test Todo\"\n    assert response.json()[\"description\"] == \"This is a test todo\"\n\ndef test_update_todo():\n    response = client.put(\n        \"/api/v1/todos/1\",\n        json={\"title\": \"Updated Todo\", \"description\": \"Updated description\"},\n        headers={\"Authorization\": \"Bearer your_valid_token_here\"},\n    )\n    assert response.status_code == 200\n    assert response.json()[\"title\"] == \"Updated Todo\"\n    assert response.json()[\"description\"] == \"Updated description\"\n\ndef test_delete_todo():\n    response = client.delete(\n        \"/api/v1/todos/1\",\n        headers={\"Authorization\": \"Bearer your_valid_token_here\"},\n    )\n    assert response.status_code == 200\n    assert response.json()[\"detail\"] == \"Todo deleted\""
+    }
+  ],
+  "dependencies": {
+    "fastapi": "^0.78.0",
+    "uvicorn": "^0.17.6",
+    "sqlalchemy": "^1.4.39",
+    "psycopg2-binary": "^2.9.3",
+    "pydantic": "^1.10.2",
+    "passlib": "^1.7.4",
+    "python-jose": "^3.3.0"
+  },
+  "build_commands": [
+    "pip install -r requirements.txt"
+  ],
+  "run_commands": [
+    "uvicorn app.main:app --reload"
+  ],
+  "environment_variables": [
+    "DATABASE_URL=postgresql://user:password@localhost/todoapp",
+    "SECRET_KEY=your_secret_key"
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "architecture_pattern": "Layered Architecture (Presentation, Business Logic, Data Access)",
+  "summary": "A secure, scalable, and maintainable REST API for user registration and JWT-based authentication built with FastAPI. It enforces strong password hashing, token expiration, role-agnostic protected endpoints, and follows security-first principles while remaining horizontally scalable.",
+  "components": [
+    {
+      "name": "Authentication Service",
+      "type": "Service",
+      "responsibility": "Handles user registration, login, JWT generation/verification, and password hashing/validation",
+      "technology": "FastAPI + bcrypt + python-jose",
+      "interfaces": [
+        "POST /auth/register",
+        "POST /auth/login",
+        "Depends[get_current_user] for protected routes"
+      ]
+    },
+    {
+      "name": "User Repository",
+      "type": "Data Access Layer",
+      "responsibility": "CRUD operations for User entities; abstracts database interactions",
+      "technology": "SQLModel (with SQLAlchemy Core)",
+      "interfaces": [
+        "create_user(email, hashed_password)",
+        "get_user_by_email(email)",
+        "get_user_by_id(id)"
+      ]
+    },
+    {
+      "name": "Database Adapter",
+      "type": "Infrastructure",
+      "responsibility": "Manages connection pooling, migrations, and transaction boundaries",
+      "technology": "SQLAlchemy + asyncpg (for PostgreSQL) or aiosqlite (for SQLite)",
+      "interfaces": [
+        "init_db()",
+        "get_session() -> AsyncSession"
+      ]
+    },
+    {
+      "name": "Security Middleware",
+      "type": "Cross-Cutting Concern",
+      "responsibility": "Validates JWT tokens, enforces HTTPS in production, handles token refresh logic (future extension)",
+      "technology": "FastAPI middleware + HTTPBearer",
+      "interfaces": [
+        "verify_token(token: str) -> User",
+        "require_auth() -> User"
+      ]
+    },
+    {
+      "name": "API Router",
+      "type": "Presentation Layer",
+      "responsibility": "Defines and mounts all public and protected endpoints with validation, docs (Swagger/ReDoc), and error handling",
+      "technology": "FastAPI APIRouter",
+      "interfaces": [
+        "/auth/register",
+        "/auth/login",
+        "/users/me"
+      ]
+    }
+  ],
+  "api_endpoints": [
+    {
+      "method": "POST",
+      "path": "/auth/register",
+      "description": "Registers a new user with email and password",
+      "request_body": "{ \"email\": \"user@example.com\", \"password\": \"SecurePass123!\" }",
+      "response_body": "{ \"id\": 1, \"email\": \"user@example.com\", \"created_at\": \"2024-03-09T15:05:53.123Z\" }"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "description": "Authenticates user credentials and returns a JWT access token",
+      "request_body": "{ \"email\": \"user@example.com\", \"password\": \"SecurePass123!\" }",
+      "response_body": "{ \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\", \"token_type\": \"bearer\", \"expires_in\": 3600 }"
+    },
+    {
+      "method": "GET",
+      "path": "/users/me",
+      "description": "Returns authenticated user profile (protected endpoint)",
+      "request_body": "",
+      "response_body": "{ \"id\": 1, \"email\": \"user@example.com\", \"created_at\": \"2024-03-09T15:05:53.123Z\" }"
+    }
+  ],
+  "database_schema": [
+    {
+      "table": "users",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "constraints": [
+            "PRIMARY KEY",
+            "SERIAL"
+          ]
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "UNIQUE",
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "hashed_password",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_users_email"
+      ]
+    }
+  ],
+  "tech_stack": {
+    "backend": "Python 3.11, FastAPI, SQLModel, Pydantic v2, python-jose[cryptography], bcrypt",
+    "frontend": "None (API-only; client-agnostic)",
+    "database": "PostgreSQL (production), SQLite (development/testing)",
+    "cache": "None (intentionally omitted per scope; optional Redis for future token revocation/blacklisting)",
+    "queue": "None (not required for current scope)"
+  },
+  "deployment_strategy": "Containerized deployment via Docker on cloud platforms (AWS ECS/EKS or Heroku); uses environment variables for secrets (JWT_SECRET_KEY, DATABASE_URL); supports zero-downtime rolling updates; health checks via /health endpoint; CI/CD pipeline with automated tests and linting.",
+  "security_considerations": [
+    "Passwords hashed using bcrypt with auto-generated salt (bcrypt.generate_password_hash)",
+    "JWT signed with HS256 and secret key stored in environment variable (never hardcoded)",
+    "JWT expiration enforced (default 1h), short-lived tokens recommended",
+    "Email validation via RFC-compliant regex (Pydantic EmailStr)",
+    "Rate limiting on auth endpoints (via slowapi or custom middleware) to prevent brute-force",
+    "HTTPS enforced in production (redirect middleware)",
+    "SQL injection prevented via parameterized queries (SQLModel/SQLAlchemy)",
+    "Sensitive headers (e.g., Authorization) excluded from logs"
+  ],
+  "scalability_notes": [
+    "Stateless authentication enables horizontal scaling of API instances",
+    "Database connection pooling configured per FastAPI worker (asyncpg/aiosqlite)",
+    "Read replicas can be added for future read-heavy extensions",
+    "Async I/O throughout stack (FastAPI + async DB drivers) maximizes throughput",
+    "Docker image optimized for minimal attack surface (slim Python base, multi-stage build)",
+    "Health and metrics endpoints support autoscaling triggers (e.g., CPU/memory + request rate)"
+  ],
+  "project_id": "PROJ-20260309-150553",
+  "version": "1",
+  "spec_version": "1"
+}

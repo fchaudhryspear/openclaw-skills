@@ -1,0 +1,65 @@
+{
+  "files": [
+    {
+      "path": "src/index.tsx",
+      "language": "tsx",
+      "description": "Entry point of the React application.",
+      "content": "import React from 'react';\nimport ReactDOM from 'react-dom';\nimport App from './App';\nimport { BrowserRouter as Router } from 'react-router-dom';\n\nReactDOM.render(\n  <React.StrictMode>\n    <Router>\n      <App />\n    </Router>\n  </React.StrictMode>,\n  document.getElementById('root')\n);"
+    },
+    {
+      "path": "src/App.tsx",
+      "language": "tsx",
+      "description": "Main application component with routing.",
+      "content": "import React from 'react';\nimport { Route, Switch } from 'react-router-dom';\nimport Login from './pages/Login';\nimport Register from './pages/Register';\nimport Tasks from './pages/Tasks';\nimport ProtectedRoute from './components/ProtectedRoute';\nimport AuthProvider from './context/AuthContext';\n\nconst App: React.FC = () => {\n  return (\n    <AuthProvider>\n      <Switch>\n        <Route path=\"/login\" component={Login} />\n        <Route path=\"/register\" component={Register} />\n        <ProtectedRoute path=\"/tasks\" component={Tasks} />\n      </Switch>\n    </AuthProvider>\n  );\n};\n\nexport default App;"
+    },
+    {
+      "path": "src/pages/Login.tsx",
+      "language": "tsx",
+      "description": "Login page component.",
+      "content": "import React, { useState } from 'react';\nimport { useHistory } from 'react-router-dom';\nimport { useAuth } from '../context/AuthContext';\nimport axios from 'axios';\n\nconst Login: React.FC = () => {\n  const [username, setUsername] = useState('');\n  const [password, setPassword] = useState('');\n  const { login } = useAuth();\n  const history = useHistory();\n\n  const handleSubmit = async (e: React.FormEvent) => {\n    e.preventDefault();\n    try {\n      const response = await axios.post('/auth/login', { username, password });\n      login(response.data.access_token);\n      history.push('/tasks');\n    } catch (error) {\n      console.error('Login failed:', error);\n    }\n  };\n\n  return (\n    <div className=\"flex items-center justify-center min-h-screen\">\n      <form onSubmit={handleSubmit} className=\"bg-white p-8 rounded shadow-md\">\n        <h2 className=\"text-2xl font-bold mb-6\">Login</h2>\n        <div className=\"mb-4\">\n          <label htmlFor=\"username\" className=\"block text-gray-700\">Username</label>\n          <input\n            type=\"text\"\n            id=\"username\"\n            value={username}\n            onChange={(e) => setUsername(e.target.value)}\n            className=\"w-full px-3 py-2 border rounded\"\n            required\n          />\n        </div>\n        <div className=\"mb-6\">\n          <label htmlFor=\"password\" className=\"block text-gray-700\">Password</label>\n          <input\n            type=\"password\"\n            id=\"password\"\n            value={password}\n            onChange={(e) => setPassword(e.target.value)}\n            className=\"w-full px-3 py-2 border rounded\"\n            required\n          />\n        </div>\n        <button type=\"submit\" className=\"w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600\">Login</button>\n      </form>\n    </div>\n  );\n};\n\nexport default Login;"
+    },
+    {
+      "path": "src/pages/Register.tsx",
+      "language": "tsx",
+      "description": "Register page component.",
+      "content": "import React, { useState } from 'react';\nimport { useHistory } from 'react-router-dom';\nimport axios from 'axios';\n\nconst Register: React.FC = () => {\n  const [username, setUsername] = useState('');\n  const [password, setPassword] = useState('');\n  const history = useHistory();\n\n  const handleSubmit = async (e: React.FormEvent) => {\n    e.preventDefault();\n    try {\n      await axios.post('/auth/register', { username, password });\n      history.push('/login');\n    } catch (error) {\n      console.error('Registration failed:', error);\n    }\n  };\n\n  return (\n    <div className=\"flex items-center justify-center min-h-screen\">\n      <form onSubmit={handleSubmit} className=\"bg-white p-8 rounded shadow-md\">\n        <h2 className=\"text-2xl font-bold mb-6\">Register</h2>\n        <div className=\"mb-4\">\n          <label htmlFor=\"username\" className=\"block text-gray-700\">Username</label>\n          <input\n            type=\"text\"\n            id=\"username\"\n            value={username}\n            onChange={(e) => setUsername(e.target.value)}\n            className=\"w-full px-3 py-2 border rounded\"\n            required\n          />\n        </div>\n        <div className=\"mb-6\">\n          <label htmlFor=\"password\" className=\"block text-gray-700\">Password</label>\n          <input\n            type=\"password\"\n            id=\"password\"\n            value={password}\n            onChange={(e) => setPassword(e.target.value)}\n            className=\"w-full px-3 py-2 border rounded\"\n            required\n          />\n        </div>\n        <button type=\"submit\" className=\"w-full bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600\">Register</button>\n      </form>\n    </div>\n  );\n};\n\nexport default Register;"
+    },
+    {
+      "path": "src/pages/Tasks.tsx",
+      "language": "tsx",
+      "description": "Tasks page component.",
+      "content": "import React, { useEffect, useState } from 'react';\nimport { useAuth } from '../context/AuthContext';\nimport axios from 'axios';\n\nconst Tasks: React.FC = () => {\n  const { token } = useAuth();\n  const [tasks, setTasks] = useState([]);\n\n  useEffect(() => {\n    const fetchTasks = async () => {\n      try {\n        const response = await axios.get('/tasks', {\n          headers: { Authorization: `Bearer ${token}` },\n        });\n        setTasks(response.data);\n      } catch (error) {\n        console.error('Failed to fetch tasks:', error);\n      }\n    };\n\n    fetchTasks();\n  }, [token]);\n\n  return (\n    <div className=\"p-8\">\n      <h1 className=\"text-3xl font-bold mb-6\">Your Tasks</h1>\n      <ul className=\"space-y-4\">\n        {tasks.map((task: any) => (\n          <li key={task.id} className=\"bg-gray-100 p-4 rounded shadow\">\n            <h2 className=\"text-xl font-semibold\">{task.title}</h2>\n            <p>{task.description}</p>\n          </li>\n        ))}\n      </ul>\n    </div>\n  );\n};\n\nexport default Tasks;"
+    },
+    {
+      "path": "src/components/ProtectedRoute.tsx",
+      "language": "tsx",
+      "description": "Protected route component to handle authentication checks.",
+      "content": "import React from 'react';\nimport { Route, Redirect } from 'react-router-dom';\nimport { useAuth } from '../context/AuthContext';\n\ninterface ProtectedRouteProps {\n  component: React.ComponentType<any>;\n  path: string;\n}\n\nconst ProtectedRoute: React.FC<ProtectedRouteProps> = ({ component: Component, ...rest }) => {\n  const { isAuthenticated } = useAuth();\n\n  return (\n    <Route\n      {...rest}\n      render={(props) =>\n        isAuthenticated ? <Component {...props} /> : <Redirect to=\"/login\" />\n      }\n    />\n  );\n};\n\nexport default ProtectedRoute;"
+    },
+    {
+      "path": "src/context/AuthContext.tsx",
+      "language": "tsx",
+      "description": "Authentication context provider.",
+      "content": "import React, { createContext, useContext, useState } from 'react';\n\ninterface AuthContextType {\n  token: string | null;\n  isAuthenticated: boolean;\n  login: (token: string) => void;\n  logout: () => void;\n}\n\nconst AuthContext = createContext<AuthContextType>({} as AuthContextType);\n\nexport const useAuth = () => useContext(AuthContext);\n\ninterface AuthProviderProps {\n  children: React.ReactNode;\n}\n\nexport const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {\n  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));\n\n  const login = (token: string) => {\n    localStorage.setItem('token', token);\n    setToken(token);\n  };\n\n  const logout = () => {\n    localStorage.removeItem('token');\n    setToken(null);\n  };\n\n  return (\n    <AuthContext.Provider value={{ token, isAuthenticated: !!token, login, logout }}>\n      {children}\n    </AuthContext.Provider>\n  );\n};"
+    },
+    {
+      "path": "src/styles/globals.css",
+      "language": "css",
+      "description": "Global styles using Tailwind CSS.",
+      "content": "@tailwind base;\n@tailwind components;\n@tailwind utilities;"
+    }
+  ],
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^5.2.0",
+    "axios": "^0.21.1",
+    "tailwindcss": "^2.2.19"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  }
+}

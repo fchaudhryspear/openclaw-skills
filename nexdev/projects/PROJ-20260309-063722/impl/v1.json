@@ -1,0 +1,58 @@
+{
+  "files": [
+    {
+      "path": "config_parser.py",
+      "language": "Python",
+      "description": "Contains the ConfigParser class for reading and parsing JSON files or strings.",
+      "content": "import json\nfrom pathlib import Path\n\nclass ConfigParser:\n    def parse_file(self, filepath: str) -> dict:\n        try:\n            path = Path(filepath).resolve(strict=True)\n            with open(path, 'r', encoding='utf-8') as file:\n                return json.load(file)\n        except FileNotFoundError:\n            raise ValueError(f\"File not found: {filepath}\")\n        except json.JSONDecodeError as e:\n            raise ValueError(f\"Malformed JSON in file {filepath}: {e}\")\n\n    def parse_string(self, json_str: str) -> dict:\n        try:\n            return json.loads(json_str)\n        except json.JSONDecodeError as e:\n            raise ValueError(f\"Malformed JSON string: {e}\")\n"
+    },
+    {
+      "path": "schema_validator.py",
+      "language": "Python",
+      "description": "Contains the SchemaValidator class for validating configurations against JSON Schemas.",
+      "content": "from jsonschema import Draft7Validator, ValidationError as JSONSchemaValidationError\nfrom functools import reduce\nfrom typing import List, Dict, Callable\nfrom dataclasses import dataclass\nfrom .validation_result import ValidationResult\nfrom .validation_error import ValidationError\nfrom .custom_rule_registry import CustomRuleRegistry\n\nclass SchemaValidator:\n    def __init__(self, schema: Dict):\n        self.validator = Draft7Validator(schema)\n        self.custom_rules = CustomRuleRegistry()\n\n    def validate(self, config: Dict) -> ValidationResult:\n        standard_errors = self._collect_standard_errors(config)\n        custom_errors = self.custom_rules.run_all(config)\n        all_errors = standard_errors + custom_errors\n        is_valid = len(all_errors) == 0\n        return ValidationResult(is_valid, all_errors)\n\n    def _collect_standard_errors(self, config: Dict) -> List[ValidationError]:\n        errors = []\n        for error in self.validator.iter_errors(config):\n            errors.append(ValidationError(\n                path='.'.join(str(part) for part in error.path),\n                message=error.message,\n                cause=str(error.cause) if error.cause else None\n            ))\n        return errors\n"
+    },
+    {
+      "path": "validation_result.py",
+      "language": "Python",
+      "description": "Dataclass for encapsulating validation results.",
+      "content": "from dataclasses import dataclass\nfrom typing import List\nfrom .validation_error import ValidationError\n\n@dataclass\nclass ValidationResult:\n    is_valid: bool\n    errors: List[ValidationError]\n"
+    },
+    {
+      "path": "validation_error.py",
+      "language": "Python",
+      "description": "Dataclass for representing individual validation errors.",
+      "content": "from dataclasses import dataclass\nfrom typing import Optional\n\n@dataclass\nclass ValidationError:\n    path: str\n    message: str\n    cause: Optional[str] = None\n"
+    },
+    {
+      "path": "custom_rule_registry.py",
+      "language": "Python",
+      "description": "Class for managing custom validation rules.",
+      "content": "from typing import Dict, Callable, List\nfrom .validation_error import ValidationError\n\nclass CustomRuleRegistry:\n    def __init__(self):\n        self.rules: Dict[str, Callable] = {}\n\n    def register(self, rule_id: str, func: Callable[[Dict], List[ValidationError]]):\n        self.rules[rule_id] = func\n\n    def run_all(self, config: Dict) -> List[ValidationError]:\n        return reduce(lambda acc, rule: acc + rule(config), self.rules.values(), [])\n"
+    }
+  ],
+  "test_files": [
+    {
+      "path": "tests/test_config_parser.py",
+      "language": "python",
+      "description": "Unit tests for ConfigParser class.",
+      "content": "import pytest\nfrom unittest.mock import mock_open, patch\nfrom your_module import ConfigParser\n\ndef test_parse_file_valid_json(tmp_path):\n    file_content = '{\"key\": \"value\"}'\n    file_path = tmp_path / 'config.json'\n    file_path.write_text(file_content)\n    parser = ConfigParser()\n    result = parser.parse_file(str(file_path))\n    assert result == {\"key\": \"value\"}\n\ndef test_parse_file_invalid_json(tmp_path):\n    file_content = '{invalid json}'\n    file_path = tmp_path / 'config.json'\n    file_path.write_text(file_content)\n    parser = ConfigParser()\n    with pytest.raises(ValueError) as excinfo:\n        parser.parse_file(str(file_path))\n    assert 'Malformed JSON in file' in str(excinfo.value)\n\ndef test_parse_file_nonexistent_file():\n    parser = ConfigParser()\n    with pytest.raises(ValueError) as excinfo:\n        parser.parse_file('nonexistent_file.json')\n    assert 'File not found' in str(excinfo.value)\n\ndef test_parse_string_valid_json():\n    parser = ConfigParser()\n    result = parser.parse_string('{\"key\": \"value\"}')\n    assert result == {\"key\": \"value\"}\n\ndef test_parse_string_invalid_json():\n    parser = ConfigParser()\n    with pytest.raises(ValueError) as excinfo:\n        parser.parse_string('{invalid json}')\n    assert 'Malformed JSON string' in str(excinfo.value)"
+    },
+    {
+      "path": "tests/test_schema_validator.py",
+      "language": "python",
+      "description": "Unit tests for SchemaValidator class.",
+      "content": "import pytest\nfrom your_module import SchemaValidator, ValidationResult, ValidationError\n\nschema = {\n    \"type\": \"object\",\n    \"properties\": {\n        \"name\": {\"type\": \"string\"},\n        \"age\": {\"type\": \"integer\"}\n    },\n    \"required\": [\"name\", \"age\"]\n}\n\ndef test_validate_valid_config():\n    validator = SchemaValidator(schema)\n    config = {\"name\": \"John\", \"age\": 30}\n    result = validator.validate(config)\n    assert isinstance(result, ValidationResult)\n    assert result.is_valid\n    assert result.errors == []\n\ndef test_validate_invalid_config_missing_field():\n    validator = SchemaValidator(schema)\n    config = {\"name\": \"John\"}\n    result = validator.validate(config)\n    assert isinstance(result, ValidationResult)\n    assert not result.is_valid\n    assert len(result.errors) == 1\n    assert result.errors[0].path == 'age'\n    assert 'is a required property' in result.errors[0].message\n\ndef test_validate_invalid_config_wrong_type():\n    validator = SchemaValidator(schema)\n    config = {\"name\": \"John\", \"age\": \"thirty\"}\n    result = validator.validate(config)\n    assert isinstance(result, ValidationResult)\n    assert not result.is_valid\n    assert len(result.errors) == 1\n    assert result.errors[0].path == 'age'\n    assert 'is not of type' in result.errors[0].message\n\ndef test_custom_rule_registration_and_execution():\n    def custom_rule(config):\n        if config.get('age') < 18:\n            return [ValidationError(path='age', message='Age must be at least 18')]\n        return []\n\n    validator = SchemaValidator(schema)\n    validator.custom_rules.register('age_check', custom_rule)\n    config = {\"name\": \"John\", \"age\": 17}\n    result = validator.validate(config)\n    assert isinstance(result, ValidationResult)\n    assert not result.is_valid\n    assert len(result.errors) == 2\n    assert result.errors[1].path == 'age'\n    assert result.errors[1].message == 'Age must be at least 18'"
+    }
+  ],
+  "dependencies": {
+    "jsonschema": "^4.17.3"
+  },
+  "build_commands": [
+    "python setup.py sdist bdist_wheel"
+  ],
+  "run_commands": [
+    "pytest tests/"
+  ],
+  "environment_variables": []
+}

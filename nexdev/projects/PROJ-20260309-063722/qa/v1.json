@@ -1,0 +1,19 @@
+{
+  "recommendation": "fix_required",
+  "blocking_issues": [
+    "Test collection failed due to `ModuleNotFoundError: No module named 'your_module'` in `test_config_parser.py` and `test_schema_validator.py`. This indicates that the test files are attempting to import a placeholder module name instead of the actual modules under test. No unit tests were executed.",
+    "The build verdict explicitly states 'Tests failed \u2014 implementation has issues', confirming a critical failure in the testing phase."
+  ],
+  "non_blocking_issues": [],
+  "security_concerns": [],
+  "quality_score": 15,
+  "build_verification": {
+    "grade": "C-",
+    "verdict": "Tests failed \u2014 implementation has issues",
+    "syntax": "7/7 files pass",
+    "lint_issues": 0,
+    "build": "skipped",
+    "tests": "fail"
+  },
+  "project_id": "PROJ-20260309-063722"
+}

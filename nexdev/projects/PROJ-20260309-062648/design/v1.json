@@ -1,0 +1,68 @@
+{
+  "architecture_pattern": "Single-Function Microservice (Lightweight REST API wrapping pure logic)",
+  "summary": "A minimal, stateless, high-performance email validation service exposing a simple HTTP API. The core validation logic is a pure Python function using only the standard library, designed for correctness, reliability, and sub-millisecond latency. The architecture prioritizes simplicity, observability, and horizontal scalability.",
+  "components": [
+    {
+      "name": "EmailValidatorCore",
+      "type": "Library",
+      "responsibility": "Pure Python implementation of RFC 5322-inspired email validation: trims whitespace, checks for single '@', validates local-part and domain structure, enforces TLD presence, rejects invalid characters.",
+      "technology": "Python 3.8+ (stdlib only: re, string)",
+      "interfaces": [
+        "validate_email(email: str) -> bool"
+      ]
+    },
+    {
+      "name": "ValidationAPI",
+      "type": "Web Service",
+      "responsibility": "Exposes REST endpoints, handles HTTP request/response lifecycle, input sanitization, error formatting, and metrics collection.",
+      "technology": "FastAPI",
+      "interfaces": [
+        "POST /v1/validate",
+        "GET /health"
+      ]
+    },
+    {
+      "name": "HealthMonitor",
+      "type": "Utility",
+      "responsibility": "Provides liveness and readiness probes for orchestration systems.",
+      "technology": "FastAPI (built-in health endpoints)",
+      "interfaces": [
+        "GET /health -> {status: 'ok', timestamp: ISO8601}"
+      ]
+    }
+  ],
+  "api_endpoints": [
+    {
+      "method": "POST",
+      "path": "/v1/validate",
+      "description": "Validates a single email address against format rules.",
+      "request_body": "{ \"email\": \"string\" }",
+      "response_body": "{ \"valid\": \"boolean\", \"email\": \"string\", \"timestamp\": \"ISO8601 string\" }"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "description": "Health check endpoint for load balancers and orchestrators.",
+      "request_body": "",
+      "response_body": "{ \"status\": \"string\", \"timestamp\": \"ISO8601 string\" }"
+    }
+  ],
+  "database_schema": [],
+  "tech_stack": {
+    "backend": "Python 3.11, FastAPI, uvicorn",
+    "frontend": "None (API-only service)",
+    "database": "None",
+    "cache": "None (stateless, no caching needed for validation logic)",
+    "queue": "None"
+  },
+  "deployment_strategy": "Containerized (Docker) with Kubernetes or serverless (AWS Lambda / Cloud Run). Horizontal auto-scaling based on request rate. Immutable infrastructure. Blue-green deployments for zero-downtime updates.",
+  "security_considerations": [
+    "Input is strictly validated and sanitized (whitespace trim, length cap at 254 chars), no injection vectors; TLS 1.3 enforced in production; no sensitive data stored or logged; rate limiting applied at API gateway layer; minimal attack surface (no DB, no auth, no file I/O); all dependencies pinned and scanned."
+  ],
+  "scalability_notes": [
+    "Stateless design enables infinite horizontal scaling; CPU-bound but extremely lightweight (<100\u03bcs avg latency); can handle >10k RPS per instance; no shared resources or bottlenecks; scales linearly with instance count; optimized for low-latency synchronous validation."
+  ],
+  "project_id": "PROJ-20260309-062648",
+  "version": "1",
+  "spec_version": "1"
+}

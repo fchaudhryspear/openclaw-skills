@@ -1,0 +1,17 @@
+{
+  "files": [
+    {
+      "path": "hello.py",
+      "language": "Python",
+      "description": "A minimal Python script that prints 'Hello, World!' to stdout.",
+      "content": "print('Hello, World!')"
+    }
+  ],
+  "test_files": [],
+  "dependencies": {},
+  "build_commands": [],
+  "run_commands": [
+    "python hello.py"
+  ],
+  "environment_variables": []
+}

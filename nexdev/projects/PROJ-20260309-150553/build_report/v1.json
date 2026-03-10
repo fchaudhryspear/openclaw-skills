@@ -1,0 +1,112 @@
+{
+  "syntax_checks": [
+    {
+      "file": "main.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "auth.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "users.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "schemas.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "crud.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "models.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "security.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "db.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "config.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_main.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_auth.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_users.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_crud.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_security.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    }
+  ],
+  "lint_results": [],
+  "build_result": {
+    "status": "skipped",
+    "reason": "No requirements.txt"
+  },
+  "test_results": [
+    {
+      "runner": "pytest",
+      "exit_code": 2,
+      "status": "fail",
+      "output": "\n==================================== ERRORS ====================================\n_____________________ ERROR collecting tests/test_auth.py ______________________\nImportError while importing test module '/private/var/folders/_g/7k61hsyn307czz_gqc6xy2xc0000gn/T/nexdev_build_decrm2ms/tests/test_auth.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/test_auth.py:3: in <module>\n    from app.main import app\napp/main.py:2: in <module>\n    from app.routers import auth, users\napp/routers/auth.py:4: in <module>\n    from sqlalchemy.ext.asyncio import AsyncSession\nE   ModuleNotFoundError: No module named 'sqlalchemy'\n_____________________ ERROR collecting tests/test_crud.py ______________________\nImportError while importing test module '/private/var/folders/_g/7k61hsyn307czz_gqc6xy2xc0000gn/T/nexdev_build_decrm2ms/tests/test_crud.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/test_crud.py:2: in <module>\n    from app.crud import create_user, get_user_by_email, get_user_by_id\napp/crud.py:1: in <module>\n    from sqlalchemy.ext.asyncio import AsyncSession\nE   ModuleNotFoundError: No module named 'sqlalchemy'\n_____________________ ERROR collecting tests/test_main.py ______________________\nImportError while importing test module '/private/var/folders/_g/7k61hsyn307czz_gqc6xy2xc0000gn/T/nexdev_build_decrm2ms/tests/test_main.py'.\nHint: make sure your test modules/packages h",
+      "summary_line": "5 errors in 0.23s"
+    }
+  ],
+  "summary": {
+    "grade": "C-",
+    "verdict": "Tests failed \u2014 implementation has issues",
+    "syntax": "14/14 files pass",
+    "lint_issues": 0,
+    "build": "skipped",
+    "tests": "fail"
+  },
+  "timestamp": "2026-03-09T15:09:20.784272",
+  "files_written": 17
+}

@@ -1,0 +1,70 @@
+{
+  "syntax_checks": [
+    {
+      "file": "config_parser.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "schema_validator.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "validation_result.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "validation_error.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "custom_rule_registry.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_config_parser.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_schema_validator.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    }
+  ],
+  "lint_results": [],
+  "build_result": {
+    "status": "skipped",
+    "reason": "No requirements.txt"
+  },
+  "test_results": [
+    {
+      "runner": "pytest",
+      "exit_code": 2,
+      "status": "fail",
+      "output": "\n==================================== ERRORS ====================================\n_________________ ERROR collecting tests/test_config_parser.py _________________\nImportError while importing test module '/private/var/folders/_g/7k61hsyn307czz_gqc6xy2xc0000gn/T/nexdev_build_tr8qvgcb/tests/test_config_parser.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/test_config_parser.py:3: in <module>\n    from your_module import ConfigParser\nE   ModuleNotFoundError: No module named 'your_module'\n_______________ ERROR collecting tests/test_schema_validator.py ________________\nImportError while importing test module '/private/var/folders/_g/7k61hsyn307czz_gqc6xy2xc0000gn/T/nexdev_build_tr8qvgcb/tests/test_schema_validator.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/opt/homebrew/Cellar/python@3.14/3.14.3_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/test_schema_validator.py:2: in <module>\n    from your_module import SchemaValidator, ValidationResult, ValidationError\nE   ModuleNotFoundError: No module named 'your_module'\n=========================== short test summary info ============================\nERROR tests/test_config_parser.py\nERROR tests/test_schema_validator.py\n!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!\n2 errors in 0.05s\n",
+      "summary_line": "2 errors in 0.05s"
+    }
+  ],
+  "summary": {
+    "grade": "C-",
+    "verdict": "Tests failed \u2014 implementation has issues",
+    "syntax": "7/7 files pass",
+    "lint_issues": 0,
+    "build": "skipped",
+    "tests": "fail"
+  },
+  "timestamp": "2026-03-09T06:38:40.610116",
+  "files_written": 8
+}

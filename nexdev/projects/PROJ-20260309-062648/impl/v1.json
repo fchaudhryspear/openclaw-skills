@@ -1,0 +1,54 @@
+{
+  "files": [
+    {
+      "path": "app/main.py",
+      "language": "python",
+      "description": "Main FastAPI application",
+      "content": "#!/usr/bin/env python3\n\"\"\"Auto-generated FastAPI application\"\"\"\nfrom fastapi import FastAPI, Depends, HTTPException, status\nfrom fastapi.middleware.cors import CORSMiddleware\nfrom pydantic import BaseModel\nfrom typing import Optional, List\nimport uvicorn\n\napp = FastAPI(title=\"Generated App\", version=\"1.0.0\")\n\n# CORS\napp.add_middleware(\n    CORSMiddleware,\n    allow_origins=[\"*\"],\n    allow_credentials=True,\n    allow_methods=[\"*\"],\n    allow_headers=[\"*\"],\n)\n\n# Auth dependency (placeholder)\nasync def get_current_user():\n    # TODO: Implement JWT validation\n    return {\"id\": \"user-1\", \"role\": \"admin\"}\n\n# Health check\n@app.get(\"/api/health\")\nasync def health():\n    return {\"status\": \"healthy\", \"version\": \"1.0.0\"}\n\n\n@app.post(\"/v1/validate\")\nasync def v1_validate(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Validates a single email address against format rules.\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Validates a single email address against format rules.\", \"status\": \"ok\"}\n\n@app.get(\"/health\")\nasync def health(, current_user: dict = Depends(get_current_user)):\n    \"\"\"Health check endpoint for load balancers and orchestrators.\"\"\"\n    # TODO: Implement business logic\n    return {\"message\": \"Health check endpoint for load balancers and orchestrators.\", \"status\": \"ok\"}\n\n\nif __name__ == \"__main__\":\n    uvicorn.run(app, host=\"0.0.0.0\", port=8000)\n"
+    },
+    {
+      "path": "config.py",
+      "language": "python",
+      "description": "Application configuration",
+      "content": "\"\"\"Application configuration\"\"\"\nimport os\n\nclass Config:\n    SECRET_KEY = os.getenv(\"SECRET_KEY\", \"change-me-in-production\")\n    DATABASE_URL = os.getenv(\"DATABASE_URL\", \"postgresql://localhost:5432/app\")\n    DEBUG = os.getenv(\"DEBUG\", \"false\").lower() == \"true\"\n    API_VERSION = \"1.0.0\"\n    CORS_ORIGINS = os.getenv(\"CORS_ORIGINS\", \"*\").split(\",\")\n"
+    },
+    {
+      "path": "Dockerfile",
+      "language": "dockerfile",
+      "description": "Container definition",
+      "content": "FROM python:3.12-slim\nWORKDIR /app\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\nCOPY . .\nEXPOSE 8000\nCMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]\n"
+    },
+    {
+      "path": "requirements.txt",
+      "language": "text",
+      "description": "Python dependencies",
+      "content": "alembic>=1.13\nbcrypt>=4.1\nfastapi>=0.110.0\nhttpx>=0.27\npsycopg2-binary>=2.9\npydantic>=2.6\npython-jose[cryptography]>=3.3\nsqlalchemy>=2.0\nuvicorn>=0.29.0"
+    }
+  ],
+  "test_files": [
+    {
+      "path": "tests/test_main.py",
+      "language": "python",
+      "description": "Tests for app/main.py",
+      "content": "import pytest\n\nimport pytest\nfrom unittest.mock import Mock, patch, MagicMock\n\n\n# Tests for: Test get_current_user\n\ndef test_get_current_user_returns_expected_type():\n    \"\"\"Test that function returns expected type\"\"\"\n    result = get_current_user()\n    assert result is not None\n    # assert isinstance(result, expected_type)\n\n\ndef test_get_current_user_handles_empty_input():\n    \"\"\"Test empty input handling\"\"\"\n    result = get_current_user(\"\")\n    assert result is not None  # or raises\n\n\ndef test_get_current_user_handles_none():\n    \"\"\"Test None handling\"\"\"\n    with pytest.raises((TypeError, ValueError)):\n        get_current_user(None)\n\n\ndef test_get_current_user_idempotent():\n    \"\"\"Test that repeated calls produce same result\"\"\"\n    result1 = get_current_user(\"same_input\")\n    result2 = get_current_user(\"same_input\")\n    assert result1 == result2\n\nimport pytest\nfrom unittest.mock import Mock, patch, MagicMock\n\n\n# Tests for: Health check endpoint for load balancers and orchestrators.\n\ndef test_health_valid_input():\n    \"\"\"Test with valid input\"\"\"\n    assert health(\"valid_input\") is True\n\n\ndef test_health_empty_input():\n    \"\"\"Test with empty input\"\"\"\n    assert health(\"\") is False\n\n\ndef test_health_none_input():\n    \"\"\"Test with None input\"\"\"\n    with pytest.raises(TypeError):\n        health(None)\n\n\ndef test_health_boundary_values():\n    \"\"\"Test boundary values\"\"\"\n    # Min boundary\n    assert health(\"a\") is True  # or False depending on rules\n    \n    # Max boundary\n    assert health(\"a\" * 10000) is False  # Likely exceeds limits\n\n\ndef test_health_special_characters():\n    \"\"\"Test with special characters\"\"\"\n    assert health(\"<script>alert('xss')</script>\") is False\n    assert health(\"Robert'); DROP TABLE users;--\") is False\n"
+    },
+    {
+      "path": "tests/test_config.py",
+      "language": "python",
+      "description": "Tests for config.py",
+      "content": "import pytest\n\n\n\nclass TestConfig:\n\n    \"\"\"Tests for Config\"\"\"\n\n\n    def setup_method(self):\n\n        self.instance = Config()\n\n\n    def test_init(self):\n\n        assert self.instance is not None\n"
+    }
+  ],
+  "dependencies": {},
+  "build_commands": [
+    "docker build -t app ."
+  ],
+  "run_commands": [
+    "docker run -p 8000:8000 app"
+  ],
+  "environment_variables": [
+    "DATABASE_URL",
+    "SECRET_KEY",
+    "API_KEY"
+  ]
+}

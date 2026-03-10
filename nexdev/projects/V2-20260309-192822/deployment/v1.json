@@ -1,0 +1,184 @@
+{
+  "deployment_configuration": {
+    "docker": {
+      "Dockerfile": {
+        "description": "Dockerfile for building the FastAPI application image.",
+        "content": [
+          "FROM python:3.9-slim-buster",
+          "",
+          "WORKDIR /app",
+          "",
+          "COPY requirements.txt .",
+          "RUN pip install --no-cache-dir -r requirements.txt",
+          "",
+          "COPY . .",
+          "",
+          "EXPOSE 8000",
+          "",
+          "CMD [\"uvicorn\", \"app.main:app\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\"]"
+        ]
+      },
+      "docker-compose.yml": {
+        "description": "Docker Compose configuration for local development with FastAPI and PostgreSQL.",
+        "content": [
+          "version: '3.8'",
+          "",
+          "services:",
+          "  db:",
+          "    image: postgres:13",
+          "    restart: always",
+          "    environment:",
+          "      POSTGRES_USER: ${POSTGRES_USER:-user}",
+          "      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}",
+          "      POSTGRES_DB: ${POSTGRES_DB:-todoapp}",
+          "    ports:",
+          "      - \"5432:5432\"",
+          "    volumes:",
+          "      - db_data:/var/lib/postgresql/data",
+          "",
+          "  web:",
+          "    build: .",
+          "    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload",
+          "    volumes:",
+          "      - .:/app",
+          "    ports:",
+          "      - \"8000:8000\"",
+          "    environment:",
+          "      DATABASE_URL: postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-todoapp}",
+          "      SECRET_KEY: ${SECRET_KEY:-super-secret-key}",
+          "      ALGORITHM: ${ALGORITHM:-HS256}",
+          "      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}",
+          "    depends_on:",
+          "      - db",
+          "",
+          "volumes:",
+          "  db_data:"
+        ]
+      }
+    },
+    "ci_cd": {
+      "github_actions": {
+        "file_path": ".github/workflows/main.yml",
+        "description": "GitHub Actions workflow for CI/CD, including testing and Docker image build/push.",
+        "content": [
+          "name: CI/CD Pipeline",
+          "",
+          "on: [push, pull_request]",
+          "",
+          "jobs:",
+          "  build-and-test:",
+          "    runs-on: ubuntu-latest",
+          "    steps:",
+          "      - name: Checkout code",
+          "        uses: actions/checkout@v3",
+          "",
+          "      - name: Set up Python",
+          "        uses: actions/setup-python@v4",
+          "        with:",
+          "          python-version: '3.9'",
+          "",
+          "      - name: Install dependencies",
+          "        run: |",
+          "          python -m pip install --upgrade pip",
+          "          pip install -r requirements.txt",
+          "          pip install pytest httpx",
+          "",
+          "      - name: Start PostgreSQL (for tests)",
+          "        run: |",
+          "          docker run --name test-db -e POSTGRES_USER=testuser -e POSTGRES_PASSWORD=testpassword -e POSTGRES_DB=testdb -p 5433:5432 -d postgres:13",
+          "          sleep 10 # Give PostgreSQL time to start",
+          "",
+          "      - name: Run tests",
+          "        env:",
+          "          DATABASE_URL: postgresql://testuser:testpassword@localhost:5433/testdb",
+          "          SECRET_KEY: test-secret-key",
+          "          ALGORITHM: HS256",
+          "          ACCESS_TOKEN_EXPIRE_MINUTES: 1",
+          "        run: |",
+          "          pytest",
+          "",
+          "  docker-build-and-push:",
+          "    needs: build-and-test",
+          "    if: github.ref == 'refs/heads/main'",
+          "    runs-on: ubuntu-latest",
+          "    steps:",
+          "      - name: Checkout code",
+          "        uses: actions/checkout@v3",
+          "",
+          "      - name: Log in to Docker Hub",
+          "        uses: docker/login-action@v2",
+          "        with:",
+          "          username: ${{ secrets.DOCKER_USERNAME }}",
+          "          password: ${{ secrets.DOCKER_PASSWORD }}",
+          "",
+          "      - name: Build and push Docker image",
+          "        uses: docker/build-push-action@v4",
+          "        with:",
+          "          context: .",
+          "          push: true",
+          "          tags: yourdockerhubusername/todo-fastapi:latest",
+          "          cache-from: type=gha",
+          "          cache-to: type=gha,mode=max",
+          "",
+          "  # deploy:",
+          "  #   needs: docker-build-and-push",
+          "  #   if: github.ref == 'refs/heads/main'",
+          "  #   runs-on: ubuntu-latest",
+          "  #   environment: production",
+          "  #   steps:",
+          "  #     - name: Deploy to production",
+          "  #       run: |",
+          "  #         echo \"Deployment script goes here (e.g., kubectl apply, aws ecs update-service)\"",
+          "  #         # Example: ssh into server and pull/run new image"
+        ]
+      }
+    },
+    "environment_variables": {
+      "description": "Essential environment variables for the application.",
+      "variables": [
+        {
+          "name": "DATABASE_URL",
+          "description": "Connection string for the PostgreSQL database (e.g., postgresql://user:password@host:port/dbname).",
+          "example": "postgresql://user:password@localhost:5432/todoapp",
+          "required": true
+        },
+        {
+          "name": "SECRET_KEY",
+          "description": "A strong, random secret key used for signing JWT tokens. Keep this secure.",
+          "example": "your-super-secret-jwt-key-that-is-at-least-32-chars-long",
+          "required": true
+        },
+        {
+          "name": "ALGORITHM",
+          "description": "The algorithm used for JWT signing (e.g., HS256).",
+          "example": "HS256",
+          "required": true
+        },
+        {
+          "name": "ACCESS_TOKEN_EXPIRE_MINUTES",
+          "description": "The number of minutes until an access token expires.",
+          "example": "30",
+          "required": true
+        },
+        {
+          "name": "POSTGRES_USER",
+          "description": "PostgreSQL username (primarily for local docker-compose setup).",
+          "example": "user",
+          "required": false
+        },
+        {
+          "name": "POSTGRES_PASSWORD",
+          "description": "PostgreSQL password (primarily for local docker-compose setup).",
+          "example": "password",
+          "required": false
+        },
+        {
+          "name": "POSTGRES_DB",
+          "description": "PostgreSQL database name (primarily for local docker-compose setup).",
+          "example": "todoapp",
+          "required": false
+        }
+      ]
+    }
+  }
+}

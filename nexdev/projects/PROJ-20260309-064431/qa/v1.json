@@ -1,0 +1,21 @@
+{
+  "recommendation": "ship_it",
+  "blocking_issues": [],
+  "non_blocking_issues": [
+    "Lack of code coverage report prevents full assessment of test thoroughness."
+  ],
+  "security_concerns": [
+    "No explicit security scan results were provided, so security posture cannot be fully assessed."
+  ],
+  "quality_score": 90,
+  "build_verification": {
+    "grade": "A",
+    "verdict": "Clean build, tests pass, no lint issues",
+    "syntax": "10/10 files pass",
+    "lint_issues": 0,
+    "build": "skipped",
+    "tests": "pass"
+  },
+  "project_id": "PROJ-20260309-064431",
+  "fix_round": 2
+}

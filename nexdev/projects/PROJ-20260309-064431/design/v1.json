@@ -1,0 +1,57 @@
+{
+  "architecture_pattern": "Library/Module",
+  "summary": "A lightweight, stateless Python library providing email validation and US phone number formatting using only the standard library. Designed for embedding in larger applications with minimal dependencies, high reliability, and predictable performance.",
+  "components": [
+    {
+      "name": "EmailValidator",
+      "type": "utility class",
+      "responsibility": "Validate email addresses using regex-based pattern matching and structural checks (presence of '@', domain validity, character restrictions).",
+      "technology": "Python 3.8+ (re, typing)",
+      "interfaces": [
+        "validate(email: str) -> bool"
+      ]
+    },
+    {
+      "name": "PhoneNumberFormatter",
+      "type": "utility class",
+      "responsibility": "Normalize and format phone numbers by stripping non-digit characters and applying US (XXX) XXX-XXXX pattern; handles optional country codes by truncating to last 10 digits.",
+      "technology": "Python 3.8+ (re, typing)",
+      "interfaces": [
+        "format(phone: str) -> str | None"
+      ]
+    },
+    {
+      "name": "ValidationService",
+      "type": "facade",
+      "responsibility": "Orchestrates validation and formatting logic, applies edge-case handling (empty/null input), and returns consistent responses with error resilience.",
+      "technology": "Python 3.8+ (typing, logging)",
+      "interfaces": [
+        "validate_email(email: str) -> bool",
+        "format_phone(phone: str) -> str | None"
+      ]
+    }
+  ],
+  "api_endpoints": [],
+  "database_schema": [],
+  "tech_stack": {
+    "backend": "Python 3.8+",
+    "frontend": "N/A",
+    "database": "N/A",
+    "cache": "N/A",
+    "queue": "N/A"
+  },
+  "deployment_strategy": "Package distribution via PyPI or direct import as a module; no runtime deployment required. Versioned using semantic versioning. Distributed as source-only wheel.",
+  "security_considerations": [
+    "Input sanitization built into validation logic prevents injection via malformed strings",
+    "No external I/O, network calls, or filesystem access reduces attack surface",
+    "All inputs are type-checked and defensively handled to avoid crashes or information leakage"
+  ],
+  "scalability_notes": [
+    "Stateless and thread-safe; scales horizontally by usage in concurrent contexts",
+    "O(1) time complexity for both operations ensures sub-10ms latency even under load",
+    "Extensible via subclassing or composition \u2014 new validators/formatters can be added without modifying core classes"
+  ],
+  "project_id": "PROJ-20260309-064431",
+  "version": "1",
+  "spec_version": "1"
+}

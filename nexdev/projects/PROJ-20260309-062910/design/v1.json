@@ -1,0 +1,70 @@
+{
+  "architecture_pattern": "Single-process CLI Application",
+  "summary": "A lightweight, single-threaded Python command-line tool that reads CSV files line-by-line, validates structure and content, converts rows to JSON objects, and outputs either to stdout or a file. Designed for correctness, observability, and resilience with minimal dependencies.",
+  "components": [
+    {
+      "name": "CLI Interface",
+      "type": "Frontend",
+      "responsibility": "Parse command-line arguments, display help/usage, orchestrate workflow, and handle user input validation",
+      "technology": "Click",
+      "interfaces": [
+        "accepts --input, --output, --help; emits parsed args to Converter"
+      ]
+    },
+    {
+      "name": "CSV Reader",
+      "type": "Core Service",
+      "responsibility": "Stream-read CSV files row-by-row using csv.DictReader, detect encoding issues, report line numbers for errors",
+      "technology": "Python standard library (csv, io)",
+      "interfaces": [
+        "reads from file path; yields validated rows or raises RowValidationError"
+      ]
+    },
+    {
+      "name": "Validator",
+      "type": "Core Service",
+      "responsibility": "Enforce CSV structural integrity: column count consistency, non-empty header, field emptiness checks per row",
+      "technology": "Python standard library",
+      "interfaces": [
+        "receives rows and header; returns ValidationResult with errors or clean data"
+      ]
+    },
+    {
+      "name": "JSON Serializer",
+      "type": "Core Service",
+      "responsibility": "Convert validated rows into JSON-serializable dictionaries and write formatted output to file or stdout",
+      "technology": "Python standard library (json)",
+      "interfaces": [
+        "accepts list of dicts or iterator; writes to file or sys.stdout with indent=2"
+      ]
+    },
+    {
+      "name": "Logger",
+      "type": "Infrastructure",
+      "responsibility": "Emit structured debug/info/error logs with timestamps and context (e.g., line number, file path)",
+      "technology": "Python logging module",
+      "interfaces": [
+        "log_error(), log_info(), log_debug() called by all components"
+      ]
+    }
+  ],
+  "api_endpoints": [],
+  "database_schema": [],
+  "tech_stack": {
+    "backend": "Python 3.7+",
+    "frontend": "CLI (Click)",
+    "database": "None",
+    "cache": "None",
+    "queue": "None"
+  },
+  "deployment_strategy": "Distribute as installable Python package via PyPI; support pip install; include entry point script; no containerization or orchestration required.",
+  "security_considerations": [
+    "No network I/O \u2014 no injection or remote code execution vectors; validate file paths to prevent directory traversal (e.g., normalize and restrict to absolute/relative safe paths); avoid eval/exec; use csv module instead of manual parsing to prevent injection via delimiter escaping."
+  ],
+  "scalability_notes": [
+    "Optimized for memory efficiency via streaming (no full-file load); supports CSV files up to ~1GB on typical hardware; horizontal scaling not applicable (single-process CLI); performance scales linearly with file size; no concurrency needed per requirements."
+  ],
+  "project_id": "PROJ-20260309-062910",
+  "version": "1",
+  "spec_version": "1"
+}

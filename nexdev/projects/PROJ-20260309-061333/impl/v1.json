@@ -1,0 +1,60 @@
+{
+  "files": [
+    {
+      "path": "src/index.js",
+      "language": "javascript",
+      "description": "Main Express application",
+      "content": "const express = require('express');\nconst cors = require('cors');\nconst app = express();\nconst router = express.Router();\n\napp.use(cors());\napp.use(express.json());\n\n// Health check\nrouter.get('/api/health', (req, res) => {\n  res.json({ status: 'healthy', version: '1.0.0' });\n});\n\n\nrouter.post('/api/auth/register', async (req, res) => {\n  // Register a new user\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Register a new user', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.post('/api/auth/login', async (req, res) => {\n  // Authenticate user\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Authenticate user', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.post('/api/auth/logout', async (req, res) => {\n  // Logout user\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Logout user', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.post('/api/auth/refresh', async (req, res) => {\n  // Refresh auth token\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Refresh auth token', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.get('/api/users/me', async (req, res) => {\n  // Get current user profile\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Get current user profile', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.put('/api/users/me', async (req, res) => {\n  // Update current user profile\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Update current user profile', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.get('/api/users', async (req, res) => {\n  // List users (admin)\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'List users (admin)', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.get('/api/users/:id', async (req, res) => {\n  // Get user by ID\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Get user by ID', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.get('/api/users/me', async (req, res) => {\n  // Get current user profile\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Get current user profile', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.put('/api/users/me', async (req, res) => {\n  // Update current user profile\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Update current user profile', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.get('/api/users', async (req, res) => {\n  // List users (admin)\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'List users (admin)', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.get('/api/users/:id', async (req, res) => {\n  // Get user by ID\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Get user by ID', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.get('/api/users/me', async (req, res) => {\n  // Get current user profile\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Get current user profile', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.put('/api/users/me', async (req, res) => {\n  // Update current user profile\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Update current user profile', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.get('/api/users', async (req, res) => {\n  // List users (admin)\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'List users (admin)', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.get('/api/users/:id', async (req, res) => {\n  // Get user by ID\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Get user by ID', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\nrouter.get('/api/health', async (req, res) => {\n  // Health check endpoint\n  try {\n    // TODO: Implement business logic\n    res.json({ message: 'Health check endpoint', status: 'ok' });\n  } catch (error) {\n    res.status(500).json({ error: error.message });\n  }\n});\n\n\napp.use(router);\n\nconst PORT = process.env.PORT || 8000;\napp.listen(PORT, () => console.log(`Server running on port ${PORT}`));\n\nmodule.exports = app;\n"
+    },
+    {
+      "path": "app/models.py",
+      "language": "python",
+      "description": "Database models (SQLAlchemy)",
+      "content": "\"\"\"Auto-generated database models\"\"\"\n\nfrom sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Boolean\nfrom sqlalchemy.dialects.postgresql import UUID\nfrom sqlalchemy.ext.declarative import declarative_base\nfrom datetime import datetime\nimport uuid\n\nBase = declarative_base()\n\n\nclass Users(Base):\n    \"\"\"User accounts\"\"\"\n    __tablename__ = \"users\"\n\n    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)\n    email = Column(String, nullable=False)\n    password_hash = Column(String, nullable=False)\n    name = Column(String, nullable=True)\n    role = Column(String, nullable=False)\n    created_at = Column(DateTime, nullable=False)\n    updated_at = Column(DateTime, nullable=False)\n"
+    },
+    {
+      "path": "config.py",
+      "language": "python",
+      "description": "Application configuration",
+      "content": "\"\"\"Application configuration\"\"\"\nimport os\n\nclass Config:\n    SECRET_KEY = os.getenv(\"SECRET_KEY\", \"change-me-in-production\")\n    DATABASE_URL = os.getenv(\"DATABASE_URL\", \"postgresql://localhost:5432/app\")\n    DEBUG = os.getenv(\"DEBUG\", \"false\").lower() == \"true\"\n    API_VERSION = \"1.0.0\"\n    CORS_ORIGINS = os.getenv(\"CORS_ORIGINS\", \"*\").split(\",\")\n"
+    },
+    {
+      "path": "Dockerfile",
+      "language": "dockerfile",
+      "description": "Container definition",
+      "content": "FROM node:20-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm ci --only=production\nCOPY . .\nEXPOSE 8000\nCMD [\"node\", \"src/index.js\"]\n"
+    },
+    {
+      "path": "requirements.txt",
+      "language": "text",
+      "description": "Python dependencies",
+      "content": "alembic>=1.13\nbcrypt>=4.1\nfastapi>=0.110.0\nhttpx>=0.27\npsycopg2-binary>=2.9\npydantic>=2.6\npython-jose[cryptography]>=3.3\nsqlalchemy>=2.0\nuvicorn>=0.29.0"
+    }
+  ],
+  "test_files": [
+    {
+      "path": "tests/test_models.py",
+      "language": "python",
+      "description": "Tests for app/models.py",
+      "content": "import pytest\n\n\n\nclass TestUsers:\n\n    \"\"\"Tests for Users\"\"\"\n\n\n    def setup_method(self):\n\n        self.instance = Users()\n\n\n    def test_init(self):\n\n        assert self.instance is not None\n"
+    },
+    {
+      "path": "tests/test_config.py",
+      "language": "python",
+      "description": "Tests for config.py",
+      "content": "import pytest\n\n\n\nclass TestConfig:\n\n    \"\"\"Tests for Config\"\"\"\n\n\n    def setup_method(self):\n\n        self.instance = Config()\n\n\n    def test_init(self):\n\n        assert self.instance is not None\n"
+    }
+  ],
+  "dependencies": {},
+  "build_commands": [
+    "docker build -t app ."
+  ],
+  "run_commands": [
+    "docker run -p 8000:8000 app"
+  ],
+  "environment_variables": [
+    "DATABASE_URL",
+    "SECRET_KEY",
+    "API_KEY"
+  ]
+}
