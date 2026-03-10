@@ -140,3 +140,30 @@ Explicit `Auth: Authorizer: NONE` events were added for the truly public routes 
 - Frontend `resolveAlert` mutation — correct
 - Frontend `fetchRemediationPreview` / `startRemediation` / `fetchRemediationStatus` functions — correct
 - `VITE_API_URL` ends with `/` in `.env` — consistent with all fetch calls
+
+## Security Audit Test Suite (2026-03-10)
+
+### Backend
+- Added `POST /run-security-tests` endpoint with 7 automated checks
+- Lambda IAM role: added cloudtrail:DescribeTrails, cloudtrail:GetEventSelectors, ec2:GetSnapshotBlockPublicAccessState, iam:GetAccountPasswordPolicy
+
+### Frontend
+- TestRunner component: added Tabs (Health Checks / Security Audit)
+- Security Audit tab runs 7 checks with animated results
+- Fixed TestRunner animation bug (stale array reference)
+- Dashboard alert count now filters to ACTIVE only
+
+### Infrastructure
+- IAM Password Policy: 14 char, complexity, 90d expiry, 12 reuse
+- CloudTrail: KMS encryption enabled (key: f5d86aa8, alias/cloudtrail-encryption)
+- CloudTrail: Management events added to OrganizationTrail
+- EBS: Snapshot block public access set to block-all-sharing
+- S3: Removed stale public bucket policy from missioncontrol.credologi.com
+
+### Security Findings Resolved (10 total)
+- 3x urllib3 CVEs (Lambda code updated to 2.6.3)
+- 3x S3 public access (policy removed, blocks enabled)
+- 1x GuardDuty S3 anonymous access
+- 1x CloudTrail multi-region trail
+- 1x EBS snapshot public access
+- 1x S3 shared with external account

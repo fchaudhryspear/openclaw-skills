@@ -68,6 +68,16 @@ Resources:
         - AmazonSESFullAccess
         - AWSSecurityHubReadOnlyAccess
 
+        # ── Security Audit Checks ────────────────────────────────────────────
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cloudtrail:DescribeTrails
+                - cloudtrail:GetEventSelectors
+                - ec2:GetSnapshotBlockPublicAccessState
+                - iam:GetAccountPasswordPolicy
+              Resource: "*"
+
         # ── SecurityHub — update workflow status ──────────────────────────────
         - Statement:
             - Effect: Allow

@@ -60,7 +60,7 @@ const API_ENDPOINTS = [
   "/health", "/flows",
   "/security-alerts", "/security-alerts/resolve",
   "/security-alerts/remediate", "/security-alerts/remediation-status",
-  "/users", "/run-tests", "/test-status",
+  "/users", "/run-tests", "/test-status", "/run-security-tests",
 ];
 
 // == SDK Clients ==============================================================
@@ -690,6 +690,118 @@ async function handleTestStatus(event) {
   }
 }
 
+
+async function handleSecurityTests() {
+  const checks = [];
+
+  // 1. CloudTrail — multi-region trail with management events
+  try {
+    const trails = await new (require("@aws-sdk/client-cloudtrail").CloudTrailClient)({ region: AWS_REGION })
+      .send(new (require("@aws-sdk/client-cloudtrail").DescribeTrailsCommand)({}));
+    const multiRegion = (trails.trailList || []).filter(t => t.IsMultiRegionTrail);
+    if (multiRegion.length > 0) {
+      const selectors = await new (require("@aws-sdk/client-cloudtrail").CloudTrailClient)({ region: AWS_REGION })
+        .send(new (require("@aws-sdk/client-cloudtrail").GetEventSelectorsCommand)({ TrailName: multiRegion[0].Name }));
+      const hasMgmt = (selectors.EventSelectors || []).some(e => e.IncludeManagementEvents && e.ReadWriteType === "All")
+        || (selectors.AdvancedEventSelectors || []).some(a => a.FieldSelectors?.some(f => f.Field === "eventCategory" && f.Equals?.includes("Management")));
+      checks.push({ name: "CloudTrail Multi-Region", status: hasMgmt ? "PASS" : "FAIL", reason: hasMgmt ? "Management events enabled" : "No management events on multi-region trail" });
+    } else {
+      checks.push({ name: "CloudTrail Multi-Region", status: "FAIL", reason: "No multi-region trail found" });
+    }
+  } catch (e) { checks.push({ name: "CloudTrail Multi-Region", status: "FAIL", reason: e.message }); }
+
+  // 2. EBS Snapshot Public Access — should be blocked
+  try {
+    const { EC2Client, GetSnapshotBlockPublicAccessStateCommand } = require("@aws-sdk/client-ec2");
+    const ec2 = new EC2Client({ region: AWS_REGION });
+    const snap = await ec2.send(new GetSnapshotBlockPublicAccessStateCommand({}));
+    const blocked = snap.State === "block-all-sharing" || snap.State === "block-new-sharing";
+    checks.push({ name: "EBS Snapshot Public Access", status: blocked ? "PASS" : "FAIL", reason: blocked ? `State: ${snap.State}` : `State: ${snap.State} — should be block-all-sharing` });
+  } catch (e) { checks.push({ name: "EBS Snapshot Public Access", status: "FAIL", reason: e.message }); }
+
+  // 3. S3 Public Access Block — check key buckets
+  try {
+    const { S3Client, GetPublicAccessBlockCommand } = require("@aws-sdk/client-s3");
+    const s3Check = new S3Client({ region: AWS_REGION });
+    const buckets = ["missioncontrol.credologi.com", "prod-lending-data-lake"];
+    let allBlocked = true;
+    const details = [];
+    for (const bucket of buckets) {
+      try {
+        const result = await s3Check.send(new GetPublicAccessBlockCommand({ Bucket: bucket }));
+        const cfg = result.PublicAccessBlockConfiguration;
+        const ok = cfg.BlockPublicAcls && cfg.IgnorePublicAcls && cfg.BlockPublicPolicy && cfg.RestrictPublicBuckets;
+        if (!ok) allBlocked = false;
+        details.push(`${bucket}: ${ok ? "✓" : "✗"}`);
+      } catch { details.push(`${bucket}: not found`); }
+    }
+    checks.push({ name: "S3 Public Access Blocks", status: allBlocked ? "PASS" : "FAIL", reason: details.join(", ") });
+  } catch (e) { checks.push({ name: "S3 Public Access Blocks", status: "FAIL", reason: e.message }); }
+
+  // 4. SecurityHub Active Critical/High findings count
+  try {
+    const critical = await securityHub.send(new GetFindingsCommand({
+      Filters: {
+        RecordState: [{ Value: "ACTIVE", Comparison: "EQUALS" }],
+        WorkflowStatus: [{ Value: "NEW", Comparison: "EQUALS" }, { Value: "NOTIFIED", Comparison: "EQUALS" }],
+        SeverityLabel: [{ Value: "CRITICAL", Comparison: "EQUALS" }],
+      },
+      MaxResults: 1,
+    }));
+    const high = await securityHub.send(new GetFindingsCommand({
+      Filters: {
+        RecordState: [{ Value: "ACTIVE", Comparison: "EQUALS" }],
+        WorkflowStatus: [{ Value: "NEW", Comparison: "EQUALS" }, { Value: "NOTIFIED", Comparison: "EQUALS" }],
+        SeverityLabel: [{ Value: "HIGH", Comparison: "EQUALS" }],
+      },
+      MaxResults: 100,
+    }));
+    const critCount = critical.Findings?.length || 0;
+    const highCount = high.Findings?.length || 0;
+    checks.push({ name: "Critical/High Findings", status: critCount === 0 ? "PASS" : "FAIL", reason: `${critCount} critical, ${highCount} high active findings` });
+  } catch (e) { checks.push({ name: "Critical/High Findings", status: "FAIL", reason: e.message }); }
+
+  // 5. IAM Password Policy
+  try {
+    const { IAMClient, GetAccountPasswordPolicyCommand } = require("@aws-sdk/client-iam");
+    const iam = new IAMClient({ region: AWS_REGION });
+    const policy = await iam.send(new GetAccountPasswordPolicyCommand({}));
+    const p = policy.PasswordPolicy;
+    const strong = p.MinimumPasswordLength >= 12 && p.RequireNumbers && p.RequireSymbols && p.RequireUppercaseCharacters && p.RequireLowercaseCharacters;
+    checks.push({ name: "IAM Password Policy", status: strong ? "PASS" : "FAIL", reason: strong ? `Min length: ${p.MinimumPasswordLength}, complexity enforced` : `Min length: ${p.MinimumPasswordLength}, missing requirements` });
+  } catch (e) { checks.push({ name: "IAM Password Policy", status: "FAIL", reason: e.message }); }
+
+  // 6. CloudTrail Encryption
+  try {
+    const { CloudTrailClient, DescribeTrailsCommand } = require("@aws-sdk/client-cloudtrail");
+    const ct = new CloudTrailClient({ region: AWS_REGION });
+    const trails = await ct.send(new DescribeTrailsCommand({}));
+    const encrypted = (trails.trailList || []).filter(t => t.KmsKeyId);
+    const total = (trails.trailList || []).length;
+    checks.push({ name: "CloudTrail Encryption", status: encrypted.length === total ? "PASS" : "FAIL", reason: `${encrypted.length}/${total} trails encrypted` });
+  } catch (e) { checks.push({ name: "CloudTrail Encryption", status: "FAIL", reason: e.message }); }
+
+  // 7. Cognito MFA
+  try {
+    const { CognitoIdentityProviderClient, DescribeUserPoolCommand } = require("@aws-sdk/client-cognito-identity-provider");
+    const cog = new CognitoIdentityProviderClient({ region: AWS_REGION });
+    const pool = await cog.send(new DescribeUserPoolCommand({ UserPoolId: process.env.USER_POOL_ID }));
+    const mfa = pool.UserPool?.MfaConfiguration;
+    checks.push({ name: "Cognito MFA", status: mfa === "ON" ? "PASS" : "FAIL", reason: `MFA config: ${mfa}` });
+  } catch (e) { checks.push({ name: "Cognito MFA", status: "FAIL", reason: e.message }); }
+
+  const passed = checks.filter(c => c.status === "PASS").length;
+  const failed = checks.filter(c => c.status === "FAIL").length;
+  const skipped = checks.filter(c => c.status === "SKIP").length;
+
+  return jsonResponse(200, {
+    status: "COMPLETED", mode: "security-audit",
+    tests_run: checks.length, passed, failed, skipped,
+    results: checks,
+    timestamp: new Date().toISOString(),
+  });
+}
+
 async function handleListUsers(event) {
   const claims = event.requestContext.authorizer?.claims;
   if (!isAdmin(claims)) return jsonResponse(403, { error: "Unauthorized" });
@@ -1108,7 +1220,8 @@ exports.lambdaHandler = async (event) => {
     if (httpMethod === "POST" && path === "/security-alerts/remediate")         return handleRemediateAlert(event);
     if (httpMethod === "GET"  && path === "/security-alerts/remediation-status") return handleRemediationStatus(event);
     if (httpMethod === "POST" && path === "/run-tests")                         return handleRunTests();
-    if (httpMethod === "GET"  && path === "/test-status")                       return handleTestStatus(event);
+    if (httpMethod === "POST" && path === "/run-security-tests")                  return handleSecurityTests();
+    if (httpMethod === "GET"  && path === "/test-status", "/run-security-tests")                       return handleTestStatus(event);
     if (httpMethod === "GET"  && path === "/users")                             return handleListUsers(event);
     if (httpMethod === "POST" && path === "/users")                             return handleCreateUser(event);
 
