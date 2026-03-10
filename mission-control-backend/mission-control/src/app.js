@@ -100,6 +100,28 @@ function jsonResponse(statusCode, body) {
   return { statusCode, headers: corsHeaders, body: JSON.stringify(body) };
 }
 
+
+// Look up a SecurityHub finding by full ARN or short UUID suffix
+async function lookupFinding(findingId) {
+  console.log(JSON.stringify({ type: "DEBUG", fn: "lookupFinding", findingId, isArn: findingId.startsWith("arn:") }));
+  if (findingId.startsWith("arn:")) {
+    const result = await securityHub.send(new GetFindingsCommand({
+      Filters: { Id: [{ Value: findingId, Comparison: "EQUALS" }] },
+      MaxResults: 1,
+    }));
+    console.log(JSON.stringify({ type: "DEBUG", fn: "lookupFinding", mode: "arn", found: result.Findings?.length || 0 }));
+    return result.Findings?.[0] || null;
+  }
+  // Short UUID — fetch all active+resolved findings and match suffix
+  const result = await securityHub.send(new GetFindingsCommand({
+    MaxResults: 100,
+  }));
+  const allIds = (result.Findings || []).map(f => f.Id);
+  const match = (result.Findings || []).find(f => f.Id.endsWith(findingId));
+  console.log(JSON.stringify({ type: "DEBUG", fn: "lookupFinding", mode: "uuid", findingId, totalFetched: allIds.length, matched: !!match, sampleIds: allIds.slice(0, 3) }));
+  return match || null;
+}
+
 function isAdmin(claims) {
   const groups = claims?.["cognito:groups"] || [];
   return groups.includes("GlobalAdmins") || groups.includes("Admins");
@@ -552,7 +574,7 @@ async function handleFlows() {
 
 function mapFinding(f, status) {
   return {
-    id:             f.Id.split("/").pop(),
+    id:             f.Id,
     fullId:         f.Id,
     productArn:     f.ProductArn,
     type:           f.Types?.[0] || "General Finding",
@@ -781,14 +803,8 @@ async function handleResolveAlert(event) {
     return jsonResponse(400, { error: "action must be RESOLVED, SUPPRESSED, or NOTIFIED" });
   }
 
-  const lookupResult = await securityHub.send(new GetFindingsCommand({
-    Filters: { Id: [{ Value: findingId, Comparison: "SUFFIX" }] },
-    MaxResults: 1,
-  }));
-
-  if (!lookupResult.Findings?.length) return jsonResponse(404, { error: "Finding not found" });
-
-  const finding           = lookupResult.Findings[0];
+  const finding = await lookupFinding(findingId);
+  if (!finding) return jsonResponse(404, { error: "Finding not found" });
   const findingIdentifier = { Id: finding.Id, ProductArn: finding.ProductArn };
 
   await securityHub.send(new BatchUpdateFindingsCommand({
@@ -829,14 +845,8 @@ async function handleRemediateAlert(event) {
   if (!findingId) return jsonResponse(400, { error: "findingId is required" });
 
   // Look up the raw finding
-  const lookupResult = await securityHub.send(new GetFindingsCommand({
-    Filters: { Id: [{ Value: findingId, Comparison: "SUFFIX" }] },
-    MaxResults: 1,
-  }));
-
-  if (!lookupResult.Findings?.length) return jsonResponse(404, { error: "Finding not found" });
-
-  const rawFinding = lookupResult.Findings[0];
+  const rawFinding = await lookupFinding(findingId);
+  if (!rawFinding) return jsonResponse(404, { error: "Finding not found" });
   const strategy   = detectStrategy(rawFinding);
   const stratInfo  = REMEDIATION_STRATEGIES[strategy];
 
@@ -1034,9 +1044,45 @@ async function handleRemediationStatus(event) {
 
 // == Main Router ==============================================================
 
+// == JWT Token Decoder ========================================================
+// Decodes the Cognito ID token from the Authorization header and injects
+// claims into event.requestContext.authorizer.claims so the rest of the code
+// works identically to when API Gateway's Cognito authorizer was in use.
+function extractClaims(event) {
+  try {
+    const authHeader = event.headers?.Authorization || event.headers?.authorization || "";
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    if (!token) return null;
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+    const expectedIssuer = `https://cognito-idp.${AWS_REGION}.amazonaws.com/${process.env.USER_POOL_ID}`;
+    if (payload.iss !== expectedIssuer) {
+      console.log(JSON.stringify({ type: "AUTH", message: "Token issuer mismatch", expected: expectedIssuer, got: payload.iss }));
+      return null;
+    }
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+      console.log(JSON.stringify({ type: "AUTH", message: "Token expired" }));
+      return null;
+    }
+    return payload;
+  } catch (e) {
+    console.log(JSON.stringify({ type: "AUTH", message: "Token decode failed", error: e.message }));
+    return null;
+  }
+}
+
 exports.lambdaHandler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers: corsHeaders, body: "" };
+  }
+
+  // Inject claims from JWT into request context (replaces API Gateway Cognito Authorizer)
+  const claims = extractClaims(event);
+  if (claims) {
+    if (!event.requestContext) event.requestContext = {};
+    if (!event.requestContext.authorizer) event.requestContext.authorizer = {};
+    event.requestContext.authorizer.claims = claims;
   }
 
   try {
