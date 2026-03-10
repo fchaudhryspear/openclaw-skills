@@ -33,6 +33,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 // ── Types ────────────────────────────────────────────────────────────────────
 interface SecurityAlert {
   id: string;
+  productArn?: string;
   type: string;
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   description: string;
@@ -47,6 +48,7 @@ type ResolutionAction = 'RESOLVED' | 'SUPPRESSED' | 'NOTIFIED';
 
 interface ResolvePayload {
   findingId: string;
+  productArn?: string;
   action: ResolutionAction;
   note: string;
 }
@@ -175,12 +177,12 @@ const resolveAlert = async (payload: ResolvePayload): Promise<any> => {
   return res.json();
 };
 
-const fetchRemediationPreview = async (findingId: string): Promise<RemediationPreview> => {
+const fetchRemediationPreview = async (findingId: string, productArn?: string): Promise<RemediationPreview> => {
   const headers = await getAuthHeaders();
   const res = await fetch(API_URL + 'security-alerts/remediate', {
     method: 'POST',
     headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ findingId, dryRun: true }),
+    body: JSON.stringify({ findingId, dryRun: true, productArn }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Request failed' }));
@@ -189,12 +191,12 @@ const fetchRemediationPreview = async (findingId: string): Promise<RemediationPr
   return res.json();
 };
 
-const startRemediation = async (findingId: string): Promise<RemediationJob> => {
+const startRemediation = async (findingId: string, productArn?: string): Promise<RemediationJob> => {
   const headers = await getAuthHeaders();
   const res = await fetch(API_URL + 'security-alerts/remediate', {
     method: 'POST',
     headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ findingId, dryRun: false }),
+    body: JSON.stringify({ findingId, dryRun: false, productArn }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Request failed' }));
@@ -540,7 +542,7 @@ const SecurityAlerts: React.FC = () => {
     setRemediateDialogOpen(true);
 
     try {
-      const preview = await fetchRemediationPreview(alert.id);
+      const preview = await fetchRemediationPreview(alert.id, alert.productArn);
       setRemediationPreview(preview);
       setRemediatePhase('preview');
     } catch (e: any) {
@@ -554,7 +556,7 @@ const SecurityAlerts: React.FC = () => {
     setRemediatePhase('confirming');
 
     try {
-      const job = await startRemediation(remediateAlert.id);
+      const job = await startRemediation(remediateAlert.id, (remediateAlert as any).productArn);
       setRemediationJob(job);
       setRemediatePhase('tracking');
 
@@ -633,7 +635,7 @@ const SecurityAlerts: React.FC = () => {
 
   const handleResolve = () => {
     if (!selectedAlert) return;
-    resolveMutation.mutate({ findingId: selectedAlert.id, action: resolveAction, note: resolveNote });
+    resolveMutation.mutate({ findingId: selectedAlert.id, productArn: (selectedAlert as any).productArn, action: resolveAction, note: resolveNote });
   };
 
   if (isLoading) return <CircularProgress />;

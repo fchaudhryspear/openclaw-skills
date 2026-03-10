@@ -102,24 +102,36 @@ function jsonResponse(statusCode, body) {
 
 
 // Look up a SecurityHub finding by full ARN or short UUID suffix
-async function lookupFinding(findingId) {
-  console.log(JSON.stringify({ type: "DEBUG", fn: "lookupFinding", findingId, isArn: findingId.startsWith("arn:") }));
-  if (findingId.startsWith("arn:")) {
+async function lookupFinding(findingId, productArn) {
+  // Strategy 1: Direct EQUALS lookup (works for full ARNs and some provider IDs)
+  try {
     const result = await securityHub.send(new GetFindingsCommand({
       Filters: { Id: [{ Value: findingId, Comparison: "EQUALS" }] },
       MaxResults: 1,
     }));
-    console.log(JSON.stringify({ type: "DEBUG", fn: "lookupFinding", mode: "arn", found: result.Findings?.length || 0 }));
-    return result.Findings?.[0] || null;
+    if (result.Findings?.length) return result.Findings[0];
+  } catch (e) { /* filter may reject non-ARN IDs */ }
+
+  // Strategy 2: If we have productArn, use it as a filter + match by ID
+  if (productArn) {
+    try {
+      const result = await securityHub.send(new GetFindingsCommand({
+        Filters: { ProductArn: [{ Value: productArn, Comparison: "EQUALS" }] },
+        MaxResults: 100,
+      }));
+      const match = (result.Findings || []).find(f => f.Id === findingId || f.Id.endsWith(findingId));
+      if (match) return match;
+    } catch (e) { /* ignore */ }
   }
-  // Short UUID — fetch all active+resolved findings and match suffix
-  const result = await securityHub.send(new GetFindingsCommand({
-    MaxResults: 100,
-  }));
-  const allIds = (result.Findings || []).map(f => f.Id);
-  const match = (result.Findings || []).find(f => f.Id.endsWith(findingId));
-  console.log(JSON.stringify({ type: "DEBUG", fn: "lookupFinding", mode: "uuid", findingId, totalFetched: allIds.length, matched: !!match, sampleIds: allIds.slice(0, 3) }));
-  return match || null;
+
+  // Strategy 3: Broad search with suffix match
+  try {
+    const result = await securityHub.send(new GetFindingsCommand({ MaxResults: 100 }));
+    const match = (result.Findings || []).find(f => f.Id === findingId || f.Id.endsWith(findingId));
+    if (match) return match;
+  } catch (e) { /* ignore */ }
+
+  return null;
 }
 
 function isAdmin(claims) {
@@ -803,7 +815,7 @@ async function handleResolveAlert(event) {
     return jsonResponse(400, { error: "action must be RESOLVED, SUPPRESSED, or NOTIFIED" });
   }
 
-  const finding = await lookupFinding(findingId);
+  const finding = await lookupFinding(findingId, body.productArn);
   if (!finding) return jsonResponse(404, { error: "Finding not found" });
   const findingIdentifier = { Id: finding.Id, ProductArn: finding.ProductArn };
 
@@ -845,7 +857,7 @@ async function handleRemediateAlert(event) {
   if (!findingId) return jsonResponse(400, { error: "findingId is required" });
 
   // Look up the raw finding
-  const rawFinding = await lookupFinding(findingId);
+  const rawFinding = await lookupFinding(findingId, body.productArn);
   if (!rawFinding) return jsonResponse(404, { error: "Finding not found" });
   const strategy   = detectStrategy(rawFinding);
   const stratInfo  = REMEDIATION_STRATEGIES[strategy];
