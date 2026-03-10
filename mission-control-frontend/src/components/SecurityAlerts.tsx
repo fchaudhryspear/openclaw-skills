@@ -82,12 +82,12 @@ interface RemediationJob {
   jobId:         string;
   findingId:     string;
   strategy:      string;
-  label:         string;
+  label?:        string;   // populated by backend; may be absent on older polled records
   status:        'RUNNING' | 'COMPLETED' | 'FAILED' | 'PLAYBOOK' | 'PARTIAL';
   externalJobId?: string;
   externalType?:  string;
   steps:          RemediationStep[];
-  canAutomate:    boolean;
+  canAutomate?:   boolean;
   playbook?:      RemediationPlaybook;
   buildLogs?:     string;
   startedAt?:     string;
@@ -290,8 +290,8 @@ const JobTracker: React.FC<JobTrackerProps> = ({ job, onClose, onRefresh }) => {
         </List>
       )}
 
-      {/* Playbook Tab */}
-      {activeTab === (job.buildLogs ? 1 : 1) && job.playbook && (
+      {/* Playbook Tab — always at index 1 when present */}
+      {activeTab === 1 && job.playbook && (
         <Box sx={{ px: 1 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
             {job.playbook.summary}
@@ -331,8 +331,8 @@ const JobTracker: React.FC<JobTrackerProps> = ({ job, onClose, onRefresh }) => {
         </Box>
       )}
 
-      {/* Logs Tab */}
-      {activeTab === 2 && job.buildLogs && (
+      {/* Logs Tab — at index 1 when no playbook, or index 2 when playbook also present */}
+      {job.buildLogs && activeTab === (job.playbook ? 2 : 1) && (
         <Box>
           <Button
             size="small"
@@ -850,7 +850,7 @@ const SecurityAlerts: React.FC = () => {
               preview={remediationPreview}
               onConfirm={handleConfirmRemediation}
               onCancel={closeRemediateDialog}
-              loading={false}
+              loading={false as boolean}
             />
           )}
 

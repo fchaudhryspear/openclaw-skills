@@ -17,6 +17,24 @@ Globals:
     Timeout: 60
     MemorySize: 256
     Runtime: nodejs20.x
+  Api:
+    # API Gateway CORS — handles OPTIONS preflight at the gateway level so browsers
+    # can reach the API without needing Lambda to respond to every OPTIONS request.
+    Cors:
+      AllowOrigin:  !Sub "'${CorsOrigin}'"
+      AllowHeaders: "'Content-Type,Authorization'"
+      AllowMethods: "'OPTIONS,GET,POST'"
+    # Cognito Authorizer — validates the Cognito ID token before Lambda is invoked.
+    # This populates event.requestContext.authorizer.claims in the Lambda handler,
+    # which is required by isAdmin() and all protected routes.
+    # AddDefaultAuthorizerToCorsPreflight: false ensures OPTIONS requests are not
+    # blocked by auth (browsers send preflight without an Authorization header).
+    Auth:
+      DefaultAuthorizer: CognitoAuthorizer
+      AddDefaultAuthorizerToCorsPreflight: false
+      Authorizers:
+        CognitoAuthorizer:
+          UserPoolArn: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${UserPoolId}"
 
 Resources:
 
@@ -138,11 +156,31 @@ Resources:
               Resource: "*"
 
       Events:
+        # ── Public routes — no Cognito token required ──────────────────────────
         Root:
           Type: Api
           Properties:
             Path: /
-            Method: ANY
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        Health:
+          Type: Api
+          Properties:
+            Path: /health
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        Flows:
+          Type: Api
+          Properties:
+            Path: /flows
+            Method: GET
+            Auth:
+              Authorizer: NONE
+        # ── Protected catch-all — requires Cognito ID token ────────────────────
+        # Covers: /security-alerts (GET/POST), /users (GET/POST),
+        #         /run-tests, /test-status, and all sub-paths.
         ProxyAll:
           Type: Api
           Properties:

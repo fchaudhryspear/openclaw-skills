@@ -569,20 +569,47 @@ function mapFinding(f, status) {
 }
 
 async function handleSecurityAlerts() {
-  const [activeResult, resolvedResult] = await Promise.all([
+  // Three queries needed:
+  // 1. Truly active: ACTIVE record state + NEW/NOTIFIED workflow (not yet acted on)
+  // 2. Resolved via workflow: ACTIVE record state + RESOLVED/SUPPRESSED workflow
+  //    (BatchUpdateFindings sets WorkflowStatus but does not change RecordState)
+  // 3. Archived: ARCHIVED record state (finding provider closed it)
+  const [activeResult, resolvedWorkflowResult, archivedResult] = await Promise.all([
     securityHub.send(new GetFindingsCommand({
-      Filters: { RecordState: [{ Value: "ACTIVE", Comparison: "EQUALS" }], SeverityLabel: CRITICAL_SEVERITIES },
+      Filters: {
+        RecordState:    [{ Value: "ACTIVE", Comparison: "EQUALS" }],
+        SeverityLabel:  CRITICAL_SEVERITIES,
+        WorkflowStatus: [
+          { Value: "NEW",      Comparison: "EQUALS" },
+          { Value: "NOTIFIED", Comparison: "EQUALS" },
+        ],
+      },
       MaxResults: MAX_ACTIVE_FINDINGS,
     })),
     securityHub.send(new GetFindingsCommand({
-      Filters: { RecordState: [{ Value: "ARCHIVED", Comparison: "EQUALS" }], SeverityLabel: CRITICAL_SEVERITIES },
+      Filters: {
+        RecordState:    [{ Value: "ACTIVE", Comparison: "EQUALS" }],
+        SeverityLabel:  CRITICAL_SEVERITIES,
+        WorkflowStatus: [
+          { Value: "RESOLVED",   Comparison: "EQUALS" },
+          { Value: "SUPPRESSED", Comparison: "EQUALS" },
+        ],
+      },
+      MaxResults: MAX_RESOLVED_FINDINGS,
+    })),
+    securityHub.send(new GetFindingsCommand({
+      Filters: {
+        RecordState:   [{ Value: "ARCHIVED", Comparison: "EQUALS" }],
+        SeverityLabel: CRITICAL_SEVERITIES,
+      },
       MaxResults: MAX_RESOLVED_FINDINGS,
     })),
   ]);
 
   const alerts = [
-    ...(activeResult.Findings  || []).map(f => mapFinding(f, "ACTIVE")),
-    ...(resolvedResult.Findings || []).map(f => mapFinding(f, "RESOLVED")),
+    ...(activeResult.Findings          || []).map(f => mapFinding(f, "ACTIVE")),
+    ...(resolvedWorkflowResult.Findings || []).map(f => mapFinding(f, "RESOLVED")),
+    ...(archivedResult.Findings         || []).map(f => mapFinding(f, "RESOLVED")),
   ];
 
   return jsonResponse(200, { alerts });
@@ -842,6 +869,7 @@ async function handleRemediateAlert(event) {
       jobId:       { S: jobId },
       findingId:   { S: findingId },
       strategy:    { S: strategy },
+      label:       { S: stratInfo.label },
       status:      { S: "RUNNING" },
       startedAt:   { S: now },
       triggeredBy: { S: claims?.email || claims?.sub || "admin" },
@@ -921,10 +949,13 @@ async function handleRemediationStatus(event) {
 
   if (!record.Item) return jsonResponse(404, { error: "Remediation job not found" });
 
+  const storedStrategy = record.Item.strategy?.S || "";
   const job = {
     jobId:         record.Item.jobId?.S,
     findingId:     record.Item.findingId?.S,
-    strategy:      record.Item.strategy?.S,
+    strategy:      storedStrategy,
+    // label was added to persisted records in v2.3.1; fall back to REMEDIATION_STRATEGIES lookup
+    label:         record.Item.label?.S || REMEDIATION_STRATEGIES[storedStrategy]?.label || storedStrategy,
     status:        record.Item.status?.S,
     startedAt:     record.Item.startedAt?.S,
     completedAt:   record.Item.completedAt?.S,
