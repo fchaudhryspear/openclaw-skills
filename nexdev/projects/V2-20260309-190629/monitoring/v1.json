@@ -1,0 +1,4 @@
+{
+  "raw": "{\n  \"data_sources\": [\n    {\n      \"name\": \"PostgreSQL_App_DB\",\n      \"type\": \"PostgreSQL\",\n      \"connection_config\": {\n        \"host\": \"db.saas-task-app.com\",\n        \"port\": 5432,\n        \"database\": \"saas_task_app\",\n        \"user\": \"analytics_user\",\n        \"password_env_var\": \"PG_ANALYTICS_PASSWORD\"\n      }\n    },\n    {\n      \"name\": \"Application_Logs_ELK\",\n      \"type\": \"Elasticsearch\",\n      \"connection_config\": {\n        \"host\": \"logs.sa",
+  "error": "Failed to parse JSON"
+}

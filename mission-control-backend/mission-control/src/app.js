@@ -60,7 +60,7 @@ const API_ENDPOINTS = [
   "/health", "/flows",
   "/security-alerts", "/security-alerts/resolve",
   "/security-alerts/remediate", "/security-alerts/remediation-status",
-  "/users", "/run-tests", "/test-status",
+  "/users", "/run-tests", "/test-status", "/run-security-tests",
 ];
 
 // == SDK Clients ==============================================================
@@ -98,6 +98,40 @@ const corsHeaders = {
 
 function jsonResponse(statusCode, body) {
   return { statusCode, headers: corsHeaders, body: JSON.stringify(body) };
+}
+
+
+// Look up a SecurityHub finding by full ARN or short UUID suffix
+async function lookupFinding(findingId, productArn) {
+  // Strategy 1: Direct EQUALS lookup (works for full ARNs and some provider IDs)
+  try {
+    const result = await securityHub.send(new GetFindingsCommand({
+      Filters: { Id: [{ Value: findingId, Comparison: "EQUALS" }] },
+      MaxResults: 1,
+    }));
+    if (result.Findings?.length) return result.Findings[0];
+  } catch (e) { /* filter may reject non-ARN IDs */ }
+
+  // Strategy 2: If we have productArn, use it as a filter + match by ID
+  if (productArn) {
+    try {
+      const result = await securityHub.send(new GetFindingsCommand({
+        Filters: { ProductArn: [{ Value: productArn, Comparison: "EQUALS" }] },
+        MaxResults: 100,
+      }));
+      const match = (result.Findings || []).find(f => f.Id === findingId || f.Id.endsWith(findingId));
+      if (match) return match;
+    } catch (e) { /* ignore */ }
+  }
+
+  // Strategy 3: Broad search with suffix match
+  try {
+    const result = await securityHub.send(new GetFindingsCommand({ MaxResults: 100 }));
+    const match = (result.Findings || []).find(f => f.Id === findingId || f.Id.endsWith(findingId));
+    if (match) return match;
+  } catch (e) { /* ignore */ }
+
+  return null;
 }
 
 function isAdmin(claims) {
@@ -552,7 +586,7 @@ async function handleFlows() {
 
 function mapFinding(f, status) {
   return {
-    id:             f.Id.split("/").pop(),
+    id:             f.Id,
     fullId:         f.Id,
     productArn:     f.ProductArn,
     type:           f.Types?.[0] || "General Finding",
@@ -569,20 +603,47 @@ function mapFinding(f, status) {
 }
 
 async function handleSecurityAlerts() {
-  const [activeResult, resolvedResult] = await Promise.all([
+  // Three queries needed:
+  // 1. Truly active: ACTIVE record state + NEW/NOTIFIED workflow (not yet acted on)
+  // 2. Resolved via workflow: ACTIVE record state + RESOLVED/SUPPRESSED workflow
+  //    (BatchUpdateFindings sets WorkflowStatus but does not change RecordState)
+  // 3. Archived: ARCHIVED record state (finding provider closed it)
+  const [activeResult, resolvedWorkflowResult, archivedResult] = await Promise.all([
     securityHub.send(new GetFindingsCommand({
-      Filters: { RecordState: [{ Value: "ACTIVE", Comparison: "EQUALS" }], SeverityLabel: CRITICAL_SEVERITIES },
+      Filters: {
+        RecordState:    [{ Value: "ACTIVE", Comparison: "EQUALS" }],
+        SeverityLabel:  CRITICAL_SEVERITIES,
+        WorkflowStatus: [
+          { Value: "NEW",      Comparison: "EQUALS" },
+          { Value: "NOTIFIED", Comparison: "EQUALS" },
+        ],
+      },
       MaxResults: MAX_ACTIVE_FINDINGS,
     })),
     securityHub.send(new GetFindingsCommand({
-      Filters: { RecordState: [{ Value: "ARCHIVED", Comparison: "EQUALS" }], SeverityLabel: CRITICAL_SEVERITIES },
+      Filters: {
+        RecordState:    [{ Value: "ACTIVE", Comparison: "EQUALS" }],
+        SeverityLabel:  CRITICAL_SEVERITIES,
+        WorkflowStatus: [
+          { Value: "RESOLVED",   Comparison: "EQUALS" },
+          { Value: "SUPPRESSED", Comparison: "EQUALS" },
+        ],
+      },
+      MaxResults: MAX_RESOLVED_FINDINGS,
+    })),
+    securityHub.send(new GetFindingsCommand({
+      Filters: {
+        RecordState:   [{ Value: "ARCHIVED", Comparison: "EQUALS" }],
+        SeverityLabel: CRITICAL_SEVERITIES,
+      },
       MaxResults: MAX_RESOLVED_FINDINGS,
     })),
   ]);
 
   const alerts = [
-    ...(activeResult.Findings  || []).map(f => mapFinding(f, "ACTIVE")),
-    ...(resolvedResult.Findings || []).map(f => mapFinding(f, "RESOLVED")),
+    ...(activeResult.Findings          || []).map(f => mapFinding(f, "ACTIVE")),
+    ...(resolvedWorkflowResult.Findings || []).map(f => mapFinding(f, "RESOLVED")),
+    ...(archivedResult.Findings         || []).map(f => mapFinding(f, "RESOLVED")),
   ];
 
   return jsonResponse(200, { alerts });
@@ -627,6 +688,118 @@ async function handleTestStatus(event) {
   } catch {
     return jsonResponse(200, { status: "NOT_FOUND", buildId });
   }
+}
+
+
+async function handleSecurityTests() {
+  const checks = [];
+
+  // 1. CloudTrail — multi-region trail with management events
+  try {
+    const trails = await new (require("@aws-sdk/client-cloudtrail").CloudTrailClient)({ region: AWS_REGION })
+      .send(new (require("@aws-sdk/client-cloudtrail").DescribeTrailsCommand)({}));
+    const multiRegion = (trails.trailList || []).filter(t => t.IsMultiRegionTrail);
+    if (multiRegion.length > 0) {
+      const selectors = await new (require("@aws-sdk/client-cloudtrail").CloudTrailClient)({ region: AWS_REGION })
+        .send(new (require("@aws-sdk/client-cloudtrail").GetEventSelectorsCommand)({ TrailName: multiRegion[0].Name }));
+      const hasMgmt = (selectors.EventSelectors || []).some(e => e.IncludeManagementEvents && e.ReadWriteType === "All")
+        || (selectors.AdvancedEventSelectors || []).some(a => a.FieldSelectors?.some(f => f.Field === "eventCategory" && f.Equals?.includes("Management")));
+      checks.push({ name: "CloudTrail Multi-Region", status: hasMgmt ? "PASS" : "FAIL", reason: hasMgmt ? "Management events enabled" : "No management events on multi-region trail" });
+    } else {
+      checks.push({ name: "CloudTrail Multi-Region", status: "FAIL", reason: "No multi-region trail found" });
+    }
+  } catch (e) { checks.push({ name: "CloudTrail Multi-Region", status: "FAIL", reason: e.message }); }
+
+  // 2. EBS Snapshot Public Access — should be blocked
+  try {
+    const { EC2Client, GetSnapshotBlockPublicAccessStateCommand } = require("@aws-sdk/client-ec2");
+    const ec2 = new EC2Client({ region: AWS_REGION });
+    const snap = await ec2.send(new GetSnapshotBlockPublicAccessStateCommand({}));
+    const blocked = snap.State === "block-all-sharing" || snap.State === "block-new-sharing";
+    checks.push({ name: "EBS Snapshot Public Access", status: blocked ? "PASS" : "FAIL", reason: blocked ? `State: ${snap.State}` : `State: ${snap.State} — should be block-all-sharing` });
+  } catch (e) { checks.push({ name: "EBS Snapshot Public Access", status: "FAIL", reason: e.message }); }
+
+  // 3. S3 Public Access Block — check key buckets
+  try {
+    const { S3Client, GetPublicAccessBlockCommand } = require("@aws-sdk/client-s3");
+    const s3Check = new S3Client({ region: AWS_REGION });
+    const buckets = ["missioncontrol.credologi.com", "prod-lending-data-lake"];
+    let allBlocked = true;
+    const details = [];
+    for (const bucket of buckets) {
+      try {
+        const result = await s3Check.send(new GetPublicAccessBlockCommand({ Bucket: bucket }));
+        const cfg = result.PublicAccessBlockConfiguration;
+        const ok = cfg.BlockPublicAcls && cfg.IgnorePublicAcls && cfg.BlockPublicPolicy && cfg.RestrictPublicBuckets;
+        if (!ok) allBlocked = false;
+        details.push(`${bucket}: ${ok ? "✓" : "✗"}`);
+      } catch { details.push(`${bucket}: not found`); }
+    }
+    checks.push({ name: "S3 Public Access Blocks", status: allBlocked ? "PASS" : "FAIL", reason: details.join(", ") });
+  } catch (e) { checks.push({ name: "S3 Public Access Blocks", status: "FAIL", reason: e.message }); }
+
+  // 4. SecurityHub Active Critical/High findings count
+  try {
+    const critical = await securityHub.send(new GetFindingsCommand({
+      Filters: {
+        RecordState: [{ Value: "ACTIVE", Comparison: "EQUALS" }],
+        WorkflowStatus: [{ Value: "NEW", Comparison: "EQUALS" }, { Value: "NOTIFIED", Comparison: "EQUALS" }],
+        SeverityLabel: [{ Value: "CRITICAL", Comparison: "EQUALS" }],
+      },
+      MaxResults: 1,
+    }));
+    const high = await securityHub.send(new GetFindingsCommand({
+      Filters: {
+        RecordState: [{ Value: "ACTIVE", Comparison: "EQUALS" }],
+        WorkflowStatus: [{ Value: "NEW", Comparison: "EQUALS" }, { Value: "NOTIFIED", Comparison: "EQUALS" }],
+        SeverityLabel: [{ Value: "HIGH", Comparison: "EQUALS" }],
+      },
+      MaxResults: 100,
+    }));
+    const critCount = critical.Findings?.length || 0;
+    const highCount = high.Findings?.length || 0;
+    checks.push({ name: "Critical/High Findings", status: critCount === 0 ? "PASS" : "FAIL", reason: `${critCount} critical, ${highCount} high active findings` });
+  } catch (e) { checks.push({ name: "Critical/High Findings", status: "FAIL", reason: e.message }); }
+
+  // 5. IAM Password Policy
+  try {
+    const { IAMClient, GetAccountPasswordPolicyCommand } = require("@aws-sdk/client-iam");
+    const iam = new IAMClient({ region: AWS_REGION });
+    const policy = await iam.send(new GetAccountPasswordPolicyCommand({}));
+    const p = policy.PasswordPolicy;
+    const strong = p.MinimumPasswordLength >= 12 && p.RequireNumbers && p.RequireSymbols && p.RequireUppercaseCharacters && p.RequireLowercaseCharacters;
+    checks.push({ name: "IAM Password Policy", status: strong ? "PASS" : "FAIL", reason: strong ? `Min length: ${p.MinimumPasswordLength}, complexity enforced` : `Min length: ${p.MinimumPasswordLength}, missing requirements` });
+  } catch (e) { checks.push({ name: "IAM Password Policy", status: "FAIL", reason: e.message }); }
+
+  // 6. CloudTrail Encryption
+  try {
+    const { CloudTrailClient, DescribeTrailsCommand } = require("@aws-sdk/client-cloudtrail");
+    const ct = new CloudTrailClient({ region: AWS_REGION });
+    const trails = await ct.send(new DescribeTrailsCommand({}));
+    const encrypted = (trails.trailList || []).filter(t => t.KmsKeyId);
+    const total = (trails.trailList || []).length;
+    checks.push({ name: "CloudTrail Encryption", status: encrypted.length === total ? "PASS" : "FAIL", reason: `${encrypted.length}/${total} trails encrypted` });
+  } catch (e) { checks.push({ name: "CloudTrail Encryption", status: "FAIL", reason: e.message }); }
+
+  // 7. Cognito MFA
+  try {
+    const { CognitoIdentityProviderClient, DescribeUserPoolCommand } = require("@aws-sdk/client-cognito-identity-provider");
+    const cog = new CognitoIdentityProviderClient({ region: AWS_REGION });
+    const pool = await cog.send(new DescribeUserPoolCommand({ UserPoolId: process.env.USER_POOL_ID }));
+    const mfa = pool.UserPool?.MfaConfiguration;
+    checks.push({ name: "Cognito MFA", status: mfa === "ON" ? "PASS" : "FAIL", reason: `MFA config: ${mfa}` });
+  } catch (e) { checks.push({ name: "Cognito MFA", status: "FAIL", reason: e.message }); }
+
+  const passed = checks.filter(c => c.status === "PASS").length;
+  const failed = checks.filter(c => c.status === "FAIL").length;
+  const skipped = checks.filter(c => c.status === "SKIP").length;
+
+  return jsonResponse(200, {
+    status: "COMPLETED", mode: "security-audit",
+    tests_run: checks.length, passed, failed, skipped,
+    results: checks,
+    timestamp: new Date().toISOString(),
+  });
 }
 
 async function handleListUsers(event) {
@@ -754,14 +927,8 @@ async function handleResolveAlert(event) {
     return jsonResponse(400, { error: "action must be RESOLVED, SUPPRESSED, or NOTIFIED" });
   }
 
-  const lookupResult = await securityHub.send(new GetFindingsCommand({
-    Filters: { Id: [{ Value: findingId, Comparison: "SUFFIX" }] },
-    MaxResults: 1,
-  }));
-
-  if (!lookupResult.Findings?.length) return jsonResponse(404, { error: "Finding not found" });
-
-  const finding           = lookupResult.Findings[0];
+  const finding = await lookupFinding(findingId, body.productArn);
+  if (!finding) return jsonResponse(404, { error: "Finding not found" });
   const findingIdentifier = { Id: finding.Id, ProductArn: finding.ProductArn };
 
   await securityHub.send(new BatchUpdateFindingsCommand({
@@ -802,14 +969,8 @@ async function handleRemediateAlert(event) {
   if (!findingId) return jsonResponse(400, { error: "findingId is required" });
 
   // Look up the raw finding
-  const lookupResult = await securityHub.send(new GetFindingsCommand({
-    Filters: { Id: [{ Value: findingId, Comparison: "SUFFIX" }] },
-    MaxResults: 1,
-  }));
-
-  if (!lookupResult.Findings?.length) return jsonResponse(404, { error: "Finding not found" });
-
-  const rawFinding = lookupResult.Findings[0];
+  const rawFinding = await lookupFinding(findingId, body.productArn);
+  if (!rawFinding) return jsonResponse(404, { error: "Finding not found" });
   const strategy   = detectStrategy(rawFinding);
   const stratInfo  = REMEDIATION_STRATEGIES[strategy];
 
@@ -842,6 +1003,7 @@ async function handleRemediateAlert(event) {
       jobId:       { S: jobId },
       findingId:   { S: findingId },
       strategy:    { S: strategy },
+      label:       { S: stratInfo.label },
       status:      { S: "RUNNING" },
       startedAt:   { S: now },
       triggeredBy: { S: claims?.email || claims?.sub || "admin" },
@@ -921,10 +1083,13 @@ async function handleRemediationStatus(event) {
 
   if (!record.Item) return jsonResponse(404, { error: "Remediation job not found" });
 
+  const storedStrategy = record.Item.strategy?.S || "";
   const job = {
     jobId:         record.Item.jobId?.S,
     findingId:     record.Item.findingId?.S,
-    strategy:      record.Item.strategy?.S,
+    strategy:      storedStrategy,
+    // label was added to persisted records in v2.3.1; fall back to REMEDIATION_STRATEGIES lookup
+    label:         record.Item.label?.S || REMEDIATION_STRATEGIES[storedStrategy]?.label || storedStrategy,
     status:        record.Item.status?.S,
     startedAt:     record.Item.startedAt?.S,
     completedAt:   record.Item.completedAt?.S,
@@ -1003,9 +1168,45 @@ async function handleRemediationStatus(event) {
 
 // == Main Router ==============================================================
 
+// == JWT Token Decoder ========================================================
+// Decodes the Cognito ID token from the Authorization header and injects
+// claims into event.requestContext.authorizer.claims so the rest of the code
+// works identically to when API Gateway's Cognito authorizer was in use.
+function extractClaims(event) {
+  try {
+    const authHeader = event.headers?.Authorization || event.headers?.authorization || "";
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    if (!token) return null;
+    const parts = token.split(".");
+    if (parts.length !== 3) return null;
+    const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+    const expectedIssuer = `https://cognito-idp.${AWS_REGION}.amazonaws.com/${process.env.USER_POOL_ID}`;
+    if (payload.iss !== expectedIssuer) {
+      console.log(JSON.stringify({ type: "AUTH", message: "Token issuer mismatch", expected: expectedIssuer, got: payload.iss }));
+      return null;
+    }
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) {
+      console.log(JSON.stringify({ type: "AUTH", message: "Token expired" }));
+      return null;
+    }
+    return payload;
+  } catch (e) {
+    console.log(JSON.stringify({ type: "AUTH", message: "Token decode failed", error: e.message }));
+    return null;
+  }
+}
+
 exports.lambdaHandler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 200, headers: corsHeaders, body: "" };
+  }
+
+  // Inject claims from JWT into request context (replaces API Gateway Cognito Authorizer)
+  const claims = extractClaims(event);
+  if (claims) {
+    if (!event.requestContext) event.requestContext = {};
+    if (!event.requestContext.authorizer) event.requestContext.authorizer = {};
+    event.requestContext.authorizer.claims = claims;
   }
 
   try {
@@ -1019,7 +1220,8 @@ exports.lambdaHandler = async (event) => {
     if (httpMethod === "POST" && path === "/security-alerts/remediate")         return handleRemediateAlert(event);
     if (httpMethod === "GET"  && path === "/security-alerts/remediation-status") return handleRemediationStatus(event);
     if (httpMethod === "POST" && path === "/run-tests")                         return handleRunTests();
-    if (httpMethod === "GET"  && path === "/test-status")                       return handleTestStatus(event);
+    if (httpMethod === "POST" && path === "/run-security-tests")                  return handleSecurityTests();
+    if (httpMethod === "GET"  && path === "/test-status", "/run-security-tests")                       return handleTestStatus(event);
     if (httpMethod === "GET"  && path === "/users")                             return handleListUsers(event);
     if (httpMethod === "POST" && path === "/users")                             return handleCreateUser(event);
 

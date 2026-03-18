@@ -21,27 +21,63 @@ from dynamic_thresholds import ThresholdManager, TASK_CRITICALITY
 from user_feedback import FeedbackCollector
 from fallback_chain import FallbackManager
 from cost_dashboard import CostTracker
+import json
+import subprocess
+from pathlib import Path
+
+
+# ── LCM Confidence Integration ────────────────────────────────────────────────
+
+def get_lcm_confidence(query: str) -> float:
+    """
+    Query LCM plugin for confidence score on a task.
+    Returns 0.0-1.0 (default 0.7 if unavailable).
+    """
+    try:
+        lcm_db = Path.home() / ".openclaw" / "lcm.db"
+        if not lcm_db.exists():
+            return 0.7
+        
+        # Query SQLite for similar tasks in LCM
+        result = subprocess.run(
+            ["sqlite3", "-json", str(lcm_db),
+             "SELECT confidence FROM tasks WHERE query LIKE ? ORDER BY created_at DESC LIMIT 1"],
+            capture_output=True, text=True, timeout=5
+        )
+        
+        if result.returncode == 0 and result.stdout.strip():
+            data = json.loads(result.stdout)
+            if data and len(data) > 0:
+                return float(data[0].get("confidence", 0.7))
+        
+        return 0.7  # Default moderate confidence
+    except Exception as e:
+        return 0.7  # Fail safe to moderate confidence
+
+
+LCM_CONFIDENCE_THRESHOLD = 0.8  # Below this, escalate to cloud
 
 
 # ── Complexity → Tier Mapping ────────────────────────────────────────────────
 
 COMPLEXITY_TIER_MAP = {
-    1: ["QwenFlash", "GeminiLite"],           # Simple Q&A
-    2: ["GeminiFlash", "QwenCoder"],          # Standard tasks
-    3: ["Qwen35", "Kimi"],                     # Advanced
-    4: ["GeminiPro", "QwenMax"],              # Premium
-    5: ["Sonnet", "opus"],                     # Expert
+    0: ["Nemotron", "GLM5", "Qwen3Coder"],    # FREE Ollama Cloud
+    1: ["Nemotron", "GLM5", "Qwen3Coder"],    # Simple Q&A
+    2: ["Qwen3Coder", "DSV3", "GLM5"],        # Standard tasks
+    3: ["Kimi25", "Mistral", "DSV3"],         # Advanced
+    4: ["GeminiPro", "Sonnet"],               # Premium
+    5: ["opus", "Sonnet"],                    # Expert
 }
 
 TOPIC_MODEL_PREFERENCES = {
-    "code_gen":       ["QwenCoder", "Qwen35", "Sonnet"],
-    "architecture":   ["Qwen35", "Sonnet", "opus"],
-    "debug":          ["QwenCoder", "GrokFast", "Sonnet"],
-    "simple_qa":      ["QwenFlash", "GeminiLite"],
-    "summarize":      ["GeminiFlash", "Kimi"],
-    "creative":       ["Sonnet", "GPT4o"],
-    "security_audit": ["Sonnet", "opus"],
-    "refactor":       ["QwenCoder", "Qwen35"],
+    "code_gen":       ["Qwen3Coder", "DSV3", "Mistral"],
+    "architecture":   ["DSV3", "Qwen35Cloud", "Sonnet"],
+    "debug":          ["Qwen3Coder", "DSV3", "GrokFast"],
+    "simple_qa":      ["Nemotron", "GLM5"],
+    "summarize":      ["GLM5", "Kimi25"],
+    "creative":       ["Mistral", "Sonnet"],
+    "security_audit": ["DSV3", "Sonnet"],
+    "refactor":       ["Qwen3Coder", "DSV3"],
 }
 
 
@@ -84,7 +120,15 @@ class MOOrchestrator:
         # Step 2: Determine complexity and tier
         if complexity is None:
             complexity = self._auto_complexity(query, task_type)
-        tier = min(5, max(1, complexity))
+        
+        # LCM Confidence Integration - escalate if low confidence
+        lcm_confidence = get_lcm_confidence(query)
+        if lcm_confidence < LCM_CONFIDENCE_THRESHOLD and complexity == 0:
+            # Local model confidence too low, bump to cloud tier
+            complexity = max(2, complexity + 1)
+            reasoning_factor = f"  📉 LCM confidence {lcm_confidence:.2f} < {LCM_CONFIDENCE_THRESHOLD}, escalating from Tier 0 to Tier {complexity}"
+        
+        tier = min(5, max(0, complexity))
         
         # Step 3: Get thresholds for this task
         task_criticality = criticality or TASK_CRITICALITY.get(task_type, "medium")
@@ -107,14 +151,14 @@ class MOOrchestrator:
                 continue
             
             estimate = self.estimator.estimate(query, model_alias=candidate)
-            cost = estimate["cost"]["estimated_cost"]
+            cost = estimate.get("cost", {}).get("estimated_cost", 0)
             
             # Check max cost constraint
             if max_cost and cost > max_cost:
                 reasoning.append(f"  💰 {candidate}: ${cost:.6f} exceeds budget ${max_cost:.6f}")
                 continue
             
-            if best_model is None or cost < best_estimate["cost"]["estimated_cost"]:
+            if best_model is None or cost < best_estimate.get("cost", {}).get("estimated_cost", 0):
                 best_model = candidate
                 best_estimate = estimate
                 reasoning.append(f"  ✅ {candidate}: ${cost:.6f} — selected")
@@ -145,7 +189,7 @@ class MOOrchestrator:
                 "escalate": thresholds.escalate,
                 "max_escalations": thresholds.max_escalations,
             },
-            "estimated_cost": best_estimate["cost"]["estimated_cost"] if best_estimate else 0,
+            "estimated_cost": best_estimate.get("cost", {}).get("estimated_cost", 0) if best_estimate else 0,
             "estimated_tokens": best_estimate["total_tokens"] if best_estimate else 0,
             "feedback_recommendation": feedback_model,
             "candidates_evaluated": len(candidates),
@@ -199,29 +243,38 @@ class MOOrchestrator:
         query_lower = query.lower()
         word_count = len(query.split())
         
-        # Simple heuristics
-        score = 2  # Default medium
+        # Start with task-type baseline (strongest signal)
+        task_baseline = {
+            "simple_qa": 1, "summarize": 1,
+            "debug": 2, "refactor": 3,
+            "code_gen": 2, "creative": 3,
+            "architecture": 4, "security_audit": 5,
+            "production_deploy": 4, "default": 2,
+        }
+        score = task_baseline.get(task_type, 2)
         
-        if word_count < 10:
-            score = 1
-        elif word_count > 100:
+        # Length adjustment (subtle)
+        if word_count > 50:
             score += 1
+        elif word_count > 100:
+            score += 2
         
-        # Complexity indicators
+        # Complexity indicators boost
         complex_words = ["architecture", "system design", "migration", "enterprise",
                         "distributed", "microservice", "security audit", "compliance",
-                        "scalability", "fault-tolerant", "real-time"]
+                        "scalability", "fault-tolerant", "real-time", "production",
+                        "multi-tenant", "high-availability", "disaster recovery"]
         for word in complex_words:
             if word in query_lower:
                 score += 1
                 break
         
-        # Task type boost
-        task_boost = {
-            "architecture": 1, "security_audit": 2, "production_deploy": 2,
-            "simple_qa": -1, "summarize": -1,
-        }
-        score += task_boost.get(task_type, 0)
+        # Scale/scope indicators
+        scale_words = ["10m", "million", "enterprise", "platform", "saas", "full"]
+        for word in scale_words:
+            if word in query_lower:
+                score += 1
+                break
         
         return max(1, min(5, score))
     

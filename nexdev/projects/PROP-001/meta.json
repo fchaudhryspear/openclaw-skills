@@ -1,0 +1,30 @@
+{
+  "project_id": "PROP-001",
+  "task": "Build a REST API for property management",
+  "started_at": "2026-03-09T00:12:10.704430",
+  "status": "dry_run",
+  "stages": {
+    "product_manager": {
+      "status": "dry_run",
+      "model": "QwenCoder",
+      "estimated_cost": 0.000287
+    },
+    "architect": {
+      "status": "dry_run",
+      "model": "Qwen35",
+      "estimated_cost": 0.000817
+    },
+    "developer": {
+      "status": "dry_run",
+      "model": "QwenCoder",
+      "estimated_cost": 0.000287
+    },
+    "qa_engineer": {
+      "status": "dry_run",
+      "model": "QwenFlash",
+      "estimated_cost": 0.000103
+    }
+  },
+  "total_cost": 0.0,
+  "completed_at": "2026-03-09T00:12:10.705833"
+}

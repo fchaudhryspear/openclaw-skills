@@ -1,0 +1,88 @@
+{
+  "architecture_pattern": "Microservice Architecture",
+  "summary": "A lightweight, stateless microservice that provides RESTful endpoints for validating email addresses and phone numbers using regex-based rules. Designed for high throughput, accuracy, and maintainability with no external validation dependencies.",
+  "components": [
+    {
+      "name": "Validation Service",
+      "type": "Microservice",
+      "responsibility": "Orchestrates email and phone number validation logic; handles HTTP requests, input sanitization, and response formatting.",
+      "technology": "FastAPI",
+      "interfaces": [
+        "HTTP/1.1",
+        "JSON"
+      ]
+    },
+    {
+      "name": "Email Validator",
+      "type": "Library Module",
+      "responsibility": "Implements RFC 5322-inspired regex validation for email format and domain syntax (no DNS lookup); trims whitespace and rejects malformed domains.",
+      "technology": "Python + re",
+      "interfaces": [
+        "Python function: validate_email(str) -> bool"
+      ]
+    },
+    {
+      "name": "Phone Validator",
+      "type": "Library Module",
+      "responsibility": "Validates international and local phone numbers using E.164-aligned regex patterns; normalizes whitespace and supports '+' prefix, country codes, and digit-only formats.",
+      "technology": "Python + re",
+      "interfaces": [
+        "Python function: validate_phone(str) -> bool"
+      ]
+    },
+    {
+      "name": "Health Checker",
+      "type": "Utility Component",
+      "responsibility": "Exposes liveness and readiness endpoints for observability and orchestration.",
+      "technology": "FastAPI",
+      "interfaces": [
+        "HTTP GET /health/liveness",
+        "HTTP GET /health/readiness"
+      ]
+    }
+  ],
+  "api_endpoints": [
+    {
+      "method": "POST",
+      "path": "/v1/validate/email",
+      "description": "Validates a single email address against format and domain syntax rules.",
+      "request_body": "{ \"email\": \"string\" }",
+      "response_body": "{ \"valid\": true, \"input\": \"user@example.com\", \"timestamp\": \"ISO8601\" }"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/validate/phone",
+      "description": "Validates a single phone number against E.164-aligned format rules.",
+      "request_body": "{ \"phone\": \"string\" }",
+      "response_body": "{ \"valid\": true, \"input\": \"+1234567890\", \"timestamp\": \"ISO8601\" }"
+    },
+    {
+      "method": "POST",
+      "path": "/v1/validate/batch",
+      "description": "Validates up to 100 email and/or phone entries in a single request.",
+      "request_body": "{ \"items\": [{ \"type\": \"email|phone\", \"value\": \"string\" }] }",
+      "response_body": "{ \"results\": [{ \"type\": \"email\", \"value\": \"test@domain.com\", \"valid\": true, \"error\": null }], \"processed_at\": \"ISO8601\" }"
+    }
+  ],
+  "database_schema": [],
+  "tech_stack": {
+    "backend": "FastAPI 0.111+",
+    "frontend": "None (API-only)",
+    "database": "None (stateless, no persistence)",
+    "cache": "None (optional Redis layer can be added later for rate-limiting or result caching)",
+    "queue": "None (synchronous validation only)"
+  },
+  "deployment_strategy": "Containerized deployment via Docker on Kubernetes with horizontal pod autoscaling (HPA) based on CPU and request rate; zero-downtime rolling updates; health probes configured for liveness/readiness.",
+  "security_considerations": [
+    "Input sanitization (whitespace trimming, length limiting to 256 chars per field)",
+    "Rate limiting per IP (via middleware) to prevent abuse",
+    "No logging of raw PII in production (masked logs only)",
+    "HTTPS enforced via ingress controller",
+    "CORS restricted to trusted origins",
+    "No authentication required for public API (assumed internal or trusted consumer)"
+  ],
+  "scalability_notes": "Stateless design enables linear horizontal scaling; each instance handles ~5K RPS on modest hardware; batch endpoint reduces network overhead for bulk validation; future sharding possible via consistent hashing if distributed validation cache is introduced.",
+  "project_id": "PROJ-20260309-063405",
+  "version": "1",
+  "spec_version": "1"
+}

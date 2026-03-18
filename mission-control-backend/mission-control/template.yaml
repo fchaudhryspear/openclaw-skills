@@ -17,6 +17,13 @@ Globals:
     Timeout: 60
     MemorySize: 256
     Runtime: nodejs20.x
+  Api:
+    # API Gateway CORS — handles OPTIONS preflight at the gateway level so browsers
+    # can reach the API without needing Lambda to respond to every OPTIONS request.
+    Cors:
+      AllowOrigin:  !Sub "'${CorsOrigin}'"
+      AllowHeaders: "'Content-Type,Authorization'"
+      AllowMethods: "'OPTIONS,GET,POST'"
 
 Resources:
 
@@ -60,6 +67,16 @@ Resources:
         - AmazonCognitoPowerUser
         - AmazonSESFullAccess
         - AWSSecurityHubReadOnlyAccess
+
+        # ── Security Audit Checks ────────────────────────────────────────────
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cloudtrail:DescribeTrails
+                - cloudtrail:GetEventSelectors
+                - ec2:GetSnapshotBlockPublicAccessState
+                - iam:GetAccountPasswordPolicy
+              Resource: "*"
 
         # ── SecurityHub — update workflow status ──────────────────────────────
         - Statement:
@@ -138,16 +155,58 @@ Resources:
               Resource: "*"
 
       Events:
+        # ── Public routes — no Cognito token required ──────────────────────────
         Root:
           Type: Api
           Properties:
             Path: /
-            Method: ANY
+            Method: GET
+        Health:
+          Type: Api
+          Properties:
+            Path: /health
+            Method: GET
+        Flows:
+          Type: Api
+          Properties:
+            Path: /flows
+            Method: GET
+        # ── Protected catch-all — requires Cognito ID token ────────────────────
+        # Covers: /security-alerts (GET/POST), /users (GET/POST),
+        #         /run-tests, /test-status, and all sub-paths.
         ProxyAll:
           Type: Api
           Properties:
             Path: /{proxy+}
             Method: ANY
+
+  # ── Gateway Responses — CORS headers on 401/403 ────────────────────────────
+  # API Gateway's Cognito authorizer returns 401/403 WITHOUT CORS headers,
+  # causing browsers to throw "Failed to fetch". These overrides add CORS
+  # headers to error responses so the frontend can read the actual error.
+  GatewayResponseUnauthorized:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref ServerlessRestApi
+      ResponseType: UNAUTHORIZED
+      StatusCode: '401'
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: !Sub "'${CorsOrigin}'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+      ResponseTemplates:
+        application/json: '{"message":"Unauthorized"}'
+
+  GatewayResponseAccessDenied:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref ServerlessRestApi
+      ResponseType: ACCESS_DENIED
+      StatusCode: '403'
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: !Sub "'${CorsOrigin}'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+      ResponseTemplates:
+        application/json: '{"message":"Access denied"}'
 
 Outputs:
   MonitoringApi:

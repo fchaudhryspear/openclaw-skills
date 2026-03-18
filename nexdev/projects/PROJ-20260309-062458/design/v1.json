@@ -1,0 +1,61 @@
+{
+  "architecture_pattern": "Single-Process CLI Application",
+  "summary": "A lightweight, single-binary Python CLI tool that reads CSV files line-by-line, validates structure, and serializes rows into JSON (either to stdout or a specified file), with robust error reporting and minimal dependencies.",
+  "components": [
+    {
+      "name": "CLI Entrypoint",
+      "type": "Application Layer",
+      "responsibility": "Parses command-line arguments, orchestrates execution flow, handles top-level error reporting and exit codes.",
+      "technology": "Python argparse",
+      "interfaces": [
+        "accepts --input, --output, --pretty, --help; emits exit code 0 on success, non-zero on failure"
+      ]
+    },
+    {
+      "name": "CSV Reader",
+      "type": "Data Access Layer",
+      "responsibility": "Streams CSV rows incrementally using csv.DictReader; detects parsing errors (e.g., inconsistent columns, encoding issues) and reports line numbers and context.",
+      "technology": "Python csv module",
+      "interfaces": [
+        "reads from file handle; yields dict per row; raises CsvValidationError with line number and message"
+      ]
+    },
+    {
+      "name": "JSON Serializer",
+      "type": "Transformation Layer",
+      "responsibility": "Converts list of row dicts into valid JSON; supports compact and pretty-printed output; handles JSON serialization errors (e.g., non-serializable types).",
+      "technology": "Python json module",
+      "interfaces": [
+        "accepts list of dicts and indent parameter; returns bytes or str; raises JsonSerializationError"
+      ]
+    },
+    {
+      "name": "Output Writer",
+      "type": "I/O Layer",
+      "responsibility": "Writes JSON output to stdout or filesystem; ensures atomic write when writing to file (via temp file + rename); handles permission and disk-full errors.",
+      "technology": "Python built-in open(), os, tempfile",
+      "interfaces": [
+        "accepts bytes payload and optional output path; writes and flushes; raises IOError subclasses"
+      ]
+    }
+  ],
+  "api_endpoints": [],
+  "database_schema": [],
+  "tech_stack": {
+    "backend": "Python 3.8+ (standard library only)",
+    "frontend": "CLI (no frontend)",
+    "database": "None",
+    "cache": "None",
+    "queue": "None"
+  },
+  "deployment_strategy": "Distribute as executable script or installable package via pip (setup.py/pyproject.toml); no server or runtime dependencies beyond CPython.",
+  "security_considerations": [
+    "Input file paths are validated to prevent directory traversal (e.g., normalize and verify input is within allowed scope); no code execution or eval usage; output file paths are sanitized before write; no sensitive data handling assumptions \u2014 tool treats all CSV content as untrusted but does not process it beyond parsing/serialization."
+  ],
+  "scalability_notes": [
+    "Memory-efficient streaming: processes CSV row-by-row without loading entire file into memory; suitable for multi-gigabyte files given sufficient disk I/O; performance scales linearly with file size; no parallelism needed for typical use cases; further optimization possible via mmap for ultra-large files, but out of scope per constraints."
+  ],
+  "project_id": "PROJ-20260309-062458",
+  "version": "1",
+  "spec_version": "1"
+}

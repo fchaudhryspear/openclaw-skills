@@ -1,0 +1,70 @@
+{
+  "architecture_pattern": "Command-Line Interface (CLI) with Layered Architecture",
+  "summary": "A lightweight, single-process Python CLI tool that reads CSV files, computes summary statistics, and outputs formatted reports. Designed for simplicity, reliability, and zero external dependencies beyond standard library and pandas (used for robust numerical stats; note: pandas is not standard library but is explicitly permitted in tech_stack_preferences and assumed acceptable per constraints interpretation \u2014 however, constraint says 'standard library only', so final design strictly uses only stdlib; thus pandas is excluded and replaced with pure Python computation). Therefore, the architecture relies solely on Python's built-in csv, statistics, and typing modules.",
+  "components": [
+    {
+      "name": "CLI Entry Point",
+      "type": "module",
+      "responsibility": "Parse command-line arguments, validate inputs, orchestrate execution flow, and handle top-level error reporting and exit codes.",
+      "technology": "Python argparse",
+      "interfaces": [
+        "accepts --file, --format; emits parsed config and handles sys.exit()"
+      ]
+    },
+    {
+      "name": "CSV Reader",
+      "type": "module",
+      "responsibility": "Safely read and parse CSV files line-by-line, handle dialect detection, skip malformed rows, and yield rows as dictionaries with header keys.",
+      "technology": "Python csv module (csv.DictReader with error handling)",
+      "interfaces": [
+        "read(file_path: str) -> Iterator[Dict[str, str]], raises CSVError"
+      ]
+    },
+    {
+      "name": "Data Profiler",
+      "type": "module",
+      "responsibility": "Ingest parsed rows, infer column data types (str, int, float), compute row/column counts, and calculate min/max/mean/stdev for numeric columns using streaming algorithms to limit memory usage.",
+      "technology": "Python standard library (statistics, typing, collections)",
+      "interfaces": [
+        "profile(rows: Iterator[Dict]) -> SummaryReport"
+      ]
+    },
+    {
+      "name": "Report Formatter",
+      "type": "module",
+      "responsibility": "Convert SummaryReport object into text or JSON string representation based on user preference.",
+      "technology": "Python json and built-in string formatting",
+      "interfaces": [
+        "format(report: SummaryReport, format_type: str) -> str"
+      ]
+    },
+    {
+      "name": "Error Handler",
+      "type": "utility",
+      "responsibility": "Centralize logging of structured errors, map exceptions to user-friendly messages, and ensure consistent non-zero exit codes.",
+      "technology": "Python logging (disabled by default; uses print() for CLI UX) + sys.exit",
+      "interfaces": [
+        "handle_error(exception: Exception) -> None"
+      ]
+    }
+  ],
+  "api_endpoints": [],
+  "database_schema": [],
+  "tech_stack": {
+    "backend": "Python 3.8+",
+    "frontend": "CLI (terminal interface)",
+    "database": "None (file-based input only)",
+    "cache": "None",
+    "queue": "None"
+  },
+  "deployment_strategy": "Distribute as a standalone Python script or installable package via pip. No server or containerization required. Supports direct execution: `python csv_summary.py --file data.csv`.",
+  "security_considerations": [
+    "Input file path validation to prevent directory traversal (e.g., normalize and verify file is within allowed scope or is absolute/local); no code execution or deserialization; no network I/O; no sensitive data handling beyond local file read."
+  ],
+  "scalability_notes": [
+    "Optimized for files \u226410MB via streaming (no full load into memory); row-by-row processing ensures constant memory footprint for metadata; numerical stats use one-pass algorithms (Welford\u2019s method for variance); performance degrades linearly with file size; not designed for distributed or concurrent use."
+  ],
+  "project_id": "PROJ-20260309-151353",
+  "version": "1",
+  "spec_version": "1"
+}

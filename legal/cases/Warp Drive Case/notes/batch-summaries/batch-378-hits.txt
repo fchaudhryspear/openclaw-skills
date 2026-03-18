@@ -1,0 +1,41 @@
+WORKER 5 - SMOKING GUN Batch 378: 6 files
+/tmp/wde-worker-5-batch-378/WDE154369.md
+/tmp/wde-worker-5-batch-378/WDE154398.md
+/tmp/wde-worker-5-batch-378/WDE154400.md
+/tmp/wde-worker-5-batch-378/WDE154403.md
+/tmp/wde-worker-5-batch-378/WDE154411.md
+/tmp/wde-worker-5-batch-378/WDE154421.md
+
+=== HIT CONTEXT ===
+/tmp/wde-worker-5-batch-378/WDE154369.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154369.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154398.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154398.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154398.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154398.md:On Aug 19, 2021, at 3:28 PM, Michael Brennan < MBrennan@qosnet.com> wrote:
+/tmp/wde-worker-5-batch-378/WDE154398.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154400.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154400.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154400.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154400.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154400.md:On Aug 19, 2021, at 3:28 PM, Michael Brennan < MBrennan@qosnet.com> wrote:
+/tmp/wde-worker-5-batch-378/WDE154400.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154403.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154403.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154403.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154403.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154403.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154403.md:To: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154403.md:On Aug 19, 2021, at 3:28 PM, Michael Brennan < MBrennan@qosnet.com> wrote:
+/tmp/wde-worker-5-batch-378/WDE154403.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154411.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154411.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154411.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154411.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154411.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154411.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154411.md:To: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154411.md:On Aug 19, 2021, at 3:28 PM, Michael Brennan < MBrennan@qosnet.com> wrote:
+/tmp/wde-worker-5-batch-378/WDE154411.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-378/WDE154421.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-378/WDE154421.md:Michael Brennan | VP, Enterprise & Strategic Sales

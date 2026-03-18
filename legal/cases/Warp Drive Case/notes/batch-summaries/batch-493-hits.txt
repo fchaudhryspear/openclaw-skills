@@ -1,0 +1,10 @@
+WORKER 6 - Batch 493: 3 hit(s)
+File: WDE002513.pdf
+Date: 2026-03-18T21:01:03Z
+
+=== HITS ===
+5:From: Jacqueline Catala <jacqueline@forgeadvisors.io>
+14:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+20:<jacqueline@forgeadvisors.io>
+
+FLAGGED: forgeadvisors/jacqueline@forge match

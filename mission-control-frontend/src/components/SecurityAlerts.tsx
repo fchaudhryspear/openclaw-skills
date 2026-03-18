@@ -33,6 +33,7 @@ import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 // ── Types ────────────────────────────────────────────────────────────────────
 interface SecurityAlert {
   id: string;
+  productArn?: string;
   type: string;
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   description: string;
@@ -47,6 +48,7 @@ type ResolutionAction = 'RESOLVED' | 'SUPPRESSED' | 'NOTIFIED';
 
 interface ResolvePayload {
   findingId: string;
+  productArn?: string;
   action: ResolutionAction;
   note: string;
 }
@@ -82,12 +84,12 @@ interface RemediationJob {
   jobId:         string;
   findingId:     string;
   strategy:      string;
-  label:         string;
+  label?:        string;   // populated by backend; may be absent on older polled records
   status:        'RUNNING' | 'COMPLETED' | 'FAILED' | 'PLAYBOOK' | 'PARTIAL';
   externalJobId?: string;
   externalType?:  string;
   steps:          RemediationStep[];
-  canAutomate:    boolean;
+  canAutomate?:   boolean;
   playbook?:      RemediationPlaybook;
   buildLogs?:     string;
   startedAt?:     string;
@@ -175,12 +177,12 @@ const resolveAlert = async (payload: ResolvePayload): Promise<any> => {
   return res.json();
 };
 
-const fetchRemediationPreview = async (findingId: string): Promise<RemediationPreview> => {
+const fetchRemediationPreview = async (findingId: string, productArn?: string): Promise<RemediationPreview> => {
   const headers = await getAuthHeaders();
   const res = await fetch(API_URL + 'security-alerts/remediate', {
     method: 'POST',
     headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ findingId, dryRun: true }),
+    body: JSON.stringify({ findingId, dryRun: true, productArn }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Request failed' }));
@@ -189,12 +191,12 @@ const fetchRemediationPreview = async (findingId: string): Promise<RemediationPr
   return res.json();
 };
 
-const startRemediation = async (findingId: string): Promise<RemediationJob> => {
+const startRemediation = async (findingId: string, productArn?: string): Promise<RemediationJob> => {
   const headers = await getAuthHeaders();
   const res = await fetch(API_URL + 'security-alerts/remediate', {
     method: 'POST',
     headers: { ...headers, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ findingId, dryRun: false }),
+    body: JSON.stringify({ findingId, dryRun: false, productArn }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Request failed' }));
@@ -290,8 +292,8 @@ const JobTracker: React.FC<JobTrackerProps> = ({ job, onClose, onRefresh }) => {
         </List>
       )}
 
-      {/* Playbook Tab */}
-      {activeTab === (job.buildLogs ? 1 : 1) && job.playbook && (
+      {/* Playbook Tab — always at index 1 when present */}
+      {activeTab === 1 && job.playbook && (
         <Box sx={{ px: 1 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
             {job.playbook.summary}
@@ -331,8 +333,8 @@ const JobTracker: React.FC<JobTrackerProps> = ({ job, onClose, onRefresh }) => {
         </Box>
       )}
 
-      {/* Logs Tab */}
-      {activeTab === 2 && job.buildLogs && (
+      {/* Logs Tab — at index 1 when no playbook, or index 2 when playbook also present */}
+      {job.buildLogs && activeTab === (job.playbook ? 2 : 1) && (
         <Box>
           <Button
             size="small"
@@ -540,7 +542,7 @@ const SecurityAlerts: React.FC = () => {
     setRemediateDialogOpen(true);
 
     try {
-      const preview = await fetchRemediationPreview(alert.id);
+      const preview = await fetchRemediationPreview(alert.id, alert.productArn);
       setRemediationPreview(preview);
       setRemediatePhase('preview');
     } catch (e: any) {
@@ -554,7 +556,7 @@ const SecurityAlerts: React.FC = () => {
     setRemediatePhase('confirming');
 
     try {
-      const job = await startRemediation(remediateAlert.id);
+      const job = await startRemediation(remediateAlert.id, (remediateAlert as any).productArn);
       setRemediationJob(job);
       setRemediatePhase('tracking');
 
@@ -633,7 +635,7 @@ const SecurityAlerts: React.FC = () => {
 
   const handleResolve = () => {
     if (!selectedAlert) return;
-    resolveMutation.mutate({ findingId: selectedAlert.id, action: resolveAction, note: resolveNote });
+    resolveMutation.mutate({ findingId: selectedAlert.id, productArn: (selectedAlert as any).productArn, action: resolveAction, note: resolveNote });
   };
 
   if (isLoading) return <CircularProgress />;
@@ -850,7 +852,7 @@ const SecurityAlerts: React.FC = () => {
               preview={remediationPreview}
               onConfirm={handleConfirmRemediation}
               onCancel={closeRemediateDialog}
-              loading={false}
+              loading={false as boolean}
             />
           )}
 

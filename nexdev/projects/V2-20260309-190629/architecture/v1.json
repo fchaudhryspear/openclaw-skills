@@ -1,0 +1,476 @@
+{
+  "architecture_pattern": "Microservices-inspired modular monolith with event-driven real-time layer",
+  "summary": "A secure, scalable SaaS task management application supporting multi-tenant team workspaces, role-based access control, JWT authentication, and real-time WebSocket notifications. The system separates concerns via bounded contexts (auth, workspace, task, notification) while remaining deployable as a single backend service for simplicity and consistency.",
+  "components": [
+    {
+      "name": "Auth Service",
+      "type": "Backend Module",
+      "responsibility": "Handle user registration, login, JWT issuance/refresh, password reset, and session validation.",
+      "technology": "FastAPI + Pydantic + passlib + python-jose",
+      "interfaces": [
+        "POST /auth/register",
+        "POST /auth/login",
+        "POST /auth/refresh",
+        "POST /auth/forgot-password",
+        "POST /auth/reset-password",
+        "GET /auth/me"
+      ]
+    },
+    {
+      "name": "Workspace Service",
+      "type": "Backend Module",
+      "responsibility": "Manage team workspaces, membership, roles (owner/member/guest), and workspace-level permissions.",
+      "technology": "FastAPI + SQLAlchemy ORM",
+      "interfaces": [
+        "GET /workspaces",
+        "POST /workspaces",
+        "GET /workspaces/{workspace_id}",
+        "PUT /workspaces/{workspace_id}",
+        "DELETE /workspaces/{workspace_id}",
+        "POST /workspaces/{workspace_id}/members",
+        "DELETE /workspaces/{workspace_id}/members/{user_id}"
+      ]
+    },
+    {
+      "name": "Task Service",
+      "type": "Backend Module",
+      "responsibility": "CRUD operations on tasks, assignment, status transitions, due dates, priorities, and workspace/task relationship enforcement.",
+      "technology": "FastAPI + SQLAlchemy ORM",
+      "interfaces": [
+        "GET /workspaces/{workspace_id}/tasks",
+        "POST /workspaces/{workspace_id}/tasks",
+        "GET /tasks/{task_id}",
+        "PUT /tasks/{task_id}",
+        "DELETE /tasks/{task_id}",
+        "PATCH /tasks/{task_id}/status"
+      ]
+    },
+    {
+      "name": "Notification Service",
+      "type": "Backend Module",
+      "responsibility": "Publish real-time notifications via WebSocket; persist notification history; support read/unread state and delivery to connected clients.",
+      "technology": "FastAPI WebSocket + Redis Pub/Sub + SQLAlchemy",
+      "interfaces": [
+        "GET /ws",
+        "GET /notifications",
+        "PATCH /notifications/{notification_id}/read",
+        "DELETE /notifications"
+      ]
+    },
+    {
+      "name": "Frontend App",
+      "type": "Client Application",
+      "responsibility": "Render responsive UI for auth, dashboard, task management, workspace settings, and real-time notification badges using React hooks and WebSocket client.",
+      "technology": "React 18 + TypeScript + Vite + Axios + react-router-dom + @react-websocket/client",
+      "interfaces": [
+        "Consumes all API endpoints",
+        "Connects to /ws endpoint for real-time updates"
+      ]
+    }
+  ],
+  "api_endpoints": [
+    {
+      "method": "POST",
+      "path": "/auth/register",
+      "description": "Register a new user and create default personal workspace.",
+      "request_body": "{ \"email\": \"string\", \"password\": \"string\", \"full_name\": \"string\" }",
+      "response_body": "{ \"id\": \"uuid\", \"email\": \"string\", \"full_name\": \"string\", \"created_at\": \"datetime\" }"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "description": "Authenticate user and return JWT access/refresh tokens.",
+      "request_body": "{ \"email\": \"string\", \"password\": \"string\" }",
+      "response_body": "{ \"access_token\": \"string\", \"refresh_token\": \"string\", \"token_type\": \"bearer\" }"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/refresh",
+      "description": "Exchange refresh token for new access token.",
+      "request_body": "{ \"refresh_token\": \"string\" }",
+      "response_body": "{ \"access_token\": \"string\", \"token_type\": \"bearer\" }"
+    },
+    {
+      "method": "GET",
+      "path": "/auth/me",
+      "description": "Retrieve current authenticated user profile and associated workspaces.",
+      "request_body": "",
+      "response_body": "{ \"id\": \"uuid\", \"email\": \"string\", \"full_name\": \"string\", \"workspaces\": [{ \"id\": \"uuid\", \"name\": \"string\", \"role\": \"owner|member|guest\" }] }"
+    },
+    {
+      "method": "GET",
+      "path": "/workspaces",
+      "description": "List all workspaces the user is a member of.",
+      "request_body": "",
+      "response_body": "[{ \"id\": \"uuid\", \"name\": \"string\", \"slug\": \"string\", \"created_at\": \"datetime\", \"role\": \"owner|member|guest\" }]"
+    },
+    {
+      "method": "POST",
+      "path": "/workspaces",
+      "description": "Create a new workspace (requires owner role).",
+      "request_body": "{ \"name\": \"string\", \"description\": \"string\" }",
+      "response_body": "{ \"id\": \"uuid\", \"name\": \"string\", \"slug\": \"string\", \"description\": \"string\", \"created_at\": \"datetime\", \"owner_id\": \"uuid\" }"
+    },
+    {
+      "method": "GET",
+      "path": "/workspaces/{workspace_id}",
+      "description": "Get workspace details and members.",
+      "request_body": "",
+      "response_body": "{ \"id\": \"uuid\", \"name\": \"string\", \"slug\": \"string\", \"description\": \"string\", \"created_at\": \"datetime\", \"members\": [{ \"id\": \"uuid\", \"email\": \"string\", \"full_name\": \"string\", \"role\": \"owner|member|guest\" }] }"
+    },
+    {
+      "method": "POST",
+      "path": "/workspaces/{workspace_id}/tasks",
+      "description": "Create a new task in the specified workspace.",
+      "request_body": "{ \"title\": \"string\", \"description\": \"string\", \"status\": \"todo|in-progress|done|blocked\", \"priority\": \"low|medium|high\", \"due_date\": \"date\", \"assignee_id\": \"uuid\" }",
+      "response_body": "{ \"id\": \"uuid\", \"title\": \"string\", \"description\": \"string\", \"status\": \"todo|in-progress|done|blocked\", \"priority\": \"low|medium|high\", \"due_date\": \"date\", \"assignee_id\": \"uuid\", \"created_at\": \"datetime\", \"updated_at\": \"datetime\" }"
+    },
+    {
+      "method": "GET",
+      "path": "/workspaces/{workspace_id}/tasks",
+      "description": "List all tasks in the workspace with optional filters (status, assignee, due_date).",
+      "request_body": "",
+      "response_body": "[{ \"id\": \"uuid\", \"title\": \"string\", \"status\": \"todo|in-progress|done|blocked\", \"priority\": \"low|medium|high\", \"due_date\": \"date\", \"assignee\": { \"id\": \"uuid\", \"full_name\": \"string\" }, \"created_at\": \"datetime\" }]"
+    },
+    {
+      "method": "GET",
+      "path": "/ws",
+      "description": "WebSocket endpoint for real-time notifications (client connects here).",
+      "request_body": "",
+      "response_body": "WebSocket stream: { \"type\": \"task_created|task_updated|assigned|comment_added\", \"payload\": { ... }, \"timestamp\": \"datetime\" }"
+    },
+    {
+      "method": "GET",
+      "path": "/notifications",
+      "description": "Fetch paginated list of user's notification history.",
+      "request_body": "",
+      "response_body": "{ \"items\": [{ \"id\": \"uuid\", \"type\": \"task_created|task_assigned|...\", \"is_read\": false, \"created_at\": \"datetime\", \"data\": { ... } }], \"total\": 12, \"page\": 1, \"page_size\": 20 }"
+    },
+    {
+      "method": "PATCH",
+      "path": "/notifications/{notification_id}/read",
+      "description": "Mark a notification as read.",
+      "request_body": "",
+      "response_body": "{ \"id\": \"uuid\", \"is_read\": true, \"updated_at\": \"datetime\" }"
+    }
+  ],
+  "database_schema": [
+    {
+      "table": "users",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "DEFAULT gen_random_uuid()"
+          ]
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "UNIQUE",
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "hashed_password",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "full_name",
+          "type": "VARCHAR(255)",
+          "constraints": []
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": [
+            "DEFAULT true"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_users_email"
+      ]
+    },
+    {
+      "table": "workspaces",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "DEFAULT gen_random_uuid()"
+          ]
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "slug",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "UNIQUE",
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "constraints": []
+        },
+        {
+          "name": "owner_id",
+          "type": "UUID",
+          "constraints": [
+            "NOT NULL",
+            "REFERENCES users(id)"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_workspaces_slug"
+      ]
+    },
+    {
+      "table": "workspace_members",
+      "columns": [
+        {
+          "name": "workspace_id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "REFERENCES workspaces(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "user_id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "REFERENCES users(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "role",
+          "type": "VARCHAR(20)",
+          "constraints": [
+            "NOT NULL",
+            "CHECK (role IN ('owner', 'member', 'guest'))"
+          ]
+        },
+        {
+          "name": "joined_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_workspace_members_user_id",
+        "idx_workspace_members_workspace_id"
+      ]
+    },
+    {
+      "table": "tasks",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "DEFAULT gen_random_uuid()"
+          ]
+        },
+        {
+          "name": "workspace_id",
+          "type": "UUID",
+          "constraints": [
+            "NOT NULL",
+            "REFERENCES workspaces(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "title",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "constraints": []
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "constraints": [
+            "NOT NULL",
+            "CHECK (status IN ('todo', 'in-progress', 'done', 'blocked'))"
+          ]
+        },
+        {
+          "name": "priority",
+          "type": "VARCHAR(20)",
+          "constraints": [
+            "NOT NULL",
+            "CHECK (priority IN ('low', 'medium', 'high'))"
+          ]
+        },
+        {
+          "name": "due_date",
+          "type": "DATE",
+          "constraints": []
+        },
+        {
+          "name": "assignee_id",
+          "type": "UUID",
+          "constraints": [
+            "REFERENCES users(id)"
+          ]
+        },
+        {
+          "name": "created_by",
+          "type": "UUID",
+          "constraints": [
+            "NOT NULL",
+            "REFERENCES users(id)"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_tasks_workspace_id",
+        "idx_tasks_assignee_id",
+        "idx_tasks_status"
+      ]
+    },
+    {
+      "table": "notifications",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "DEFAULT gen_random_uuid()"
+          ]
+        },
+        {
+          "name": "user_id",
+          "type": "UUID",
+          "constraints": [
+            "NOT NULL",
+            "REFERENCES users(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "type",
+          "type": "VARCHAR(50)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "is_read",
+          "type": "BOOLEAN",
+          "constraints": [
+            "DEFAULT false"
+          ]
+        },
+        {
+          "name": "data",
+          "type": "JSONB",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_notifications_user_id",
+        "idx_notifications_user_id_is_read"
+      ]
+    }
+  ],
+  "tech_stack": {
+    "backend": "FastAPI (Python 3.11), SQLAlchemy 2.x, Alembic",
+    "frontend": "React 18, TypeScript, Vite, Axios, React Router v6, WebSocket API",
+    "database": "PostgreSQL 15+ with pgvector extension (future-proofing for AI features)",
+    "cache": "Redis 7+ (for JWT blacklist, WebSocket connection state, and notification pub/sub)",
+    "queue": "None (real-time via Redis Pub/Sub); Celery + Redis optional for future async background jobs (e.g., email notifications)"
+  },
+  "deployment_strategy": "Containerized deployment via Docker Compose for dev/staging; Kubernetes (EKS/GKE) with Helm charts for production. CI/CD via GitHub Actions with automated testing, linting, image build, and canary deployments. Database migrations executed via Alembic during startup or via dedicated job.",
+  "security_considerations": [
+    "JWT access tokens short-lived (15m), refresh tokens stored httpOnly + Secure + SameSite cookies",
+    "Password hashing with bcrypt (12 rounds)",
+    "All endpoints enforce RBAC via FastAPI dependencies checking workspace membership and role",
+    "Input validation via Pydantic models with strict typing and sanitization",
+    "CORS restricted to trusted frontend origins only",
+    "Rate limiting on auth endpoints (login/register) using Redis",
+    "SQL injection prevented by ORM parameterized queries",
+    "Sensitive data (tokens, passwords) never logged",
+    "HTTPS enforced via reverse proxy (Nginx/Traefik)"
+  ],
+  "scalability_notes": [
+    "Stateless FastAPI workers scale horizontally behind load balancer",
+    "PostgreSQL read replicas for reporting/analytics queries (separate connection pool)",
+    "Redis cluster for WebSocket pub/sub and caching at scale",
+    "Task and notification tables partitioned by created_at (quarterly) when >10M rows",
+    "Frontend assets served via CDN (Cloudflare or AWS CloudFront)",
+    "WebSocket connections managed via Redis-backed broadcast to avoid inter-worker sync issues",
+    "Database connection pooling via asyncpg with configurable max size per worker"
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "frameworks_checked": [
+    "GDPR",
+    "SOC2"
+  ],
+  "findings": [
+    {
+      "framework": "GDPR",
+      "requirement": "Lawful basis for processing personal data (Art. 6)",
+      "status": "non_compliant",
+      "code_location": "user_registration_endpoint",
+      "issue": "No explicit consent mechanism or lawful basis documented for collecting and storing user email and password.",
+      "remediation": "Add explicit consent checkbox during registration and log consent timestamp; document lawful basis (e.g., 'performance of contract') in privacy notice.",
+      "severity": "high"
+    },
+    {
+      "framework": "GDPR",
+      "requirement": "Data minimization (Art. 5(1)(c))",
+      "status": "partial",
+      "code_location": "user_model_schema",
+      "issue": "User model stores email and hashed password, but no indication of whether additional fields (e.g., name, phone) are optional or enforced \u2014 risk of over-collection.",
+      "remediation": "Enforce strict schema validation to collect only email and password at registration; defer optional fields until profile update with separate consent.",
+      "severity": "medium"
+    },
+    {
+      "framework": "GDPR",
+      "requirement": "Right to erasure (Art. 17)",
+      "status": "non_compliant",
+      "code_location": "api_endpoints",
+      "issue": "No 'delete account' or data deletion endpoint implemented; user data cannot be fully erased on request.",
+      "remediation": "Implement DELETE /api/v1/users/me with cascading deletion of todos and token records, and confirm irreversible action.",
+      "severity": "high"
+    },
+    {
+      "framework": "SOC2",
+      "requirement": "CC6.1 \u2013 Logical access controls",
+      "status": "partial",
+      "code_location": "jwt_auth_middleware",
+      "issue": "JWT validation lacks token revocation check (e.g., against a denylist or short-lived tokens only); stale tokens may remain valid post-password reset or logout.",
+      "remediation": "Introduce token denylist (e.g., Redis-stored jti blacklist) or adopt rotating refresh tokens with strict binding and short access token TTL (<15 min).",
+      "severity": "medium"
+    },
+    {
+      "framework": "SOC2",
+      "requirement": "CC7.2 \u2013 Encryption of sensitive data in transit and at rest",
+      "status": "non_compliant",
+      "code_location": "database_configuration",
+      "issue": "No evidence of PostgreSQL-level encryption (TDE) or application-layer encryption for PII; passwords are hashed but email is stored in plaintext.",
+      "remediation": "Enable PostgreSQL SSL/TLS in transit; encrypt email at rest using deterministic AEAD (e.g., pgcrypto + application-managed keys) or enforce column-level encryption.",
+      "severity": "high"
+    }
+  ],
+  "data_handling": {
+    "pii_detected": [
+      "email",
+      "password_hash"
+    ],
+    "encryption_status": "password_hash: bcrypt (compliant); email: plaintext (non_compliant)",
+    "retention_policy": "not defined",
+    "consent_mechanism": "absent"
+  },
+  "compliance_score": 32,
+  "risk_level": "high",
+  "action_items": [
+    {
+      "action": "Add explicit consent capture and logging during user registration",
+      "framework": "GDPR",
+      "deadline_urgency": "high",
+      "effort": "medium"
+    },
+    {
+      "action": "Implement account deletion endpoint with full cascade and confirmation",
+      "framework": "GDPR",
+      "deadline_urgency": "high",
+      "effort": "medium"
+    },
+    {
+      "action": "Integrate JWT denylist or rotate short-lived tokens with strict binding",
+      "framework": "SOC2",
+      "deadline_urgency": "medium",
+      "effort": "high"
+    },
+    {
+      "action": "Enable TLS for PostgreSQL and add email encryption at rest",
+      "framework": "SOC2",
+      "deadline_urgency": "high",
+      "effort": "high"
+    },
+    {
+      "action": "Define and document data retention policy (e.g., 30 days after account deletion)",
+      "framework": "GDPR",
+      "deadline_urgency": "medium",
+      "effort": "low"
+    }
+  ]
+}

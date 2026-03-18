@@ -1,0 +1,8 @@
+WORKER 6 - Batch 529: 1 hit(s)
+File: WDE002795.pdf
+Date: 2026-03-18T21:01:07Z
+
+=== HITS ===
+8:CC: Jacqueline Catala - FORGE <jacqueline@forgeadvisors.io>, "Helj, Adrian"
+
+FLAGGED: forgeadvisors/jacqueline@forge match

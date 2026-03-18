@@ -1,0 +1,27 @@
+WORKER 6 - Batch 507: 20 hit(s)
+File: WDE002614.pdf
+Date: 2026-03-18T21:01:05Z
+
+=== HITS ===
+5:From: Jacqueline Catala <jacqueline@forgeadvisors.io>
+8:CC: Barbara Sokolowski - FORGE <barbara@forgeadvisors.io>, Darren Short <darren.j.short@verizon.com>
+14:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+19:To: "Jacqueline Catala (FORGE)" <jacqueline@forgeadvisors.io>
+20:Cc: Barbara Sokolowski - FORGE <barbara@forgeadvisors.io>, Darren Short <darren.j.short@verizon.com>
+30:On Tue, Apr 30, 2024 at 6:15 AM Jacqueline Catala < jacqueline@forgeadvisors.io> wrote:
+35:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+43:To: "Jacqueline Catala (FORGE)" < jacqueline@forgeadvisors.io>
+44:Cc: Barbara Sokolowski - FORGE < barbara@forgeadvisors.io>, Darren Short <darren.j.short@verizon.com>
+56:On Tue, Apr 30, 2024 at 4:15 AM Jacqueline Catala < jacqueline@forgeadvisors.io> wrote:
+61:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+66:To: "Jacqueline Catala (FORGE)" < jacqueline@forgeadvisors.io>
+67:Cc: Barbara Sokolowski - FORGE < barbara@forgeadvisors.io>, Darren Short <darren.j.short@verizon.com>, Jennifer Jackson-Robison
+68:<jennifer@forgeadvisors.io>
+94:On Mon, Apr 29, 2024 at 6:53 AM Jacqueline Catala < jacqueline@forgeadvisors.io> wrote:
+101:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+107:From: Jacqueline Catala < jacqueline@forgeadvisors.io>
+110:Cc: Jennifer Jackson-Robison <jennifer@forgeadvisors.io>, "Short, Darren J" <darren.j.short@verizon.com>, Barbara Sokolowski - FORGE
+111:<barbara@forgeadvisors.io>
+134:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+
+FLAGGED: forgeadvisors/jacqueline@forge match

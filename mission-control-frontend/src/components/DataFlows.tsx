@@ -61,7 +61,7 @@ const fetchAlertSummary = async (): Promise<SecuritySummary> => {
   const res = await fetch(import.meta.env.VITE_API_URL + 'security-alerts', { headers });
   if (!res.ok) throw new Error('Failed to fetch alerts');
   const data = await res.json();
-  const alerts = data.alerts || [];
+  const alerts = (data.alerts || []).filter((a: { status: string }) => a.status === 'ACTIVE');
   return {
     total: alerts.length,
     critical: alerts.filter((a: { severity: string }) => a.severity === 'CRITICAL').length,

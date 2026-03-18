@@ -1,0 +1,15 @@
+WORKER 6 - Batch 522: 8 hit(s)
+File: WDE002726.pdf
+Date: 2026-03-18T21:01:07Z
+
+=== HITS ===
+7:To: Jacqueline Catala <jacqueline@forgeadvisors.io>, Aileen Callahan <ACallahan@granitenet.com>
+12:"Acosta.Nuja" <Acosta.Nuja@ace.aaa.com>, Jennifer Robison - FORGE <jennifer@forgeadvisors.io>, Aileen Callahan <ACallahan@granitenet.com>
+25:From: Jacqueline Catala <jacqueline@forgeadvisors.io>
+32:Acosta.Nuja <Acosta.Nuja@ace.aaa.com>; Jennifer Robison - FORGE <jennifer@forgeadvisors.io>
+40:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+53:<Acosta.Nuja@ace.aaa.com>, "Jacqueline Catala (FORGE)" < jacqueline@forgeadvisors.io>, Jennifer Jackson-Robison <jennifer@forgeadvisors.io>
+74:Acosta.Nuja <Acosta.Nuja@ace.aaa.com>; Jacqueline Catala - FORGE < jacqueline@forgeadvisors.io>; Jennifer Robison - FORGE
+75:<jennifer@forgeadvisors.io>
+
+FLAGGED: forgeadvisors/jacqueline@forge match

@@ -1,0 +1,51 @@
+WORKER 5 - SMOKING GUN Batch 379: 6 files
+/tmp/wde-worker-5-batch-379/WDE154443.md
+/tmp/wde-worker-5-batch-379/WDE154461.md
+/tmp/wde-worker-5-batch-379/WDE154483.md
+/tmp/wde-worker-5-batch-379/WDE154487.md
+/tmp/wde-worker-5-batch-379/WDE154519.md
+/tmp/wde-worker-5-batch-379/WDE154528.md
+
+=== HIT CONTEXT ===
+/tmp/wde-worker-5-batch-379/WDE154443.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154443.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154443.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154461.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154461.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154461.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154461.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154461.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154483.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154483.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154483.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154483.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154483.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154483.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154487.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154487.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154487.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154487.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154487.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154487.md:To: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154487.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154487.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154519.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154519.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154519.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154519.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154519.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154519.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154519.md:To: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154519.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154519.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154528.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154528.md:Michael Brennan
+/tmp/wde-worker-5-batch-379/WDE154528.md:To: Michael Brennan
+/tmp/wde-worker-5-batch-379/WDE154528.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154528.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154528.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154528.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154528.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-379/WDE154528.md:To: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154528.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-379/WDE154528.md:Michael Brennan | VP, Enterprise & Strategic Sales

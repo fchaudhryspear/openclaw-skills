@@ -10,7 +10,7 @@ import json
 from typing import Dict, List, Optional
 from datetime import datetime
 
-from contracts import (
+from .contracts import (
     SpecificationDocument, ArchitectureDesign, APIEndpoint, DatabaseTable,
     ArtifactStore, ArtifactStatus, AgentRole
 )

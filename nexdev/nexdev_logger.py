@@ -8,8 +8,7 @@ def log_routing(task, topic, model, latency_ms, success=True):
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     entry = {"ts": datetime.datetime.now().isoformat(), "task": task[:100], "topic": topic, "model": model, "latency_ms": round(latency_ms), "success": success}
     with open(LOG_PATH, "a") as f:
-        f.write(json.dumps(entry) + "
-")
+        f.write(json.dumps(entry) + "\n")
     _update_performance(topic, model, latency_ms, success)
 
 def _update_performance(topic, model, latency_ms, success):

@@ -1,0 +1,76 @@
+{
+  "files": [
+    {
+      "path": "email_validator.py",
+      "language": "python",
+      "description": "Email validation class",
+      "content": "import re\nfrom typing import Pattern\nclass EmailValidator:\n    EMAIL_REGEX: Pattern[str] = re.compile(r\"^(?P<local>[a-zA-Z0-9._%+-]+)@(?P<domain>[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$\")\n\n    @staticmethod\n    def validate(email: str) -> bool:\n        if not isinstance(email, str):\n            return False\n        match = EmailValidator.EMAIL_REGEX.match(email)\n        return match is not None\n"
+    },
+    {
+      "path": "phone_number_formatter.py",
+      "language": "python",
+      "description": "Phone number formatting class",
+      "content": "import re\nfrom typing import Optional, Pattern\nclass PhoneNumberFormatter:\n    PHONE_REGEX: Pattern[str] = re.compile(r\"\\D*\")\n\n    @staticmethod\n    def format(phone: str) -> Optional[str]:\n        if not isinstance(phone, str):\n            return None\n        digits = PhoneNumberFormatter.PHONE_REGEX.sub('', phone)\n        if len(digits) != 10:\n            return None\n        return f\"({digits[:3]}) {digits[3:6]}-{digits[6:]}\""
+    },
+    {
+      "path": "validation_service.py",
+      "language": "python",
+      "description": "Validation service class",
+      "content": "import logging\nfrom typing import Optional\nfrom .email_validator import EmailValidator\nfrom .phone_number_formatter import PhoneNumberFormatter\n\nlogging.basicConfig(level=logging.INFO)\nlogger = logging.getLogger(__name__)\nclass ValidationService:\n    @staticmethod\n    def validate_email(email: str) -> bool:\n        try:\n            return EmailValidator.validate(email)\n        except Exception as e:\n            logger.error(f\"Error validating email: {e}\")\n            return False\n\n    @staticmethod\n    def format_phone(phone: str) -> Optional[str]:\n        try:\n            return PhoneNumberFormatter.format(phone)\n        except Exception as e:\n            logger.error(f\"Error formatting phone: {e}\")\n            return None\n"
+    },
+    {
+      "path": "__init__.py",
+      "language": "python",
+      "description": "Package initializer",
+      "content": "from .validation_service import ValidationService\n\n__all__ = ['ValidationService']"
+    },
+    {
+      "path": "tests/test_email_validator.py",
+      "language": "python",
+      "description": "Tests for EmailValidator",
+      "content": "from unittest import TestCase\nfrom ..email_validator import EmailValidator\nclass TestEmailValidator(TestCase):\n    def test_valid_email(self):\n        self.assertTrue(EmailValidator.validate('test@example.com'))\n\n    def test_invalid_email(self):\n        self.assertFalse(EmailValidator.validate('invalid-email'))"
+    },
+    {
+      "path": "tests/test_phone_number_formatter.py",
+      "language": "python",
+      "description": "Tests for PhoneNumberFormatter",
+      "content": "from unittest import TestCase\nfrom ..phone_number_formatter import PhoneNumberFormatter\nclass TestPhoneNumberFormatter(TestCase):\n    def test_format_valid_phone(self):\n        self.assertEqual(PhoneNumberFormatter.format('1234567890'), '(123) 456-7890')\n\n    def test_format_invalid_phone(self):\n        self.assertIsNone(PhoneNumberFormatter.format('12345678901'))\n\n    def test_format_non_numeric_phone(self):\n        self.assertIsNone(PhoneNumberFormatter.format('abc123def456'))"
+    },
+    {
+      "path": "tests/test_validation_service.py",
+      "language": "python",
+      "description": "Tests for ValidationService",
+      "content": "from unittest import TestCase\nfrom ..validation_service import ValidationService\nclass TestValidationService(TestCase):\n    def test_validate_email_valid(self):\n        self.assertTrue(ValidationService.validate_email('test@example.com'))\n\n    def test_validate_email_invalid(self):\n        self.assertFalse(ValidationService.validate_email('invalid-email'))\n\n    def test_format_phone_valid(self):\n        self.assertEqual(ValidationService.format_phone('1234567890'), '(123) 456-7890')\n\n    def test_format_phone_invalid(self):\n        self.assertIsNone(ValidationService.format_phone('12345678901'))\n\n    def test_format_phone_non_numeric(self):\n        self.assertIsNone(ValidationService.format_phone('abc123def456'))"
+    }
+  ],
+  "test_files": [
+    {
+      "path": "tests/test_email_validator.py",
+      "language": "python",
+      "description": "Tests for the EmailValidator class.",
+      "content": "from unittest import TestCase\nfrom ..email_validator import EmailValidator\nclass TestEmailValidator(TestCase):\n    def test_valid_email(self):\n        self.assertTrue(EmailValidator.validate('test@example.com'))\n\n    def test_invalid_email(self):\n        self.assertFalse(EmailValidator.validate('invalid-email'))\n"
+    },
+    {
+      "path": "tests/test_phone_number_formatter.py",
+      "language": "python",
+      "description": "Tests for the PhoneNumberFormatter class.",
+      "content": "from unittest import TestCase\nfrom ..phone_number_formatter import PhoneNumberFormatter\nclass TestPhoneNumberFormatter(TestCase):\n    def test_format_valid_phone(self):\n        self.assertEqual(PhoneNumberFormatter.format('1234567890'), '(123) 456-7890')\n\n    def test_format_invalid_phone(self):\n        self.assertIsNone(PhoneNumberFormatter.format('12345678901'))\n\n    def test_format_non_numeric_phone(self):\n        self.assertIsNone(PhoneNumberFormatter.format('abc123def456'))\n"
+    },
+    {
+      "path": "tests/test_validation_service.py",
+      "language": "python",
+      "description": "Tests for the ValidationService class.",
+      "content": "from unittest import TestCase\nfrom ..validation_service import ValidationService\nclass TestValidationService(TestCase):\n    def test_validate_email_valid(self):\n        self.assertTrue(ValidationService.validate_email('test@example.com'))\n\n    def test_validate_email_invalid(self):\n        self.assertFalse(ValidationService.validate_email('invalid-email'))\n\n    def test_format_phone_valid(self):\n        self.assertEqual(ValidationService.format_phone('1234567890'), '(123) 456-7890')\n\n    def test_format_phone_invalid(self):\n        self.assertIsNone(ValidationService.format_phone('12345678901'))\n\n    def test_format_phone_non_numeric(self):\n        self.assertIsNone(ValidationService.format_phone('abc123def456'))\n"
+    }
+  ],
+  "dependencies": {
+    "python": ">=3.8"
+  },
+  "build_commands": [
+    "python setup.py sdist bdist_wheel"
+  ],
+  "run_commands": [
+    "pytest tests/"
+  ],
+  "environment_variables": []
+}

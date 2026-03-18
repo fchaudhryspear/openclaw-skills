@@ -1,0 +1,524 @@
+{
+  "architecture_pattern": "Layered Architecture with Clean Architecture principles (separation of concerns: presentation, application, domain, infrastructure)",
+  "summary": "A multi-tenant SaaS project tracker where organizations (tenants) can manage projects, tasks, and team members. Supports role-based access control (RBAC), JWT authentication, real-time task updates via polling (future WebSockets), and tenant-isolated data via schema-per-tenant or tenant_id scoping. Frontend is React-based SPA; backend is FastAPI microservice-style with async PostgreSQL support.",
+  "components": [
+    {
+      "name": "Auth Service",
+      "type": "Backend Service",
+      "responsibility": "Handle user registration, login, JWT issuance/refresh, password reset, and token validation.",
+      "technology": "FastAPI + Passlib + PyJWT + SQLAlchemy ORM",
+      "interfaces": [
+        "POST /auth/register",
+        "POST /auth/login",
+        "POST /auth/refresh",
+        "POST /auth/forgot-password",
+        "POST /auth/reset-password"
+      ]
+    },
+    {
+      "name": "Project Management Service",
+      "type": "Backend Service",
+      "responsibility": "CRUD operations for projects, project membership, and tenant-scoped resource access control.",
+      "technology": "FastAPI + SQLAlchemy ORM",
+      "interfaces": [
+        "GET /projects",
+        "POST /projects",
+        "GET /projects/{id}",
+        "PUT /projects/{id}",
+        "DELETE /projects/{id}",
+        "POST /projects/{id}/members"
+      ]
+    },
+    {
+      "name": "Task Management Service",
+      "type": "Backend Service",
+      "responsibility": "CRUD and status transitions for tasks, assignment, due dates, dependencies, and comments.",
+      "technology": "FastAPI + SQLAlchemy ORM",
+      "interfaces": [
+        "GET /tasks",
+        "POST /tasks",
+        "GET /tasks/{id}",
+        "PUT /tasks/{id}",
+        "PATCH /tasks/{id}/status",
+        "POST /tasks/{id}/comments"
+      ]
+    },
+    {
+      "name": "User Management Service",
+      "type": "Backend Service",
+      "responsibility": "Manage user profiles, roles, permissions, and organization (tenant) affiliation.",
+      "technology": "FastAPI + SQLAlchemy ORM",
+      "interfaces": [
+        "GET /users/me",
+        "GET /users/{id}",
+        "PUT /users/{id}",
+        "GET /organizations/{org_id}/members"
+      ]
+    },
+    {
+      "name": "Frontend Application",
+      "type": "Client Application",
+      "responsibility": "Render dashboards, project/task views, forms, RBAC-aware UI navigation, and JWT token management.",
+      "technology": "React 18 + TypeScript + TanStack Query + React Router v6 + Axios",
+      "interfaces": [
+        "Consumes all API endpoints via HTTPS; stores JWT in HttpOnly cookie (or secure memory + refresh flow)"
+      ]
+    },
+    {
+      "name": "Tenant Context Middleware",
+      "type": "Infrastructure Component",
+      "responsibility": "Extract and validate tenant context from subdomain (e.g., acme.tracker.app) or header; enforce tenant_id scoping in all DB queries.",
+      "technology": "FastAPI middleware + custom dependency",
+      "interfaces": [
+        "Injects tenant_id into request state for all route handlers"
+      ]
+    }
+  ],
+  "api_endpoints": [
+    {
+      "method": "POST",
+      "path": "/auth/register",
+      "description": "Register a new user and associate them with an organization (tenant). Creates default org if none specified.",
+      "request_body": "{ \"email\": \"string\", \"password\": \"string\", \"first_name\": \"string\", \"last_name\": \"string\", \"organization_name\": \"string\" }",
+      "response_body": "{ \"id\": \"uuid\", \"email\": \"string\", \"first_name\": \"string\", \"last_name\": \"string\", \"organization_id\": \"uuid\" }"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "description": "Authenticate user credentials and return signed JWT access and refresh tokens.",
+      "request_body": "{ \"email\": \"string\", \"password\": \"string\" }",
+      "response_body": "{ \"access_token\": \"string\", \"refresh_token\": \"string\", \"token_type\": \"bearer\", \"expires_in\": 3600 }"
+    },
+    {
+      "method": "POST",
+      "path": "/auth/refresh",
+      "description": "Exchange valid refresh token for new access token.",
+      "request_body": "{ \"refresh_token\": \"string\" }",
+      "response_body": "{ \"access_token\": \"string\", \"token_type\": \"bearer\", \"expires_in\": 3600 }"
+    },
+    {
+      "method": "GET",
+      "path": "/projects",
+      "description": "List all projects visible to the authenticated user within their tenant.",
+      "request_body": "",
+      "response_body": "{ \"projects\": [{ \"id\": \"uuid\", \"name\": \"string\", \"description\": \"string\", \"status\": \"planning|active|on-hold|completed|archived\", \"created_at\": \"string (ISO8601)\", \"updated_at\": \"string\" }], \"total\": 12 }"
+    },
+    {
+      "method": "POST",
+      "path": "/projects",
+      "description": "Create a new project within the authenticated user's tenant.",
+      "request_body": "{ \"name\": \"string\", \"description\": \"string\", \"status\": \"string\" }",
+      "response_body": "{ \"id\": \"uuid\", \"name\": \"string\", \"description\": \"string\", \"status\": \"string\", \"created_at\": \"string\", \"updated_at\": \"string\" }"
+    },
+    {
+      "method": "GET",
+      "path": "/projects/{id}",
+      "description": "Retrieve a specific project by ID with member list and task summary.",
+      "request_body": "",
+      "response_body": "{ \"id\": \"uuid\", \"name\": \"string\", \"description\": \"string\", \"status\": \"string\", \"created_at\": \"string\", \"updated_at\": \"string\", \"members\": [{ \"user_id\": \"uuid\", \"role\": \"owner|admin|member\", \"joined_at\": \"string\" }], \"task_summary\": { \"total\": 14, \"in_progress\": 5, \"completed\": 7, \"overdue\": 2 } }"
+    },
+    {
+      "method": "GET",
+      "path": "/tasks",
+      "description": "List tasks filtered by project, assignee, status, or due date range.",
+      "request_body": "{ \"project_id\": \"uuid\", \"assignee_id\": \"uuid\", \"status\": \"string\", \"due_after\": \"string (ISO8601)\", \"due_before\": \"string\" }",
+      "response_body": "{ \"tasks\": [{ \"id\": \"uuid\", \"title\": \"string\", \"description\": \"string\", \"status\": \"todo|in-progress|review|done|blocked\", \"priority\": \"low|medium|high|urgent\", \"due_date\": \"string\", \"assignee_id\": \"uuid\", \"project_id\": \"uuid\", \"created_at\": \"string\", \"updated_at\": \"string\" }], \"total\": 42 }"
+    },
+    {
+      "method": "POST",
+      "path": "/tasks",
+      "description": "Create a new task within a project.",
+      "request_body": "{ \"title\": \"string\", \"description\": \"string\", \"project_id\": \"uuid\", \"assignee_id\": \"uuid\", \"status\": \"string\", \"priority\": \"string\", \"due_date\": \"string\" }",
+      "response_body": "{ \"id\": \"uuid\", \"title\": \"string\", \"description\": \"string\", \"project_id\": \"uuid\", \"assignee_id\": \"uuid\", \"status\": \"string\", \"priority\": \"string\", \"due_date\": \"string\", \"created_at\": \"string\", \"updated_at\": \"string\" }"
+    },
+    {
+      "method": "PATCH",
+      "path": "/tasks/{id}/status",
+      "description": "Update only the status of a task (e.g., transition to 'done'). Enforces workflow rules.",
+      "request_body": "{ \"status\": \"string\" }",
+      "response_body": "{ \"id\": \"uuid\", \"status\": \"string\", \"updated_at\": \"string\" }"
+    },
+    {
+      "method": "GET",
+      "path": "/users/me",
+      "description": "Get current authenticated user profile and tenant context.",
+      "request_body": "",
+      "response_body": "{ \"id\": \"uuid\", \"email\": \"string\", \"first_name\": \"string\", \"last_name\": \"string\", \"role\": \"owner|admin|member\", \"organization_id\": \"uuid\", \"created_at\": \"string\" }"
+    }
+  ],
+  "database_schema": [
+    {
+      "table": "organizations",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "DEFAULT gen_random_uuid()"
+          ]
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "slug",
+          "type": "VARCHAR(100)",
+          "constraints": [
+            "UNIQUE",
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_organizations_slug"
+      ]
+    },
+    {
+      "table": "users",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "DEFAULT gen_random_uuid()"
+          ]
+        },
+        {
+          "name": "email",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "NOT NULL",
+            "UNIQUE"
+          ]
+        },
+        {
+          "name": "hashed_password",
+          "type": "VARCHAR(1024)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "first_name",
+          "type": "VARCHAR(100)",
+          "constraints": []
+        },
+        {
+          "name": "last_name",
+          "type": "VARCHAR(100)",
+          "constraints": []
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "constraints": [
+            "DEFAULT true"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_users_email"
+      ]
+    },
+    {
+      "table": "organization_members",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "DEFAULT gen_random_uuid()"
+          ]
+        },
+        {
+          "name": "organization_id",
+          "type": "UUID",
+          "constraints": [
+            "NOT NULL",
+            "REFERENCES organizations(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "user_id",
+          "type": "UUID",
+          "constraints": [
+            "NOT NULL",
+            "REFERENCES users(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "role",
+          "type": "VARCHAR(20)",
+          "constraints": [
+            "NOT NULL",
+            "CHECK (role IN ('owner', 'admin', 'member'))"
+          ]
+        },
+        {
+          "name": "joined_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_org_members_org_id",
+        "idx_org_members_user_id",
+        "uq_org_user"
+      ]
+    },
+    {
+      "table": "projects",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "DEFAULT gen_random_uuid()"
+          ]
+        },
+        {
+          "name": "organization_id",
+          "type": "UUID",
+          "constraints": [
+            "NOT NULL",
+            "REFERENCES organizations(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "constraints": []
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "constraints": [
+            "DEFAULT 'planning'",
+            "CHECK (status IN ('planning', 'active', 'on-hold', 'completed', 'archived'))"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_projects_org_id",
+        "idx_projects_status"
+      ]
+    },
+    {
+      "table": "tasks",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "DEFAULT gen_random_uuid()"
+          ]
+        },
+        {
+          "name": "project_id",
+          "type": "UUID",
+          "constraints": [
+            "NOT NULL",
+            "REFERENCES projects(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "title",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "constraints": []
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR(20)",
+          "constraints": [
+            "DEFAULT 'todo'",
+            "CHECK (status IN ('todo', 'in-progress', 'review', 'done', 'blocked'))"
+          ]
+        },
+        {
+          "name": "priority",
+          "type": "VARCHAR(20)",
+          "constraints": [
+            "DEFAULT 'medium'",
+            "CHECK (priority IN ('low', 'medium', 'high', 'urgent'))"
+          ]
+        },
+        {
+          "name": "due_date",
+          "type": "DATE",
+          "constraints": []
+        },
+        {
+          "name": "assignee_id",
+          "type": "UUID",
+          "constraints": [
+            "REFERENCES users(id) ON DELETE SET NULL"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_tasks_project_id",
+        "idx_tasks_assignee_id",
+        "idx_tasks_status",
+        "idx_tasks_due_date"
+      ]
+    },
+    {
+      "table": "task_comments",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID",
+          "constraints": [
+            "PRIMARY KEY",
+            "DEFAULT gen_random_uuid()"
+          ]
+        },
+        {
+          "name": "task_id",
+          "type": "UUID",
+          "constraints": [
+            "NOT NULL",
+            "REFERENCES tasks(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "user_id",
+          "type": "UUID",
+          "constraints": [
+            "NOT NULL",
+            "REFERENCES users(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "content",
+          "type": "TEXT",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_task_comments_task_id",
+        "idx_task_comments_user_id"
+      ]
+    }
+  ],
+  "tech_stack": {
+    "backend": "FastAPI 0.111+, Python 3.11, SQLAlchemy 2.0, Alembic, Pydantic v2, Passlib, PyJWT",
+    "frontend": "React 18, TypeScript, Vite, TanStack Query v5, React Router v6, Axios, Tailwind CSS",
+    "database": "PostgreSQL 15+, pgvector (future AI extensions), TimescaleDB (optional for time-series analytics)",
+    "cache": "Redis 7+ (for session storage, rate limiting, JWT blacklist, query result caching)",
+    "queue": "Celery 5.x + Redis (for async email notifications, report generation, webhook delivery)"
+  },
+  "deployment_strategy": "CI/CD via GitHub Actions \u2192 Build Docker images \u2192 Push to ECR \u2192 Deploy to Kubernetes (EKS/GKE) with Helm charts. Multi-environment (dev/staging/prod) using namespace isolation and Argo CD for GitOps. Tenant routing via ingress subdomain (e.g., <org>.tracker.app) handled by Nginx Ingress Controller with tenant_id injection.",
+  "security_considerations": [
+    "All APIs require JWT Bearer auth with scope validation; RBAC enforced at service layer",
+    "Password hashing with Argon2 via Passlib",
+    "HttpOnly + Secure + SameSite=Strict cookies for JWT refresh tokens",
+    "Rate limiting per IP + user ID using Redis",
+    "SQL injection prevention via parameterized queries (SQLAlchemy)",
+    "CORS restricted to trusted frontend origins",
+    "Sensitive fields (e.g., password, tokens) never logged",
+    "Automatic rotation of JWT signing keys; short-lived access tokens (1h), long-lived refresh tokens (7d)",
+    "Row-level security (RLS) policies in PostgreSQL for tenant isolation (optional fallback)",
+    "Regular dependency scanning (Trivy), SAST (Bandit), and penetration testing"
+  ],
+  "scalability_notes": [
+    "Horizontal scaling of FastAPI workers behind load balancer; stateless design enables auto-scaling",
+    "Database read replicas for reporting and dashboard queries",
+    "Connection pooling via PgBouncer",
+    "Task queue offloads long-running ops (e.g., bulk exports, notifications)",
+    "Caching strategy: Redis for hot data (user/org metadata, project summaries), CDN for static assets",
+    "Tenant data partitioning via tenant_id column (not schema-per-tenant) for operational simplicity and cost efficiency",
+    "Async I/O throughout (FastAPI + asyncpg) for high concurrency under I/O-bound loads",
+    "Frontend code-splitting and lazy loading for fast initial render"
+  ]
+}

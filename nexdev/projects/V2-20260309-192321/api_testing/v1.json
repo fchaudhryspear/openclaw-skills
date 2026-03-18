@@ -1,0 +1,348 @@
+{
+  "test_suites": [
+    {
+      "name": "Authentication Tests",
+      "base_url": "http://localhost:8000",
+      "tests": [
+        {
+          "name": "Register New User",
+          "method": "POST",
+          "path": "/auth/register",
+          "headers": {},
+          "body": {
+            "username": "testuser",
+            "password": "securepassword123"
+          },
+          "expected_status": 201,
+          "expected_body_contains": [
+            "id",
+            "username"
+          ],
+          "assertions": [
+            {
+              "field": "username",
+              "operator": "equals",
+              "value": "testuser"
+            }
+          ]
+        },
+        {
+          "name": "Login with Valid Credentials",
+          "method": "POST",
+          "path": "/auth/login",
+          "headers": {},
+          "body": {
+            "username": "testuser",
+            "password": "securepassword123"
+          },
+          "expected_status": 200,
+          "expected_body_contains": [
+            "access_token",
+            "token_type"
+          ],
+          "assertions": [
+            {
+              "field": "token_type",
+              "operator": "equals",
+              "value": "bearer"
+            }
+          ]
+        },
+        {
+          "name": "Login with Invalid Credentials",
+          "method": "POST",
+          "path": "/auth/login",
+          "headers": {},
+          "body": {
+            "username": "testuser",
+            "password": "wrongpassword"
+          },
+          "expected_status": 401,
+          "expected_body_contains": [
+            "detail"
+          ],
+          "assertions": [
+            {
+              "field": "detail",
+              "operator": "equals",
+              "value": "Incorrect username or password"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CRUD Task Management Tests",
+      "base_url": "http://localhost:8000",
+      "tests": [
+        {
+          "name": "Create New Task",
+          "method": "POST",
+          "path": "/tasks",
+          "headers": {
+            "Authorization": "Bearer ${ACCESS_TOKEN}"
+          },
+          "body": {
+            "title": "Test Task",
+            "description": "This is a test task"
+          },
+          "expected_status": 201,
+          "expected_body_contains": [
+            "id",
+            "title",
+            "description"
+          ],
+          "assertions": [
+            {
+              "field": "title",
+              "operator": "equals",
+              "value": "Test Task"
+            }
+          ]
+        },
+        {
+          "name": "Get All Tasks",
+          "method": "GET",
+          "path": "/tasks",
+          "headers": {
+            "Authorization": "Bearer ${ACCESS_TOKEN}"
+          },
+          "body": null,
+          "expected_status": 200,
+          "expected_body_contains": [
+            "id",
+            "title",
+            "description"
+          ],
+          "assertions": []
+        },
+        {
+          "name": "Get Specific Task",
+          "method": "GET",
+          "path": "/tasks/${TASK_ID}",
+          "headers": {
+            "Authorization": "Bearer ${ACCESS_TOKEN}"
+          },
+          "body": null,
+          "expected_status": 200,
+          "expected_body_contains": [
+            "id",
+            "title",
+            "description"
+          ],
+          "assertions": [
+            {
+              "field": "title",
+              "operator": "equals",
+              "value": "Test Task"
+            }
+          ]
+        },
+        {
+          "name": "Update Task",
+          "method": "PUT",
+          "path": "/tasks/${TASK_ID}",
+          "headers": {
+            "Authorization": "Bearer ${ACCESS_TOKEN}"
+          },
+          "body": {
+            "title": "Updated Test Task",
+            "description": "This task has been updated"
+          },
+          "expected_status": 200,
+          "expected_body_contains": [
+            "id",
+            "title",
+            "description"
+          ],
+          "assertions": [
+            {
+              "field": "title",
+              "operator": "equals",
+              "value": "Updated Test Task"
+            }
+          ]
+        },
+        {
+          "name": "Delete Task",
+          "method": "DELETE",
+          "path": "/tasks/${TASK_ID}",
+          "headers": {
+            "Authorization": "Bearer ${ACCESS_TOKEN}"
+          },
+          "body": null,
+          "expected_status": 204,
+          "expected_body_contains": "",
+          "assertions": []
+        }
+      ]
+    },
+    {
+      "name": "Edge Cases and Error Handling",
+      "base_url": "http://localhost:8000",
+      "tests": [
+        {
+          "name": "Register with Existing Username",
+          "method": "POST",
+          "path": "/auth/register",
+          "headers": {},
+          "body": {
+            "username": "testuser",
+            "password": "newpassword"
+          },
+          "expected_status": 400,
+          "expected_body_contains": [
+            "detail"
+          ],
+          "assertions": [
+            {
+              "field": "detail",
+              "operator": "equals",
+              "value": "Username already registered"
+            }
+          ]
+        },
+        {
+          "name": "Access Protected Route Without Token",
+          "method": "GET",
+          "path": "/tasks",
+          "headers": {},
+          "body": null,
+          "expected_status": 401,
+          "expected_body_contains": [
+            "detail"
+          ],
+          "assertions": [
+            {
+              "field": "detail",
+              "operator": "equals",
+              "value": "Not authenticated"
+            }
+          ]
+        },
+        {
+          "name": "Access Protected Route With Invalid Token",
+          "method": "GET",
+          "path": "/tasks",
+          "headers": {
+            "Authorization": "Bearer invalidtoken"
+          },
+          "body": null,
+          "expected_status": 401,
+          "expected_body_contains": [
+            "detail"
+          ],
+          "assertions": [
+            {
+              "field": "detail",
+              "operator": "equals",
+              "value": "Could not validate credentials"
+            }
+          ]
+        },
+        {
+          "name": "Create Task with Missing Title",
+          "method": "POST",
+          "path": "/tasks",
+          "headers": {
+            "Authorization": "Bearer ${ACCESS_TOKEN}"
+          },
+          "body": {
+            "description": "This task is missing a title"
+          },
+          "expected_status": 422,
+          "expected_body_contains": [
+            "detail"
+          ],
+          "assertions": [
+            {
+              "field": "detail[0].loc[1]",
+              "operator": "equals",
+              "value": "title"
+            }
+          ]
+        },
+        {
+          "name": "Update Nonexistent Task",
+          "method": "PUT",
+          "path": "/tasks/999999",
+          "headers": {
+            "Authorization": "Bearer ${ACCESS_TOKEN}"
+          },
+          "body": {
+            "title": "Nonexistent Task",
+            "description": "This task does not exist"
+          },
+          "expected_status": 404,
+          "expected_body_contains": [
+            "detail"
+          ],
+          "assertions": [
+            {
+              "field": "detail",
+              "operator": "equals",
+              "value": "Task not found"
+            }
+          ]
+        },
+        {
+          "name": "Delete Nonexistent Task",
+          "method": "DELETE",
+          "path": "/tasks/999999",
+          "headers": {
+            "Authorization": "Bearer ${ACCESS_TOKEN}"
+          },
+          "body": null,
+          "expected_status": 404,
+          "expected_body_contains": [
+            "detail"
+          ],
+          "assertions": [
+            {
+              "field": "detail",
+              "operator": "equals",
+              "value": "Task not found"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Rate Limiting Tests",
+      "base_url": "http://localhost:8000",
+      "tests": [
+        {
+          "name": "Exceed Rate Limit for Login Endpoint",
+          "method": "POST",
+          "path": "/auth/login",
+          "headers": {},
+          "body": {
+            "username": "testuser",
+            "password": "securepassword123"
+          },
+          "expected_status": 429,
+          "expected_body_contains": [
+            "detail"
+          ],
+          "assertions": [
+            {
+              "field": "detail",
+              "operator": "equals",
+              "value": "Too Many Requests"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "setup_script": "import requests\n\n# Register a test user\nresponse = requests.post('http://localhost:8000/auth/register', json={'username': 'testuser', 'password': 'securepassword123'})\nif response.status_code == 201:\n    print('Test user registered successfully.')\nelse:\n    print('Failed to register test user.')\n\n# Login to get access token\nresponse = requests.post('http://localhost:8000/auth/login', json={'username': 'testuser', 'password': 'securepassword123'})\nif response.status_code == 200:\n    access_token = response.json()['access_token']\n    print('Access token retrieved successfully.')\nelse:\n    print('Failed to retrieve access token.')\n\n# Create a test task\nheaders = {'Authorization': f'Bearer {access_token}'}\nresponse = requests.post('http://localhost:8000/tasks', headers=headers, json={'title': 'Test Task', 'description': 'This is a test task'})\nif response.status_code == 201:\n    task_id = response.json()['id']\n    print('Test task created successfully.')\nelse:\n    print('Failed to create test task.')\n\n# Set environment variables\nimport os\nos.environ['ACCESS_TOKEN'] = access_token\nos.environ['TASK_ID'] = str(task_id)",
+  "environment_vars": [
+    "ACCESS_TOKEN",
+    "TASK_ID"
+  ],
+  "performance_thresholds": {
+    "p95_ms": 200,
+    "max_error_rate_pct": 1,
+    "min_throughput_rps": 10
+  }
+}

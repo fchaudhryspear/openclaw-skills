@@ -1,0 +1,257 @@
+{
+  "test_suites": [
+    {
+      "name": "Auth Flow Tests",
+      "base_url": "http://localhost:8000",
+      "tests": [
+        {
+          "name": "Register New User",
+          "method": "POST",
+          "path": "/api/v1/users/",
+          "headers": {},
+          "body": {
+            "email": "testuser@example.com",
+            "password": "securepassword123"
+          },
+          "expected_status": 201,
+          "expected_body_contains": "testuser@example.com",
+          "assertions": [
+            {
+              "field": "email",
+              "operator": "equals",
+              "value": "testuser@example.com"
+            }
+          ]
+        },
+        {
+          "name": "Login User",
+          "method": "POST",
+          "path": "/api/v1/users/login",
+          "headers": {},
+          "body": {
+            "username": "testuser@example.com",
+            "password": "securepassword123"
+          },
+          "expected_status": 200,
+          "expected_body_contains": "access_token",
+          "assertions": [
+            {
+              "field": "token_type",
+              "operator": "equals",
+              "value": "bearer"
+            }
+          ]
+        },
+        {
+          "name": "Login with Invalid Credentials",
+          "method": "POST",
+          "path": "/api/v1/users/login",
+          "headers": {},
+          "body": {
+            "username": "testuser@example.com",
+            "password": "wrongpassword"
+          },
+          "expected_status": 401,
+          "expected_body_contains": "Incorrect email or password",
+          "assertions": []
+        }
+      ]
+    },
+    {
+      "name": "CRUD Tests for Todos",
+      "base_url": "http://localhost:8000",
+      "tests": [
+        {
+          "name": "Create Todo",
+          "method": "POST",
+          "path": "/api/v1/todos/",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {
+            "title": "Buy groceries",
+            "description": "Milk, Bread, Eggs"
+          },
+          "expected_status": 201,
+          "expected_body_contains": "Buy groceries",
+          "assertions": [
+            {
+              "field": "title",
+              "operator": "equals",
+              "value": "Buy groceries"
+            }
+          ]
+        },
+        {
+          "name": "Get All Todos",
+          "method": "GET",
+          "path": "/api/v1/todos/",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {},
+          "expected_status": 200,
+          "expected_body_contains": "Buy groceries",
+          "assertions": [
+            {
+              "field": "length",
+              "operator": "greater_than",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "name": "Get Single Todo",
+          "method": "GET",
+          "path": "/api/v1/todos/{{todo_id}}",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {},
+          "expected_status": 200,
+          "expected_body_contains": "Buy groceries",
+          "assertions": [
+            {
+              "field": "title",
+              "operator": "equals",
+              "value": "Buy groceries"
+            }
+          ]
+        },
+        {
+          "name": "Update Todo",
+          "method": "PUT",
+          "path": "/api/v1/todos/{{todo_id}}",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {
+            "title": "Buy groceries and cook dinner",
+            "description": "Milk, Bread, Eggs, Chicken"
+          },
+          "expected_status": 200,
+          "expected_body_contains": "Buy groceries and cook dinner",
+          "assertions": [
+            {
+              "field": "title",
+              "operator": "equals",
+              "value": "Buy groceries and cook dinner"
+            }
+          ]
+        },
+        {
+          "name": "Delete Todo",
+          "method": "DELETE",
+          "path": "/api/v1/todos/{{todo_id}}",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {},
+          "expected_status": 204,
+          "expected_body_contains": "",
+          "assertions": []
+        }
+      ]
+    },
+    {
+      "name": "Edge Cases and Error Handling",
+      "base_url": "http://localhost:8000",
+      "tests": [
+        {
+          "name": "Register User with Existing Email",
+          "method": "POST",
+          "path": "/api/v1/users/",
+          "headers": {},
+          "body": {
+            "email": "testuser@example.com",
+            "password": "newpassword"
+          },
+          "expected_status": 400,
+          "expected_body_contains": "Email already registered",
+          "assertions": []
+        },
+        {
+          "name": "Create Todo with Missing Title",
+          "method": "POST",
+          "path": "/api/v1/todos/",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {
+            "description": "Just do it"
+          },
+          "expected_status": 422,
+          "expected_body_contains": "field required",
+          "assertions": []
+        },
+        {
+          "name": "Get Non-Existent Todo",
+          "method": "GET",
+          "path": "/api/v1/todos/999999",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {},
+          "expected_status": 404,
+          "expected_body_contains": "Todo not found",
+          "assertions": []
+        },
+        {
+          "name": "Update Non-Existent Todo",
+          "method": "PUT",
+          "path": "/api/v1/todos/999999",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {
+            "title": "This will fail"
+          },
+          "expected_status": 404,
+          "expected_body_contains": "Todo not found",
+          "assertions": []
+        },
+        {
+          "name": "Delete Non-Existent Todo",
+          "method": "DELETE",
+          "path": "/api/v1/todos/999999",
+          "headers": {
+            "Authorization": "Bearer {{access_token}}"
+          },
+          "body": {},
+          "expected_status": 404,
+          "expected_body_contains": "Todo not found",
+          "assertions": []
+        }
+      ]
+    },
+    {
+      "name": "Rate Limit Tests",
+      "base_url": "http://localhost:8000",
+      "tests": [
+        {
+          "name": "Rate Limit Login Attempts",
+          "method": "POST",
+          "path": "/api/v1/users/login",
+          "headers": {},
+          "body": {
+            "username": "testuser@example.com",
+            "password": "wrongpassword"
+          },
+          "expected_status": 429,
+          "expected_body_contains": "Too many requests",
+          "assertions": []
+        }
+      ]
+    }
+  ],
+  "setup_script": "import requests\n\n# Register a test user\nresponse = requests.post('http://localhost:8000/api/v1/users/', json={'email': 'testuser@example.com', 'password': 'securepassword123'})\nassert response.status_code == 201\n\n# Login the test user to get the access token\nresponse = requests.post('http://localhost:8000/api/v1/users/login', data={'username': 'testuser@example.com', 'password': 'securepassword123'})\nassert response.status_code == 200\ntoken_data = response.json()\naccess_token = token_data['access_token']\n\n# Create a test todo\nresponse = requests.post('http://localhost:8000/api/v1/todos/', headers={'Authorization': f'Bearer {access_token}'}, json={'title': 'Buy groceries', 'description': 'Milk, Bread, Eggs'})\nassert response.status_code == 201\ntodo_data = response.json()\ntodo_id = todo_data['id']\n\n# Export variables for use in tests\nwith open('.env', 'w') as f:\n    f.write(f'access_token={access_token}\\ntodo_id={todo_id}')",
+  "environment_vars": [
+    "access_token",
+    "todo_id"
+  ],
+  "performance_thresholds": {
+    "p95_ms": 200,
+    "max_error_rate_pct": 0.5,
+    "min_throughput_rps": 10
+  }
+}

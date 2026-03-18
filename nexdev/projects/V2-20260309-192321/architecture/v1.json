@@ -1,0 +1,291 @@
+{
+  "architecture_pattern": "Layered Architecture (Presentation/API Layer, Business Logic Layer, Data Access Layer)",
+  "summary": "A secure, scalable backend-only REST API for task management built with FastAPI. Implements JWT-based authentication and authorization, supports CRUD operations on tasks scoped to authenticated users, and follows separation of concerns with clear layers.",
+  "components": [
+    {
+      "name": "Authentication Service",
+      "type": "Service",
+      "responsibility": "Handles user registration, login, JWT token generation, validation, and password hashing.",
+      "technology": "FastAPI + PyJWT + passlib",
+      "interfaces": [
+        "POST /auth/register",
+        "POST /auth/login",
+        "middleware: verify_token"
+      ]
+    },
+    {
+      "name": "Task Service",
+      "type": "Service",
+      "responsibility": "Manages business logic for task creation, retrieval, updating, and deletion with ownership enforcement.",
+      "technology": "FastAPI + SQLAlchemy ORM",
+      "interfaces": [
+        "GET /tasks",
+        "GET /tasks/{id}",
+        "POST /tasks",
+        "PUT /tasks/{id}",
+        "DELETE /tasks/{id}"
+      ]
+    },
+    {
+      "name": "User Repository",
+      "type": "Data Access Object",
+      "responsibility": "Performs CRUD operations on User entities in the database.",
+      "technology": "SQLAlchemy ORM",
+      "interfaces": [
+        "create_user()",
+        "get_user_by_username()",
+        "get_user_by_id()"
+      ]
+    },
+    {
+      "name": "Task Repository",
+      "type": "Data Access Object",
+      "responsibility": "Performs CRUD operations on Task entities with user-scoped queries.",
+      "technology": "SQLAlchemy ORM",
+      "interfaces": [
+        "create_task()",
+        "get_tasks_by_user_id()",
+        "get_task_by_id_and_user_id()",
+        "update_task()",
+        "delete_task()"
+      ]
+    },
+    {
+      "name": "Database Adapter",
+      "type": "Infrastructure",
+      "responsibility": "Manages database connection pooling, migrations, and session lifecycle.",
+      "technology": "SQLAlchemy + Alembic",
+      "interfaces": [
+        "get_db_session()"
+      ]
+    }
+  ],
+  "api_endpoints": [
+    {
+      "method": "POST",
+      "path": "/auth/register",
+      "description": "Register a new user with username and password.",
+      "request_body": {
+        "username": "string",
+        "password": "string"
+      },
+      "response_body": {
+        "id": "integer",
+        "username": "string"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "description": "Authenticate user and return JWT access token.",
+      "request_body": {
+        "username": "string",
+        "password": "string"
+      },
+      "response_body": {
+        "access_token": "string",
+        "token_type": "string"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/tasks",
+      "description": "Retrieve all tasks owned by the authenticated user.",
+      "request_body": null,
+      "response_body": [
+        {
+          "id": "integer",
+          "title": "string",
+          "description": "string",
+          "completed": "boolean",
+          "created_at": "string (ISO8601)"
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/tasks/{id}",
+      "description": "Retrieve a specific task owned by the authenticated user.",
+      "request_body": null,
+      "response_body": {
+        "id": "integer",
+        "title": "string",
+        "description": "string",
+        "completed": "boolean",
+        "created_at": "string (ISO8601)",
+        "updated_at": "string (ISO8601)"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/tasks",
+      "description": "Create a new task for the authenticated user.",
+      "request_body": {
+        "title": "string",
+        "description": "string",
+        "completed": "boolean"
+      },
+      "response_body": {
+        "id": "integer",
+        "title": "string",
+        "description": "string",
+        "completed": "boolean",
+        "created_at": "string (ISO8601)",
+        "updated_at": "string (ISO8601)"
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/tasks/{id}",
+      "description": "Update an existing task owned by the authenticated user.",
+      "request_body": {
+        "title": "string",
+        "description": "string",
+        "completed": "boolean"
+      },
+      "response_body": {
+        "id": "integer",
+        "title": "string",
+        "description": "string",
+        "completed": "boolean",
+        "created_at": "string (ISO8601)",
+        "updated_at": "string (ISO8601)"
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/tasks/{id}",
+      "description": "Delete a task owned by the authenticated user.",
+      "request_body": null,
+      "response_body": {
+        "detail": "string"
+      }
+    }
+  ],
+  "database_schema": [
+    {
+      "table": "users",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "constraints": [
+            "PRIMARY KEY",
+            "AUTOINCREMENT"
+          ]
+        },
+        {
+          "name": "username",
+          "type": "VARCHAR(100)",
+          "constraints": [
+            "NOT NULL",
+            "UNIQUE"
+          ]
+        },
+        {
+          "name": "password_hash",
+          "type": "VARCHAR(255)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "NOT NULL",
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_users_username"
+      ]
+    },
+    {
+      "table": "tasks",
+      "columns": [
+        {
+          "name": "id",
+          "type": "INTEGER",
+          "constraints": [
+            "PRIMARY KEY",
+            "AUTOINCREMENT"
+          ]
+        },
+        {
+          "name": "user_id",
+          "type": "INTEGER",
+          "constraints": [
+            "NOT NULL",
+            "FOREIGN KEY references users(id) ON DELETE CASCADE"
+          ]
+        },
+        {
+          "name": "title",
+          "type": "VARCHAR(200)",
+          "constraints": [
+            "NOT NULL"
+          ]
+        },
+        {
+          "name": "description",
+          "type": "TEXT",
+          "constraints": []
+        },
+        {
+          "name": "completed",
+          "type": "BOOLEAN",
+          "constraints": [
+            "NOT NULL",
+            "DEFAULT FALSE"
+          ]
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "NOT NULL",
+            "DEFAULT NOW()"
+          ]
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP WITH TIME ZONE",
+          "constraints": [
+            "NOT NULL",
+            "DEFAULT NOW()"
+          ]
+        }
+      ],
+      "indexes": [
+        "idx_tasks_user_id",
+        "idx_tasks_user_id_completed"
+      ]
+    }
+  ],
+  "tech_stack": {
+    "backend": "Python 3.11, FastAPI, Pydantic v2",
+    "frontend": "None (backend-only)",
+    "database": "PostgreSQL 15+",
+    "cache": "Redis (optional, for future token revocation or rate limiting)",
+    "queue": "None (synchronous processing only)"
+  },
+  "deployment_strategy": "Containerized deployment via Docker; orchestrated using Kubernetes or Docker Compose for staging/production. CI/CD via GitHub Actions with automated testing, linting, and image build/push. Database migrations managed via Alembic.",
+  "security_considerations": [
+    "Password hashing using bcrypt via passlib",
+    "JWT tokens signed with HS256 and stored securely (HTTP-only cookies or bearer auth with short expiry)",
+    "All endpoints except /auth/register and /auth/login require valid JWT",
+    "SQL injection prevention via parameterized queries (SQLAlchemy ORM)",
+    "Input validation via Pydantic models",
+    "Rate limiting on auth endpoints (to be implemented via middleware)",
+    "HTTPS enforced in production"
+  ],
+  "scalability_notes": [
+    "Stateless API enables horizontal scaling",
+    "Database read replicas can be added for /tasks GET scalability",
+    "Connection pooling configured via SQLAlchemy and asyncpg",
+    "Caching layer (Redis) can be introduced for frequent task list queries",
+    "Task ownership scoping ensures data isolation and simplifies sharding strategies"
+  ]
+}

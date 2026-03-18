@@ -1,0 +1,76 @@
+{
+  "syntax_checks": [
+    {
+      "file": "email_validator.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "phone_number_formatter.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "validation_service.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "__init__.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_email_validator.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_email_validator.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_phone_number_formatter.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    },
+    {
+      "file": "test_validation_service.py",
+      "language": "python",
+      "status": "pass",
+      "errors": []
+    }
+  ],
+  "lint_results": [],
+  "build_result": {
+    "status": "skipped",
+    "reason": "No requirements.txt"
+  },
+  "test_results": [
+    {
+      "runner": "pytest",
+      "exit_code": 1,
+      "status": "fail",
+      "output": "......F..F.....                                                          [100%]\n=================================== FAILURES ===================================\n______________ TestPhoneNumberFormatter.test_format_invalid_phone ______________\ntests/test_phone_number_formatter.py:13: in test_format_invalid_phone\n    self.assertIsNone(PhoneNumberFormatter.format('12345678901'))\nE   AssertionError: '(234) 567-8901' is not None\n_______________ TestValidationService.test_format_phone_invalid ________________\ntests/test_validation_service.py:22: in test_format_phone_invalid\n    self.assertIsNone(ValidationService.format_phone('12345678901'))\nE   AssertionError: '(234) 567-8901' is not None\n=========================== short test summary info ============================\nFAILED tests/test_phone_number_formatter.py::TestPhoneNumberFormatter::test_format_invalid_phone\nFAILED tests/test_validation_service.py::TestValidationService::test_format_phone_invalid\n2 failed, 13 passed in 0.01s\n",
+      "summary_line": "2 failed, 13 passed in 0.01s"
+    }
+  ],
+  "summary": {
+    "grade": "C-",
+    "verdict": "Tests failed \u2014 implementation has issues",
+    "syntax": "8/8 files pass",
+    "lint_issues": 0,
+    "build": "skipped",
+    "tests": "fail"
+  },
+  "timestamp": "2026-03-09T06:46:12.253176",
+  "files_written": 9
+}

@@ -1,0 +1,81 @@
+{
+  "architecture_pattern": "Library/Module Pattern",
+  "summary": "A lightweight, extensible Python library that parses JSON configuration files and validates them against JSON Schema definitions, with support for custom validation rules and detailed error reporting. Designed as a reusable module with no external dependencies beyond standard libraries and jsonschema.",
+  "components": [
+    {
+      "name": "ConfigParser",
+      "type": "class",
+      "responsibility": "Reads and parses JSON files from disk or string input; handles malformed JSON with graceful error reporting.",
+      "technology": "Python standard library (json, pathlib)",
+      "interfaces": [
+        "parse_file(filepath: str) -> dict",
+        "parse_string(json_str: str) -> dict"
+      ]
+    },
+    {
+      "name": "SchemaValidator",
+      "type": "class",
+      "responsibility": "Validates parsed configuration against a JSON Schema; aggregates standard and custom validation errors.",
+      "technology": "jsonschema (Draft7Validator), functools",
+      "interfaces": [
+        "validate(config: dict, schema: dict) -> ValidationResult"
+      ]
+    },
+    {
+      "name": "ValidationResult",
+      "type": "dataclass",
+      "responsibility": "Encapsulates validation outcome including is_valid flag and list of ValidationError objects.",
+      "technology": "Python dataclass",
+      "interfaces": [
+        "is_valid: bool",
+        "errors: List[ValidationError]"
+      ]
+    },
+    {
+      "name": "ValidationError",
+      "type": "dataclass",
+      "responsibility": "Represents a single validation failure with path, message, and optional cause.",
+      "technology": "Python dataclass",
+      "interfaces": [
+        "path: str",
+        "message: str",
+        "cause: Optional[str]"
+      ]
+    },
+    {
+      "name": "CustomRuleRegistry",
+      "type": "class",
+      "responsibility": "Manages registration and execution of user-defined validation functions during schema validation.",
+      "technology": "Python dict + callable registry",
+      "interfaces": [
+        "register(rule_id: str, func: Callable[[dict], List[ValidationError]])",
+        "run_all(config: dict) -> List[ValidationError]"
+      ]
+    }
+  ],
+  "api_endpoints": [],
+  "database_schema": [],
+  "tech_stack": {
+    "backend": "Python 3.8+",
+    "frontend": "None",
+    "database": "None",
+    "cache": "None",
+    "queue": "None"
+  },
+  "deployment_strategy": "Distribute as PyPI package; install via pip. No runtime deployment \u2014 consumed as importable library.",
+  "security_considerations": [
+    "Input file paths are validated to prevent directory traversal (e.g., pathlib.Path.resolve() with strict checks)",
+    "JSON parsing uses standard json.loads() without eval or unsafe deserialization",
+    "No execution of arbitrary code from schemas or config files",
+    "Custom validation functions are user-provided and assumed trusted (no sandboxing)"
+  ],
+  "scalability_notes": [
+    "Designed for synchronous, single-config validation; not intended for high-throughput streaming",
+    "Memory usage scales linearly with JSON size; large files handled via streaming-aware parsing (not implemented but extensible)",
+    "Custom rules must be CPU-efficient to avoid blocking; no built-in async support but compatible with asyncio via wrapping",
+    "Extensible architecture allows plugging in alternative validators (e.g., fastjsonschema) without breaking core API"
+  ],
+  "project_id": "PROJ-20260309-063722",
+  "version": "1",
+  "spec_version": "1"
+}

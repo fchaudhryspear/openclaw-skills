@@ -1,0 +1,111 @@
+{
+  "files": [
+    {
+      "path": "main.py",
+      "language": "python",
+      "description": "Main entry point for the FastAPI application.",
+      "content": "from fastapi import FastAPI\nfrom app.routers import auth, users\nfrom app.db import init_db\n\napp = FastAPI()\n\n@app.on_event('startup')\nasync def startup_event():\n    await init_db()\n\napp.include_router(auth.router, prefix='/auth', tags=['auth'])\napp.include_router(users.router, prefix='/users', tags=['users'])"
+    },
+    {
+      "path": "app/routers/auth.py",
+      "language": "python",
+      "description": "Authentication router for handling user registration and login.",
+      "content": "from fastapi import APIRouter, Depends, HTTPException, status\nfrom fastapi.security import OAuth2PasswordRequestForm\nfrom sqlalchemy.ext.asyncio import AsyncSession\nfrom app.schemas import UserCreate, Token\nfrom app.crud import create_user, get_user_by_email\nfrom app.security import authenticate_user, create_access_token, get_current_user\nfrom app.db import get_session\n\nrouter = APIRouter()\n\n@router.post('/register', response_model=UserCreate)\nasync def register_user(user: UserCreate, session: AsyncSession = Depends(get_session)):\n    existing_user = await get_user_by_email(session, user.email)\n    if existing_user:\n        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Email already registered')\n    return await create_user(session, user.email, user.password)\n\n@router.post('/login', response_model=Token)\nasync def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), session: AsyncSession = Depends(get_session)):\n    user = await authenticate_user(session, form_data.username, form_data.password)\n    if not user:\n        raise HTTPException(\n            status_code=status.HTTP_401_UNAUTHORIZED,\n            detail='Incorrect username or password',\n            headers={'WWW-Authenticate': 'Bearer'},\n        )\n    access_token = create_access_token(data={'sub': user.email})\n    return {'access_token': access_token, 'token_type': 'bearer'}"
+    },
+    {
+      "path": "app/routers/users.py",
+      "language": "python",
+      "description": "User router for handling user profile retrieval.",
+      "content": "from fastapi import APIRouter, Depends\nfrom app.schemas import User\nfrom app.security import get_current_user\n\nrouter = APIRouter()\n\n@router.get('/me', response_model=User)\nasync def read_users_me(current_user: User = Depends(get_current_user)):\n    return current_user"
+    },
+    {
+      "path": "app/schemas.py",
+      "language": "python",
+      "description": "Pydantic schemas for user data and tokens.",
+      "content": "from datetime import datetime, timedelta\nfrom pydantic import BaseModel, EmailStr, Field\nfrom jose import jwt\nfrom passlib.context import CryptContext\nfrom app.config import settings\n\npwd_context = CryptContext(schemes=[\"bcrypt\"], deprecated=\"auto\")\n\nclass UserBase(BaseModel):\n    email: EmailStr\n\nclass UserCreate(UserBase):\n    password: str = Field(..., min_length=8)\n\nclass User(UserBase):\n    id: int\n    created_at: datetime\n\nclass Token(BaseModel):\n    access_token: str\n    token_type: str\n\n    @classmethod\n    def create(cls, sub: str):\n        payload = {\n            'sub': sub,\n            'exp': datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)\n        }\n        access_token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)\n        return cls(access_token=access_token, token_type='bearer')\n\nclass TokenData(BaseModel):\n    email: EmailStr"
+    },
+    {
+      "path": "app/crud.py",
+      "language": "python",
+      "description": "CRUD operations for user management.",
+      "content": "from sqlalchemy.ext.asyncio import AsyncSession\nfrom sqlmodel import select\nfrom app.models import User\nfrom app.schemas import UserCreate\nfrom app.security import pwd_context\n\nasync def create_user(session: AsyncSession, email: str, password: str) -> User:\n    hashed_password = pwd_context.hash(password)\n    user = User(email=email, hashed_password=hashed_password)\n    session.add(user)\n    await session.commit()\n    await session.refresh(user)\n    return user\n\nasync def get_user_by_email(session: AsyncSession, email: str) -> User | None:\n    result = await session.execute(select(User).where(User.email == email))\n    return result.scalar_one_or_none()\n\nasync def get_user_by_id(session: AsyncSession, user_id: int) -> User | None:\n    result = await session.execute(select(User).where(User.id == user_id))\n    return result.scalar_one_or_none()"
+    },
+    {
+      "path": "app/models.py",
+      "language": "python",
+      "description": "SQLAlchemy models for the database.",
+      "content": "from datetime import datetime\nfrom sqlmodel import SQLModel, Field\n\nclass User(SQLModel, table=True):\n    id: int = Field(default=None, primary_key=True)\n    email: str = Field(index=True, unique=True, nullable=False)\n    hashed_password: str = Field(nullable=False)\n    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)"
+    },
+    {
+      "path": "app/security.py",
+      "language": "python",
+      "description": "Security utilities for authentication and authorization.",
+      "content": "from datetime import datetime, timedelta\nfrom fastapi import Depends, HTTPException, status\nfrom fastapi.security import OAuth2PasswordBearer\nfrom jose import JWTError, jwt\nfrom pydantic import ValidationError\nfrom sqlalchemy.ext.asyncio import AsyncSession\nfrom app.schemas import TokenData, User\nfrom app.crud import get_user_by_email\nfrom app.db import get_session\nfrom app.config import settings\nfrom app.schemas import pwd_context\n\noauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/login')\n\nasync def authenticate_user(session: AsyncSession, email: str, password: str) -> User | None:\n    user = await get_user_by_email(session, email)\n    if not user or not pwd_context.verify(password, user.hashed_password):\n        return None\n    return user\n\ndef create_access_token(data: dict):\n    to_encode = data.copy()\n    expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)\n    to_encode.update({'exp': expire})\n    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)\n    return encoded_jwt\n\nasync def get_current_user(token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)) -> User:\n    credentials_exception = HTTPException(\n        status_code=status.HTTP_401_UNAUTHORIZED,\n        detail='Could not validate credentials',\n        headers={'WWW-Authenticate': 'Bearer'},\n    )\n    try:\n        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])\n        email: str = payload.get('sub')\n        if email is None:\n            raise credentials_exception\n        token_data = TokenData(email=email)\n    except (JWTError, ValidationError):\n        raise credentials_exception\n    user = await get_user_by_email(session, email=token_data.email)\n    if user is None:\n        raise credentials_exception\n    return user"
+    },
+    {
+      "path": "app/db.py",
+      "language": "python",
+      "description": "Database initialization and session management.",
+      "content": "from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine\nfrom sqlalchemy.orm import sessionmaker\nfrom sqlmodel import SQLModel\nfrom app.models import User\nfrom app.config import settings\n\nDATABASE_URL = f\"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}/{settings.POSTGRES_DB}\"\n\nengine = create_async_engine(DATABASE_URL, echo=True)\n\nasync_session = sessionmaker(\n    engine, class_=AsyncSession, expire_on_commit=False\n)\n\nasync def init_db():\n    async with engine.begin() as conn:\n        await conn.run_sync(SQLModel.metadata.create_all)\n\nasync def get_session() -> AsyncSession:\n    async with async_session() as session:\n        yield session"
+    },
+    {
+      "path": "app/config.py",
+      "language": "python",
+      "description": "Configuration settings for the application.",
+      "content": "from pydantic import BaseSettings\n\nclass Settings(BaseSettings):\n    POSTGRES_USER: str\n    POSTGRES_PASSWORD: str\n    POSTGRES_HOST: str\n    POSTGRES_DB: str\n    SECRET_KEY: str\n    ALGORITHM: str\n    ACCESS_TOKEN_EXPIRE_MINUTES: int\n\n    class Config:\n        env_file = \".env\"\n\nsettings = Settings()"
+    },
+    {
+      "path": ".env",
+      "language": "plaintext",
+      "description": "Environment variables for the application.",
+      "content": "POSTGRES_USER=your_postgres_user\nPOSTGRES_PASSWORD=your_postgres_password\nPOSTGRES_HOST=localhost\nPOSTGRES_DB=your_database_name\nSECRET_KEY=your_secret_key\nALGORITHM=HS256\nACCESS_TOKEN_EXPIRE_MINUTES=30"
+    },
+    {
+      "path": "tests/test_auth.py",
+      "language": "python",
+      "description": "Test cases for authentication endpoints.",
+      "content": "from fastapi.testclient import TestClient\nfrom app.main import app\nfrom app.db import init_db\nfrom app.models import User\nfrom app.schemas import UserCreate\nfrom app.security import pwd_context\nfrom sqlalchemy.ext.asyncio import AsyncSession\nfrom app.db import get_session\nimport pytest\n\n@pytest.fixture(scope='module')\nasync def client() -> TestClient:\n    async with TestClient(app) as client:\n        await init_db()\n        yield client\n\n@pytest.fixture(scope='module')\nasync def test_user(client: TestClient) -> User:\n    user_data = UserCreate(email='test@example.com', password='password123')\n    response = client.post('/auth/register', json=user_data.dict())\n    assert response.status_code == 200\n    return User(**response.json())\n\nasync def override_get_session() -> AsyncSession:\n    async with AsyncSession(bind=engine) as session:\n        yield session\n\napp.dependency_overrides[get_session] = override_get_session\n\ndef test_register_user(client: TestClient):\n    user_data = UserCreate(email='newuser@example.com', password='password123')\n    response = client.post('/auth/register', json=user_data.dict())\n    assert response.status_code == 200\n    assert response.json()['email'] == user_data.email\n\n\ndef test_login_user(client: TestClient, test_user: User):\n    response = client.post('/auth/login', data={'username': test_user.email, 'password': 'password123'})\n    assert response.status_code == 200\n    assert 'access_token' in response.json()\n    assert response.json()['token_type'] == 'bearer'"
+    },
+    {
+      "path": "tests/test_crud.py",
+      "language": "python",
+      "description": "Test cases for CRUD operations.",
+      "content": "from fastapi.testclient import TestClient\nfrom app.main import app\nfrom app.db import init_db\nfrom app.models import User\nfrom app.schemas import UserCreate\nfrom app.security import pwd_context\nfrom sqlalchemy.ext.asyncio import AsyncSession\nfrom app.db import get_session\nimport pytest\n\n@pytest.fixture(scope='module')\nasync def client() -> TestClient:\n    async with TestClient(app) as client:\n        await init_db()\n        yield client\n\n@pytest.fixture(scope='module')\nasync def test_user(client: TestClient) -> User:\n    user_data = UserCreate(email='test@example.com', password='password123')\n    response = client.post('/auth/register', json=user_data.dict())\n    assert response.status_code == 200\n    return User(**response.json())\n\nasync def override_get_session() -> AsyncSession:\n    async with AsyncSession(bind=engine) as session:\n        yield session\n\napp.dependency_overrides[get_session] = override_get_session\n\ndef test_create_user(test_user: User):\n    assert test_user.email == 'test@example.com'\n    assert pwd_context.verify('password123', test_user.hashed_password)\n\ndef test_get_user_by_email(test_user: User, client: TestClient):\n    response = client.post('/auth/login', data={'username': test_user.email, 'password': 'password123'})\n    assert response.status_code == 200\n    token = response.json()['access_token']\n    headers = {'Authorization': f'Bearer {token}'}\n    response = client.get('/users/me', headers=headers)\n    assert response.status_code == 200\n    assert response.json()['email'] == test_user.email"
+    }
+  ],
+  "test_files": [
+    {
+      "path": "tests/test_auth.py",
+      "language": "python",
+      "description": "Tests for authentication endpoints.",
+      "content": "from fastapi.testclient import TestClient\nfrom app.main import app\nfrom app.db import init_db\nfrom app.models import User\nfrom app.schemas import UserCreate\nfrom app.security import pwd_context\nfrom sqlalchemy.ext.asyncio import AsyncSession\nfrom app.db import get_session\nimport pytest\n\n@pytest.fixture(scope='module')\nasync def client() -> TestClient:\n    async with TestClient(app) as client:\n        await init_db()\n        yield client\n\n@pytest.fixture(scope='module')\nasync def test_user(client: TestClient) -> User:\n    user_data = UserCreate(email='test@example.com', password='password123')\n    response = client.post('/auth/register', json=user_data.dict())\n    assert response.status_code == 200\n    return User(**response.json())\n\nasync def override_get_session() -> AsyncSession:\n    async with AsyncSession(bind=engine) as session:\n        yield session\n\napp.dependency_overrides[get_session] = override_get_session\n\ndef test_register_user(client: TestClient):\n    user_data = UserCreate(email='newuser@example.com', password='securepassword123')\n    response = client.post('/auth/register', json=user_data.dict())\n    assert response.status_code == 200\n    assert response.json()['email'] == user_data.email\n\n    # Attempt to register the same user again\n    response = client.post('/auth/register', json=user_data.dict())\n    assert response.status_code == 400\n    assert response.json()['detail'] == 'Email already registered'\n\ndef test_login_for_access_token(client: TestClient, test_user: User):\n    response = client.post('/auth/login', data={'username': test_user.email, 'password': 'password123'})\n    assert response.status_code == 200\n    assert 'access_token' in response.json()\n    assert response.json()['token_type'] == 'bearer'\n\n    # Incorrect password\n    response = client.post('/auth/login', data={'username': test_user.email, 'password': 'wrongpassword'})\n    assert response.status_code == 401\n    assert response.json()['detail'] == 'Incorrect username or password'\n"
+    },
+    {
+      "path": "tests/test_crud.py",
+      "language": "python",
+      "description": "Tests for CRUD operations.",
+      "content": "from app.crud import create_user, get_user_by_email, get_user_by_id\nfrom app.models import User\nfrom app.schemas import UserCreate\nfrom app.security import pwd_context\nfrom sqlalchemy.ext.asyncio import AsyncSession\nfrom app.db import get_session\nimport pytest\n\n@pytest.fixture(scope='module')\nasync def session() -> AsyncSession:\n    async with AsyncSession(bind=engine) as session:\n        yield session\n\nasync def test_create_user(session: AsyncSession):\n    user_data = UserCreate(email='testcrud@example.com', password='password123')\n    user = await create_user(session, user_data.email, user_data.password)\n    assert user.email == user_data.email\n    assert pwd_context.verify(user_data.password, user.hashed_password)\n\nasync def test_get_user_by_email(session: AsyncSession):\n    user_data = UserCreate(email='testgetbyemail@example.com', password='password123')\n    user = await create_user(session, user_data.email, user_data.password)\n    retrieved_user = await get_user_by_email(session, user_data.email)\n    assert retrieved_user.id == user.id\n    assert retrieved_user.email == user.email\n\nasync def test_get_user_by_id(session: AsyncSession):\n    user_data = UserCreate(email='testgetbyid@example.com', password='password123')\n    user = await create_user(session, user_data.email, user_data.password)\n    retrieved_user = await get_user_by_id(session, user.id)\n    assert retrieved_user.id == user.id\n    assert retrieved_user.email == user.email\n"
+    }
+  ],
+  "dependencies": {
+    "fastapi": "^0.95.0",
+    "sqlmodel": "^0.0.7",
+    "pydantic": "^2.0.0",
+    "python-jose[cryptography]": "^3.3.0",
+    "bcrypt": "^3.2.2",
+    "asyncpg": "^0.27.0",
+    "aiosqlite": "^0.18.0",
+    "pytest": "^7.2.1",
+    "pytest-asyncio": "^0.20.3"
+  },
+  "build_commands": [
+    "pip install -r requirements.txt"
+  ],
+  "run_commands": [
+    "uvicorn app.main:app --reload"
+  ],
+  "environment_variables": [
+    "SECRET_KEY",
+    "DATABASE_URL"
+  ]
+}

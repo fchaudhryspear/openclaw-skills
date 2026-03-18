@@ -1,0 +1,12 @@
+WORKER 6 - Batch 528: 5 hit(s)
+File: WDE002792.pdf
+Date: 2026-03-18T21:01:07Z
+
+=== HITS ===
+7:To: Jacqueline Catala <jacqueline@forgeadvisors.io>
+28:To: Jacqueline Catala <jacqueline@forgeadvisors.io>
+34:From: Jacqueline Catala < jacqueline@forgeadvisors.io>
+45:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+50:To: "Jacqueline Catala (FORGE)" < jacqueline@forgeadvisors.io>
+
+FLAGGED: forgeadvisors/jacqueline@forge match

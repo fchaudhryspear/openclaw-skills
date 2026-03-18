@@ -1,0 +1,17 @@
+WORKER 6 - Batch 512: 10 hit(s)
+File: WDE002645.pdf
+Date: 2026-03-18T21:01:05Z
+
+=== HITS ===
+7:To: Jennifer Robison - FORGE <jennifer@forgeadvisors.io>, Jacqueline Catala
+8:<jacqueline@forgeadvisors.io>
+24:From: Jennifer Robison - FORGE <jennifer@forgeadvisors.io>
+26:To: Jacqueline Catala <jacqueline@forgeadvisors.io>; Helj, Adrian <adrian.helj@lumen.com>
+38:jennifer@forgeadvisors.io
+40:From: Jacqueline Catala <jacqueline@forgeadvisors.io>
+42:To: Jennifer Robison - FORGE <jennifer@forgeadvisors.io>; Adi Heji (Lumen)
+56:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+67:<adrian.helj@lumen.com>, "Jacqueline Catala (FORGE)" < jacqueline@forgeadvisors.io>, Jennifer
+68:Jackson-Robison <jennifer@forgeadvisors.io>
+
+FLAGGED: forgeadvisors/jacqueline@forge match

@@ -22,14 +22,14 @@ from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass, field, asdict
 
-from contracts import (
+from .contracts import (
     AgentRole, ArtifactStatus, ArtifactStore,
     SpecificationDocument, ArchitectureDesign, Implementation, QAReport
 )
-from pm_agent import PMAgent
-from architect_agent import ArchitectAgent
-from test_gen_agent import TestGenAgent
-from qa_agent import QAEngineer
+from .pm_agent import PMAgent
+from .architect_agent import ArchitectAgent
+from .test_gen_agent import TestGenAgent
+from .qa_agent import QAEngineer
 
 
 class PipelineStage(Enum):
@@ -141,10 +141,11 @@ class SDLCPipeline:
     Manages the flow: Intake → PM → [Review] → Architect → [Review] → Developer → QA → [Review] → Deploy
     """
     
-    def __init__(self, auto_approve: bool = False):
+    def __init__(self, auto_approve: bool = False, llm_mode: bool = False):
         self.store = ArtifactStore()
         self.projects: Dict[str, Project] = {}
         self.auto_approve = auto_approve  # Skip human review gates
+        self.llm_mode = llm_mode  # Use LLM-powered agents when True
         self.project_db_path = Path.home() / ".openclaw" / "workspace" / "nexdev" / "projects" / "pipeline.json"
         
         # Initialize agents
@@ -226,6 +227,28 @@ class SDLCPipeline:
             raise ValueError(f"Project {project_id} not found")
         
         current = PipelineStage(project.current_stage)
+
+        # Handle BLOCKED state: find the last review gate and re-enter it
+        if current == PipelineStage.BLOCKED and approval:
+            # Find the last review gate from events
+            review_stages = {s.value for s in HUMAN_REVIEW_GATES}
+            last_gate = None
+            for event in reversed(project.events):
+                if event.get("stage") in review_stages and event.get("action") == "blocked":
+                    last_gate = PipelineStage(event["stage"])
+                    break
+            if last_gate:
+                project.current_stage = last_gate.value
+                current = last_gate
+            else:
+                # Fallback: check review_gates for first pending one
+                for gate_stage in [PipelineStage.REQUIREMENTS_REVIEW, PipelineStage.DESIGN_REVIEW, PipelineStage.QA_REVIEW]:
+                    gate_data = project.review_gates.get(gate_stage.value, {})
+                    if gate_data.get("status") == "pending":
+                        project.current_stage = gate_stage.value
+                        current = gate_stage
+                        break
+
         
         # Handle review gates
         if current in HUMAN_REVIEW_GATES:
@@ -321,18 +344,44 @@ class SDLCPipeline:
                                     f"Stage {next_stage.value} completed",
                                     duration_ms=duration)
                     
-                    # Check if what comes AFTER this is a review gate
+                    # Advance to the next stage after this one
                     after_next = STAGE_TRANSITIONS.get(next_stage)
                     if after_next:
-                        project.current_stage = after_next.value
-                        if after_next in HUMAN_REVIEW_GATES and self.auto_approve:
-                            project.review_gates[after_next.value] = {
-                                "status": "auto_approved", "reviewer": "pipeline", "notes": "Auto-approved"
-                            }
-                            project.add_event(after_next.value, "approved", "pipeline",
-                                            "Auto-approved (auto_approve=True)")
-                            self._save_projects()
-                            return self.advance(project.id, approval="approve")
+                        if after_next in HUMAN_REVIEW_GATES:
+                            # Next is a review gate — park here for approval
+                            project.current_stage = after_next.value
+                            if self.auto_approve:
+                                project.review_gates[after_next.value] = {
+                                    "status": "auto_approved", "reviewer": "pipeline", "notes": "Auto-approved"
+                                }
+                                project.add_event(after_next.value, "approved", "pipeline",
+                                                "Auto-approved (auto_approve=True)")
+                                self._save_projects()
+                                return self.advance(project.id, approval="approve")
+                        else:
+                            # Next is a production stage — execute it inline
+                            project.current_stage = after_next.value
+                            project.add_event(after_next.value, "started",
+                                            STAGE_AGENTS.get(after_next, AgentRole.PM).value,
+                                            f"Starting {after_next.value}")
+                            start2 = time.time()
+                            try:
+                                result2 = self._execute_stage(project, after_next)
+                                dur2 = (time.time() - start2) * 1000
+                                project.add_event(after_next.value, "completed",
+                                                STAGE_AGENTS.get(after_next, AgentRole.PM).value,
+                                                f"Stage {after_next.value} completed",
+                                                duration_ms=dur2)
+                                # Continue chain for whatever comes after
+                                after_after = STAGE_TRANSITIONS.get(after_next)
+                                if after_after:
+                                    project.current_stage = after_after.value
+                            except Exception as e2:
+                                project.current_stage = PipelineStage.FAILED.value
+                                project.error = str(e2)
+                                project.add_event(after_next.value, "error",
+                                                STAGE_AGENTS.get(after_next, AgentRole.PM).value,
+                                                f"Error: {str(e2)}")
                     
                 except Exception as e:
                     project.current_stage = PipelineStage.FAILED.value
@@ -366,8 +415,245 @@ class SDLCPipeline:
         self._save_projects()
         return project
     
+    def _execute_stage_llm(self, project: Project, stage: PipelineStage) -> Dict:
+        """Execute a pipeline stage using LLM-powered agents via MO routing."""
+        from .agent_engine import create_agent, get_system_prompt
+        
+        if stage == PipelineStage.REQUIREMENTS:
+            agent = create_agent("product_manager", project.id)
+            prompt = f"Generate a complete software specification for:\n\n{project.raw_request}"
+            result = agent.ask_json(prompt, get_system_prompt("product_manager"))
+            
+            if "data" in result:
+                spec_data = result["data"]
+                spec_data.setdefault("project_id", project.id)
+                spec_data.setdefault("version", "1")
+                self.store.save_artifact(project.id, "specs", "1", spec_data)
+                project.spec_version = "1"
+                project.total_cost += result.get("cost", 0)
+                project.model_used[stage.value] = result.get("model", "unknown")
+                return {"spec": spec_data}
+            else:
+                # Fallback to rule-based
+                return self._execute_stage_rules(project, stage)
+        
+        elif stage == PipelineStage.DESIGN:
+            spec_data = self.store.load_artifact(project.id, "specs", project.spec_version)
+            if not spec_data:
+                raise ValueError("No specification found")
+            
+            agent = create_agent("architect", project.id)
+            prompt = f"Design the system architecture for this specification:\n\n{json.dumps(spec_data, indent=2)}"
+            result = agent.ask_json(prompt, get_system_prompt("architect"))
+            
+            if "data" in result:
+                design_data = result["data"]
+                design_data.setdefault("project_id", project.id)
+                design_data.setdefault("version", "1")
+                design_data.setdefault("spec_version", project.spec_version)
+                self.store.save_artifact(project.id, "design", "1", design_data)
+                project.design_version = "1"
+                project.total_cost += result.get("cost", 0)
+                project.model_used[stage.value] = result.get("model", "unknown")
+                return {"design": design_data}
+            else:
+                return self._execute_stage_rules(project, stage)
+        
+        elif stage == PipelineStage.DEVELOPMENT:
+            design_data = self.store.load_artifact(project.id, "design", project.design_version)
+            if not design_data:
+                raise ValueError("No architecture design found")
+            
+            agent = create_agent("developer", project.id)
+            prompt = f"Generate production-ready implementation code for this architecture:\n\n{json.dumps(design_data, indent=2)}"
+            result = agent.ask_json(prompt, get_system_prompt("developer"))
+            
+            if "data" in result:
+                impl_data = result["data"]
+                self.store.save_artifact(project.id, "impl", "1", impl_data)
+                project.impl_version = "1"
+                project.total_cost += result.get("cost", 0)
+                project.model_used[stage.value] = result.get("model", "unknown")
+                return impl_data
+            else:
+                return self._execute_stage_rules(project, stage)
+        
+        elif stage == PipelineStage.TESTING:
+            impl_data = self.store.load_artifact(project.id, "impl", project.impl_version)
+            if not impl_data:
+                raise ValueError("No implementation found")
+            
+            from .build_runner import verify_implementation
+            MAX_FIX_ROUNDS = 3
+            qa_data = None
+            
+            for fix_round in range(MAX_FIX_ROUNDS + 1):
+                round_label = f"round {fix_round}" if fix_round > 0 else "initial"
+                project.add_event("testing", "started" if fix_round == 0 else "fix_round",
+                                "qa", f"Testing {round_label}")
+                
+                # Step 1: Generate tests via LLM
+                all_code = "\n".join(f.get("content", "") for f in impl_data.get("files", []))
+                file_manifest = "\n".join(
+                    f"- {f['path']} ({f.get('language','?')})" for f in impl_data.get("files", [])
+                )
+                
+                test_agent = create_agent("test_engineer", project.id)
+                test_prompt = (
+                    "Generate comprehensive pytest test files for this code.\n"
+                    "IMPORTANT: Use the EXACT module paths shown in the file manifest below.\n"
+                    "Output JSON with: test_files (array of {path, language, description, content}).\n"
+                    "Write REAL tests with real assertions — not stubs or placeholders.\n\n"
+                    f"FILE MANIFEST:\n{file_manifest}\n\n"
+                    f"SOURCE CODE:\n{all_code[:8000]}"
+                )
+                test_result = test_agent.ask_json(test_prompt,
+                    "You are a senior test engineer. Write thorough pytest tests. "
+                    "Import from the EXACT file paths listed in the manifest.")
+                
+                if "data" in test_result:
+                    new_tests = test_result["data"].get("test_files", [])
+                    if new_tests:
+                        impl_data["test_files"] = new_tests
+                        self.store.save_artifact(project.id, "impl", project.impl_version, impl_data)
+                    project.total_cost += test_result.get("cost", 0)
+                    project.model_used["test_generation"] = test_result.get("model", "unknown")
+                
+                # Step 2: Build verification & test execution
+                build_results = verify_implementation(impl_data)
+                report_ver = str(fix_round + 1)
+                self.store.save_artifact(project.id, "build_report", report_ver, build_results)
+                
+                # Step 3: QA analysis
+                qa_agent = create_agent("qa_engineer", project.id)
+                qa_prompt = (
+                    "Analyze these build and test results. Provide a QA assessment.\n"
+                    "Output JSON with: recommendation (ship_it|fix_required|major_rework), "
+                    "blocking_issues (array), non_blocking_issues (array), "
+                    "security_concerns (array), quality_score (0-100).\n\n"
+                    f"Build grade: {build_results['summary']['grade']}\n"
+                    f"Verdict: {build_results['summary']['verdict']}\n"
+                    f"Syntax: {json.dumps(build_results['syntax_checks'], indent=2)[:1500]}\n"
+                    f"Lint: {json.dumps(build_results['lint_results'], indent=2)[:1000]}\n"
+                    f"Tests: {json.dumps(build_results['test_results'], indent=2)[:1500]}"
+                )
+                qa_result = qa_agent.ask_json(qa_prompt, get_system_prompt("qa_engineer"))
+                
+                if "data" in qa_result:
+                    qa_data = qa_result["data"]
+                    qa_data["build_verification"] = build_results["summary"]
+                    qa_data["project_id"] = project.id
+                    qa_data["fix_round"] = fix_round
+                    project.total_cost += qa_result.get("cost", 0)
+                    project.model_used["qa"] = qa_result.get("model", "unknown")
+                else:
+                    qa_data = {
+                        "project_id": project.id,
+                        "fix_round": fix_round,
+                        "recommendation": "fix_required" if build_results["summary"]["grade"] in ("D", "F") else "ship_it",
+                        "build_verification": build_results["summary"],
+                        "blocking_issues": [s["errors"][0] for s in build_results["syntax_checks"] if s["status"] == "fail"],
+                        "non_blocking_issues": [],
+                        "quality_score": 0,
+                    }
+                
+                # Check if we can ship
+                rec = qa_data.get("recommendation", "fix_required")
+                grade = build_results["summary"].get("grade", "F")
+                
+                if rec == "ship_it" or grade in ("A", "B+", "B"):
+                    project.add_event("testing", "passed", "qa",
+                                    f"QA passed ({round_label}): grade={grade}, score={qa_data.get('quality_score', '?')}")
+                    break
+                
+                # If last round, accept whatever we have
+                if fix_round >= MAX_FIX_ROUNDS:
+                    project.add_event("testing", "max_retries", "qa",
+                                    f"Max fix rounds reached ({MAX_FIX_ROUNDS}). Grade: {grade}")
+                    break
+                
+                # Fix loop: send failures back to developer
+                project.add_event("testing", "fix_requested", "qa",
+                                f"Round {fix_round}: grade={grade}, sending back to developer")
+                
+                dev_agent = create_agent("developer", project.id)
+                blocking = qa_data.get("blocking_issues", [])
+                syntax_errors = [s for s in build_results["syntax_checks"] if s["status"] == "fail"]
+                test_failures = [t.get("output", "")[:500] for t in build_results["test_results"] if t.get("status") == "fail"]
+                
+                fix_prompt = (
+                    "The code has issues that need fixing. Here are the problems:\n\n"
+                    f"BUILD GRADE: {grade}\n"
+                    f"BLOCKING ISSUES: {json.dumps(blocking[:5])}\n"
+                    f"SYNTAX ERRORS: {json.dumps([{'file': s['file'], 'error': s['errors'][0][:200]} for s in syntax_errors])}\n"
+                    f"TEST FAILURES:\n{''.join(test_failures[:3])}\n\n"
+                    f"CURRENT CODE:\n{all_code[:6000]}\n\n"
+                    "Fix ALL issues. Output the complete corrected implementation as JSON with: "
+                    "files (array of {path, language, description, content}).\n"
+                    "Return ALL files, not just the changed ones."
+                )
+                fix_result = dev_agent.ask_json(fix_prompt,
+                    "You are a senior developer. Fix the reported bugs. Return complete working code.")
+                
+                if "data" in fix_result:
+                    fixed_files = fix_result["data"].get("files", [])
+                    if fixed_files:
+                        impl_data["files"] = fixed_files
+                        impl_data["test_files"] = []  # Clear old tests, will regenerate
+                        new_ver = str(int(project.impl_version or "1") + 1)
+                        project.impl_version = new_ver
+                        self.store.save_artifact(project.id, "impl", new_ver, impl_data)
+                        project.total_cost += fix_result.get("cost", 0)
+                        project.model_used[f"fix_round_{fix_round + 1}"] = fix_result.get("model", "unknown")
+                        project.add_event("testing", "code_fixed", "developer",
+                                        f"Developer fixed code (v{new_ver}), {len(fixed_files)} files")
+                    else:
+                        project.add_event("testing", "fix_empty", "developer",
+                                        "Developer returned no files, stopping fix loop")
+                        break
+                else:
+                    project.add_event("testing", "fix_failed", "developer",
+                                    f"Developer fix failed: {fix_result.get('error', '?')[:100]}")
+                    break
+            
+            # Save final QA report
+            self.store.save_artifact(project.id, "qa", "1", qa_data)
+            project.qa_version = "1"
+            return qa_data
+        
+        elif stage == PipelineStage.DEPLOYMENT:
+            self.store.save_artifact(project.id, "deploy", "1", {
+                "deployed_at": datetime.now().isoformat(),
+                "status": "success",
+                "impl_version": project.impl_version,
+                "qa_version": project.qa_version,
+            })
+            return {"status": "deployed"}
+        
+        # Review gates and others fall through to rules
+        return self._execute_stage_rules(project, stage)
+
+
+    def _execute_stage_rules(self, project, stage):
+        """Execute stage using rule-based agents (no LLM)."""
+        saved = self.llm_mode
+        self.llm_mode = False
+        try:
+            return self._execute_stage(project, stage)
+        finally:
+            self.llm_mode = saved
+
     def _execute_stage(self, project: Project, stage: PipelineStage) -> Dict:
         """Execute a pipeline stage using the appropriate agent."""
+        # Route to LLM or rule-based execution
+        if self.llm_mode and stage not in (PipelineStage.REQUIREMENTS_REVIEW, PipelineStage.DESIGN_REVIEW, PipelineStage.QA_REVIEW):
+            try:
+                return self._execute_stage_llm(project, stage)
+            except Exception as e:
+                # Fallback to rules on LLM failure
+                project.add_event(stage.value, "llm_fallback", "pipeline",
+                                f"LLM failed ({e}), falling back to rules")
+        
         
         if stage == PipelineStage.REQUIREMENTS:
             # PM Agent: raw request → spec
@@ -387,7 +673,7 @@ class SDLCPipeline:
                 raise ValueError("No specification found for project")
             
             # Reconstruct spec from stored data
-            from contracts import UserStory, NonFunctionalRequirement
+            from .contracts import UserStory, NonFunctionalRequirement
             spec = SpecificationDocument(
                 project_id=spec_data["project_id"],
                 version=spec_data["version"],

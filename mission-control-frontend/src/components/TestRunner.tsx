@@ -7,12 +7,14 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { Paper, Typography, Button, CircularProgress, Alert, Box, List, ListItem, ListItemIcon, ListItemText, Chip, Collapse, LinearProgress } from '@mui/material';
+import { Paper, Typography, Button, CircularProgress, Alert, Box, List, ListItem, ListItemIcon, ListItemText, Chip, Collapse, LinearProgress, Tabs, Tab } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import SecurityIcon from '@mui/icons-material/Security';
+import SpeedIcon from '@mui/icons-material/Speed';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
@@ -38,8 +40,15 @@ const TestRunner: React.FC = () => {
   const [liveTests, setLiveTests] = useState<TestResult[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [expandedTest, setExpandedTest] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
+
+  // Security test state
+  const [secRunResult, setSecRunResult] = useState<TestRunResult | null>(null);
+  const [secLiveTests, setSecLiveTests] = useState<TestResult[]>([]);
+  const [secIsRunning, setSecIsRunning] = useState(false);
 
   const testNames = ['Cognito', 'SecurityHub', 'Snowflake'];
+  const secTestNames = ['CloudTrail Multi-Region', 'EBS Snapshot Public Access', 'S3 Public Access Blocks', 'Critical/High Findings', 'IAM Password Policy', 'CloudTrail Encryption', 'Cognito MFA'];
 
   const runTests = useMutation({
     mutationFn: async () => {
@@ -67,9 +76,8 @@ const TestRunner: React.FC = () => {
 
       // Animate results coming in one by one
       for (let i = 0; i < data.results.length; i++) {
-        const updated = [...animatedTests];
-        updated[i] = data.results[i];
-        setLiveTests([...updated]);
+        animatedTests[i] = data.results[i];
+        setLiveTests([...animatedTests]);
         await new Promise(r => setTimeout(r, 500));
       }
 
@@ -79,6 +87,42 @@ const TestRunner: React.FC = () => {
     },
     onError: () => {
       setIsRunning(false);
+    },
+  });
+
+  const runSecurityTests = useMutation({
+    mutationFn: async () => {
+      setSecIsRunning(true);
+      setSecRunResult(null);
+      setSecLiveTests([]);
+
+      const animatedTests: TestResult[] = [];
+      for (const name of secTestNames) {
+        animatedTests.push({ name, status: 'RUNNING' });
+        setSecLiveTests([...animatedTests]);
+        await new Promise(r => setTimeout(r, 200));
+      }
+
+      const { tokens } = await fetchAuthSession();
+      const res = await fetch(import.meta.env.VITE_API_URL + 'run-security-tests', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${tokens?.idToken?.toString()}` }
+      });
+      if (!res.ok) throw new Error('Failed to run security tests');
+      const data: TestRunResult = await res.json();
+
+      for (let i = 0; i < data.results.length; i++) {
+        animatedTests[i] = data.results[i];
+        setSecLiveTests([...animatedTests]);
+        await new Promise(r => setTimeout(r, 400));
+      }
+
+      setSecRunResult(data);
+      setSecIsRunning(false);
+      return data;
+    },
+    onError: () => {
+      setSecIsRunning(false);
     },
   });
 
@@ -102,19 +146,27 @@ const TestRunner: React.FC = () => {
     }
   };
 
-  const allDone = runResult !== null;
-  const overallStatus = allDone
-    ? (runResult.failed > 0 ? 'FAILED' : 'PASSED')
-    : (isRunning ? 'RUNNING' : 'IDLE');
 
-  return (
-    <Paper sx={{ p: 3 }}>
+  // Helper to render a test suite panel
+  const renderTestPanel = (
+    result: TestRunResult | null,
+    tests: TestResult[],
+    running: boolean,
+    onRun: () => void,
+    error: Error | null,
+    label: string,
+    icon: React.ReactNode,
+  ) => (
+    <Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5">Test Runner</Typography>
-        {allDone && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {icon}
+          <Typography variant="h6">{label}</Typography>
+        </Box>
+        {result && (
           <Chip
-            label={overallStatus === 'PASSED' ? `ALL TESTS PASSED (${runResult.passed}/${runResult.tests_run})` : `${runResult.failed} TESTS FAILED`}
-            color={overallStatus === 'PASSED' ? 'success' : 'error'}
+            label={result.failed === 0 ? `ALL PASSED (${result.passed}/${result.tests_run})` : `${result.failed} FAILED`}
+            color={result.failed === 0 ? 'success' : 'error'}
             sx={{ fontWeight: 700, fontSize: '0.85rem' }}
           />
         )}
@@ -123,31 +175,29 @@ const TestRunner: React.FC = () => {
       <Button
         variant="contained"
         size="large"
-        startIcon={isRunning ? <CircularProgress size={20} color="inherit" /> : <PlayArrowIcon />}
-        onClick={() => runTests.mutate()}
-        disabled={isRunning}
+        startIcon={running ? <CircularProgress size={20} color="inherit" /> : <PlayArrowIcon />}
+        onClick={onRun}
+        disabled={running}
         sx={{ mb: 3 }}
       >
-        {isRunning ? 'Running Tests...' : 'Run All Tests'}
+        {running ? 'Running...' : `Run ${label}`}
       </Button>
 
-      {runTests.error && <Alert severity="error" sx={{ mb: 2 }}>{(runTests.error as Error).message}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error.message}</Alert>}
 
-      {/* Progress bar while running */}
-      {isRunning && (
+      {running && (
         <Box sx={{ mb: 2 }}>
           <LinearProgress color="warning" />
         </Box>
       )}
 
-      {/* Test Results List */}
-      {liveTests.length > 0 && (
+      {tests.length > 0 && (
         <List sx={{ bgcolor: 'background.paper', borderRadius: 1, border: '1px solid', borderColor: 'divider' }}>
-          {liveTests.map((test, idx) => (
+          {tests.map((test, idx) => (
             <React.Fragment key={test.name}>
               <ListItem
                 sx={{
-                  borderBottom: idx < liveTests.length - 1 ? '1px solid' : 'none',
+                  borderBottom: idx < tests.length - 1 ? '1px solid' : 'none',
                   borderColor: 'divider',
                   cursor: test.reason ? 'pointer' : 'default',
                   transition: 'background-color 0.3s',
@@ -194,19 +244,44 @@ const TestRunner: React.FC = () => {
         </List>
       )}
 
-      {/* Summary */}
-      {allDone && (
-        <Box sx={{ mt: 3, p: 2, borderRadius: 1, bgcolor: runResult.failed > 0 ? 'rgba(244,67,54,0.05)' : 'rgba(76,175,80,0.05)', border: '1px solid', borderColor: runResult.failed > 0 ? 'error.light' : 'success.light' }}>
+      {result && (
+        <Box sx={{ mt: 3, p: 2, borderRadius: 1, bgcolor: result.failed > 0 ? 'rgba(244,67,54,0.05)' : 'rgba(76,175,80,0.05)', border: '1px solid', borderColor: result.failed > 0 ? 'error.light' : 'success.light' }}>
           <Typography variant="subtitle2" gutterBottom>Test Summary</Typography>
           <Box sx={{ display: 'flex', gap: 2 }}>
-            <Chip label={`${runResult.passed} Passed`} color="success" size="small" variant="outlined" />
-            {runResult.failed > 0 && <Chip label={`${runResult.failed} Failed`} color="error" size="small" variant="outlined" />}
-            {runResult.skipped > 0 && <Chip label={`${runResult.skipped} Skipped`} color="default" size="small" variant="outlined" />}
+            <Chip label={`${result.passed} Passed`} color="success" size="small" variant="outlined" />
+            {result.failed > 0 && <Chip label={`${result.failed} Failed`} color="error" size="small" variant="outlined" />}
+            {result.skipped > 0 && <Chip label={`${result.skipped} Skipped`} color="default" size="small" variant="outlined" />}
           </Box>
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-            Completed: {new Date(runResult.timestamp).toLocaleString('en-US', { timeZone: 'America/Chicago' })} CST • Mode: {runResult.mode}
+            Completed: {new Date(result.timestamp).toLocaleString('en-US', { timeZone: 'America/Chicago' })} CST • Mode: {result.mode}
           </Typography>
         </Box>
+      )}
+    </Box>
+  );
+
+  return (
+    <Paper sx={{ p: 3 }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>Test Runner</Typography>
+      <Tabs value={activeTab} onChange={(_, v) => setActiveTab(v)} sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}>
+        <Tab icon={<SpeedIcon />} iconPosition="start" label="Health Checks" />
+        <Tab icon={<SecurityIcon />} iconPosition="start" label="Security Audit" />
+      </Tabs>
+
+      {activeTab === 0 && renderTestPanel(
+        runResult, liveTests, isRunning,
+        () => runTests.mutate(),
+        runTests.error as Error | null,
+        "Health Checks",
+        <SpeedIcon color="primary" />
+      )}
+
+      {activeTab === 1 && renderTestPanel(
+        secRunResult, secLiveTests, secIsRunning,
+        () => runSecurityTests.mutate(),
+        runSecurityTests.error as Error | null,
+        "Security Audit",
+        <SecurityIcon color="warning" />
       )}
     </Paper>
   );
