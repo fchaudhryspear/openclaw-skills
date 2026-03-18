@@ -1,0 +1,15 @@
+WORKER 6 - Batch 465: 8 hit(s)
+File: WDE002398.pdf
+Date: 2026-03-18T21:01:01Z
+
+=== HITS ===
+8:CC: Jacqueline Catala <jacqueline@forgeadvisors.io>, "Anderson, Kari" <Kari.Anderson@lumen.com>, Barbara Sokolowski - FORGE
+9:<barbara@forgeadvisors.io>
+22:To: Barbara Sokolowski - FORGE <barbara@forgeadvisors.io>; Vorous, Scott J <Scott.Vorous@lumen.com>; Johnson, Jerome A
+24:Cc: Jacqueline Catala <jacqueline@forgeadvisors.io>
+35:From: Barbara Sokolowski - FORGE < barbara@forgeadvisors.io>
+38:Cc: Jacqueline Catala < jacqueline@forgeadvisors.io>
+60:barbara@forgeadvisors.io
+66:Cc: Barbara Sokolowski - FORGE < barbara@forgeadvisors.io>; Jacqueline Catala < jacqueline@forgeadvisors.io>
+
+FLAGGED: forgeadvisors/jacqueline@forge match

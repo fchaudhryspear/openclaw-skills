@@ -1,0 +1,14 @@
+WORKER 6 - Batch 454: 7 hit(s)
+File: WDE002271.pdf
+Date: 2026-03-18T21:00:59Z
+
+=== HITS ===
+5:From: Jacqueline Catala <jacqueline@forgeadvisors.io>
+21:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+26:To: "Jacqueline Catala (FORGE)" <jacqueline@forgeadvisors.io>
+38:From: Jacqueline Catala <jacqueline@forgeadvisors.io>
+44:The Original Sender of this email is jacqueline@forgeadvisors.io.
+51:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+59:To: "Jacqueline Catala (FORGE)" < jacqueline@forgeadvisors.io>
+
+FLAGGED: forgeadvisors/jacqueline@forge match

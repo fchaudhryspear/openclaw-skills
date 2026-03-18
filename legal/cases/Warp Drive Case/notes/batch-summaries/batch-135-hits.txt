@@ -1,0 +1,158 @@
+WDE Discovery Scan — Batch 135
+Search terms: forgeadvisors, jacqueline@forge, warp drive engage dba
+============================================================
+
+HITS: 76 document(s) flagged
+
+  WDE075230.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075233.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075235.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075237.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075265.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075268.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075297.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075306.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075310.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075313.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075315.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075319.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075388.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075389.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075391.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075393.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075399.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075406.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075408.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075411.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075414.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075435.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075438.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075441.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075444.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075451.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075457.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075460.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075465.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075468.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075470.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075474.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075476.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075501.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075521.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075523.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075526.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075552.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075555.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075558.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075560.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075562.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075566.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075569.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075571.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075585.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075589.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075592.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075593.pdf
+    Matched: forgeadvisors
+  WDE075594.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075595.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075599.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075602.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075606.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075611.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075612.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075613.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075614.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075615.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075616.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075617.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075618.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075619.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075620.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075621.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075623.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075625.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075628.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075630.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075634.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075636.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075639.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075645.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075654.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075657.pdf
+    Matched: forgeadvisors, jacqueline@forge
+  WDE075661.pdf
+    Matched: forgeadvisors, jacqueline@forge

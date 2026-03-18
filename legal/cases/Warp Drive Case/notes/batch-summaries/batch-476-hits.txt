@@ -1,0 +1,10 @@
+WORKER 6 - Batch 476: 3 hit(s)
+File: WDE002424.pdf
+Date: 2026-03-18T21:01:02Z
+
+=== HITS ===
+7:To: Jacqueline Catala <jacqueline@forgeadvisors.io>, "Heath, Sara"
+23:From: Jacqueline Catala <jacqueline@forgeadvisors.io>
+34:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+
+FLAGGED: forgeadvisors/jacqueline@forge match

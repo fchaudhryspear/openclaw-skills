@@ -1,0 +1,26 @@
+WORKER 1 - SMOKING GUN Batch 1: 30 files
+/tmp/wde-worker-1-batch-1/CONFIDENTIAL - WDE 000123.md
+/tmp/wde-worker-1-batch-1/WDE000164.md
+/tmp/wde-worker-1-batch-1/WDE000172.md
+/tmp/wde-worker-1-batch-1/WDE000192.md
+/tmp/wde-worker-1-batch-1/WDE000214.md
+/tmp/wde-worker-1-batch-1/WDE000231.md
+/tmp/wde-worker-1-batch-1/WDE000233.md
+/tmp/wde-worker-1-batch-1/WDE000236.md
+/tmp/wde-worker-1-batch-1/WDE000251.md
+/tmp/wde-worker-1-batch-1/WDE000253.md
+/tmp/wde-worker-1-batch-1/WDE000255.md
+/tmp/wde-worker-1-batch-1/WDE000266.md
+/tmp/wde-worker-1-batch-1/WDE000273.md
+/tmp/wde-worker-1-batch-1/WDE000278.md
+/tmp/wde-worker-1-batch-1/WDE000281.md
+/tmp/wde-worker-1-batch-1/WDE000285.md
+/tmp/wde-worker-1-batch-1/WDE000289.md
+/tmp/wde-worker-1-batch-1/WDE000298.md
+/tmp/wde-worker-1-batch-1/WDE000303.md
+/tmp/wde-worker-1-batch-1/WDE000308.md
+/tmp/wde-worker-1-batch-1/WDE000309.md
+/tmp/wde-worker-1-batch-1/WDE000313.md
+/tmp/wde-worker-1-batch-1/WDE000317.md
+/tmp/wde-worker-1-batch-1/WDE000319.md
+/tmp/wde-worker-1-batch-1/WDE000321.md

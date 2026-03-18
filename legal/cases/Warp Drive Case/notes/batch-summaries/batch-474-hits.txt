@@ -1,0 +1,26 @@
+WORKER 6 - Batch 474: 19 hit(s)
+File: WDE002419.pdf
+Date: 2026-03-18T21:01:02Z
+
+=== HITS ===
+5:From: Barbara Sokolowski - FORGE <barbara@forgeadvisors.io>
+7:To: Jacqueline Catala <jacqueline@forgeadvisors.io>, "Johnson, Jerome A" <Jerome.Johnson@lumen.com>, "Vorous, Scott J"
+22:barbara@forgeadvisors.io
+24:From: Jacqueline Catala <jacqueline@forgeadvisors.io>
+26:To: Barbara Sokolowski - FORGE <barbara@forgeadvisors.io>; Johnson, Jerome A <Jerome.Johnson@lumen.com>; Vorous, Scott J
+34:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+37:From: Barbara Sokolowski - FORGE <barbara@forgeadvisors.io>
+40:Cc: "Jacqueline Catala (FORGE)" <jacqueline@forgeadvisors.io>, "Anderson, Kari" <Kari.Anderson@lumen.com>
+54:barbara@forgeadvisors.io
+59:Cc: Jacqueline Catala <jacqueline@forgeadvisors.io>; Anderson, Kari <Kari.Anderson@lumen.com>; Barbara Sokolowski - FORGE
+60:<barbara@forgeadvisors.io>
+67:Cc: Jacqueline Catala <jacqueline@forgeadvisors.io>; Anderson, Kari <Kari.Anderson@lumen.com>; Barbara Sokolowski - FORGE
+68:<barbara@forgeadvisors.io>
+82:To: Barbara Sokolowski - FORGE <barbara@forgeadvisors.io>; Vorous, Scott J <Scott.Vorous@lumen.com>; Johnson, Jerome A
+84:Cc: Jacqueline Catala <jacqueline@forgeadvisors.io>
+90:From: Barbara Sokolowski - FORGE <barbara@forgeadvisors.io>
+93:Cc: Jacqueline Catala <jacqueline@forgeadvisors.io>
+112:barbara@forgeadvisors.io
+121:Cc: Barbara Sokolowski - FORGE <barbara@forgeadvisors.io>; Jacqueline Catala <jacqueline@forgeadvisors.io>
+
+FLAGGED: forgeadvisors/jacqueline@forge match

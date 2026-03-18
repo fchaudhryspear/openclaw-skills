@@ -1,0 +1,24 @@
+WORKER 5 - SMOKING GUN Batch 449: 3 files
+/tmp/wde-worker-5-batch-449/WDE171865.md
+/tmp/wde-worker-5-batch-449/WDE171911.md
+/tmp/wde-worker-5-batch-449/WDE171931.md
+
+=== HIT CONTEXT ===
+/tmp/wde-worker-5-batch-449/WDE171865.md:<jstein@telarus.com>, Michael Brennan <Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171865.md:Stein <jstein@telarus.com>; Jeff Hathcote <jhathcote@telarus.com>; Michael Brennan
+/tmp/wde-worker-5-batch-449/WDE171865.md:Step 1: Find brokers (need to get a list, @Michael Brennan is trying to get one for us)
+/tmp/wde-worker-5-batch-449/WDE171865.md:wiggins@telarus.com>, Michael Brennan < Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171865.md:wiggins@telarus.com>, Michael Brennan < Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171865.md:wiggins@telarus.com>; Michael Brennan < Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171865.md:wiggins@telarus.com>, Michael Brennan < Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171865.md:Michael Brennan <Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171865.md:Cc: Michael Brennan < Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171865.md:Cc: Michael Brennan < Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171865.md:Cc: Michael Brennan < Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171865.md:Cc: Michael Brennan < Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171911.md:From: Michael Brennan <Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171911.md:Michael Brennan | SPEARHEAD ADVISORS
+/tmp/wde-worker-5-batch-449/WDE171931.md:From: Michael Brennan <Brennan@spearheadadvisors.io>
+/tmp/wde-worker-5-batch-449/WDE171931.md:Michael Brennan | SPEARHEAD ADVISORS
+/tmp/wde-worker-5-batch-449/WDE171931.md:From: Michael Brennan
+/tmp/wde-worker-5-batch-449/WDE171931.md:Michael Brennan | SPEARHEAD ADVISORS

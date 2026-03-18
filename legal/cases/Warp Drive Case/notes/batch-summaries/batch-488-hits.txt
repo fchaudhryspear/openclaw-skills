@@ -1,0 +1,9 @@
+WORKER 6 - Batch 488: 2 hit(s)
+File: WDE002485.pdf
+Date: 2026-03-18T21:01:03Z
+
+=== HITS ===
+10:<adrian.helj@lumen.com>, Jacqueline Catala - FORGE <jacqueline@forgeadvisors.io>, Jennifer
+11:Robison - FORGE <jennifer@forgeadvisors.io>
+
+FLAGGED: forgeadvisors/jacqueline@forge match

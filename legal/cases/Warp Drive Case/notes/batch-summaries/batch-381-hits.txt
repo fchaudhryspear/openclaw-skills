@@ -1,0 +1,20 @@
+WORKER 5 - SMOKING GUN Batch 381: 1 files
+/tmp/wde-worker-5-batch-381/WDE154787.md
+
+=== HIT CONTEXT ===
+/tmp/wde-worker-5-batch-381/WDE154787.md:From: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-381/WDE154787.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-381/WDE154787.md:To: Michael Brennan <MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-381/WDE154787.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-381/WDE154787.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-381/WDE154787.md:From: Michael Brennan
+/tmp/wde-worker-5-batch-381/WDE154787.md:Michael Brennan
+/tmp/wde-worker-5-batch-381/WDE154787.md:To: Michael Brennan
+/tmp/wde-worker-5-batch-381/WDE154787.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-381/WDE154787.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-381/WDE154787.md:To: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-381/WDE154787.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-381/WDE154787.md:Michael Brennan | VP, Enterprise & Strategic Sales
+/tmp/wde-worker-5-batch-381/WDE154787.md:To: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-381/WDE154787.md:From: Michael Brennan < MBrennan@qosnet.com>
+/tmp/wde-worker-5-batch-381/WDE154787.md:Michael Brennan | VP, Enterprise & Strategic Sales

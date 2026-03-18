@@ -1,0 +1,9 @@
+WORKER 6 - Batch 519: 2 hit(s)
+File: WDE002707.pdf
+Date: 2026-03-18T21:01:06Z
+
+=== HITS ===
+9:Jacqueline Catala - FORGE <jacqueline@forgeadvisors.io>, "Amaya.Roberto"
+40:<jacqueline@forgeadvisors.io>; Amaya.Roberto <Amaya.Roberto@ace.aaa.com>; Fields.Lorin
+
+FLAGGED: forgeadvisors/jacqueline@forge match

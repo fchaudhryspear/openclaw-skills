@@ -1,0 +1,13 @@
+WORKER 6 - Batch 532: 6 hit(s)
+File: WDE002803.pdf
+Date: 2026-03-18T21:01:08Z
+
+=== HITS ===
+7:To: Jacqueline Catala <jacqueline@forgeadvisors.io>, Shubham Singh
+8:<ssingh10@mazdausa.com>, Jennifer Robison - FORGE <jennifer@forgeadvisors.io>
+20:From: Jacqueline Catala <jacqueline@forgeadvisors.io>
+23:Jennifer Robison - FORGE <jennifer@forgeadvisors.io>
+35:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+41:Cc: "Jacqueline Catala (FORGE)" < jacqueline@forgeadvisors.io>, "Adi Heji (Lumen)"
+
+FLAGGED: forgeadvisors/jacqueline@forge match

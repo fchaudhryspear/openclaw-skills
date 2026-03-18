@@ -1,0 +1,25 @@
+WORKER 6 - Batch 516: 18 hit(s)
+File: WDE002672.pdf
+Date: 2026-03-18T21:01:06Z
+
+=== HITS ===
+7:To: Jennifer Robison - FORGE <jennifer@forgeadvisors.io>, Jacqueline Catala
+8:<jacqueline@forgeadvisors.io>
+31:From: Jennifer Robison - FORGE <jennifer@forgeadvisors.io>
+33:To: Zina Uvarova <Zina.Uvarova@gtt.net>; Jacqueline Catala <jacqueline@forgeadvisors.io>
+45:jennifer@forgeadvisors.io
+49:To: Zina Uvarova <Zina.Uvarova@gtt.net>; Jacqueline Catala < jacqueline@forgeadvisors.io>
+62:jennifer@forgeadvisors.io
+66:To: Jennifer Robison - FORGE < jennifer@forgeadvisors.io>; Jacqueline Catala
+67:<jacqueline@forgeadvisors.io>
+87:From: Jennifer Robison - FORGE < jennifer@forgeadvisors.io>
+89:To: Jacqueline Catala < jacqueline@forgeadvisors.io>; Zina Uvarova <Zina.Uvarova@gtt.net>
+101:jennifer@forgeadvisors.io
+103:From: Jacqueline Catala < jacqueline@forgeadvisors.io>
+105:To: Jennifer Robison - FORGE < jennifer@forgeadvisors.io>; Zina Uvarova
+118:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+121:From: Jennifer Jackson-Robison <jennifer@forgeadvisors.io>
+124:Cc: "Jacqueline Catala (FORGE)" < jacqueline@forgeadvisors.io>, Marshall Krebs
+141:Mobile: 678-778-1218 | jennifer@forgeadvisors.io
+
+FLAGGED: forgeadvisors/jacqueline@forge match

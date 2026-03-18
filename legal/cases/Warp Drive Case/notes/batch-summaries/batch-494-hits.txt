@@ -1,0 +1,12 @@
+WORKER 6 - Batch 494: 5 hit(s)
+File: WDE002535.pdf
+Date: 2026-03-18T21:01:04Z
+
+=== HITS ===
+7:To: Jacqueline Catala <jacqueline@forgeadvisors.io>, Aileen Callahan <ACallahan@granitenet.com>, Andrew Sullivan <AnSullivan@granitenet.com>, Glenn
+9:CC: Gonzalo Ortiz <ortiz.gonzalo@aaa-calif.com>, Jennifer Robison - FORGE <jennifer@forgeadvisors.io>, Steve Perlinski <Perlinski.Steve@ace.aaa.com>,
+24:From: Jacqueline Catala <jacqueline@forgeadvisors.io>
+28:Cc: Gonzalo Ortiz <ortiz.gonzalo@aaa-calif.com>; Jennifer Robison - FORGE <jennifer@forgeadvisors.io>; Steve Perlinski <Perlinski.Steve@ace.aaa.com>
+41:Mobile: 818-259-3751 / jacqueline@forgeadvisors.io
+
+FLAGGED: forgeadvisors/jacqueline@forge match

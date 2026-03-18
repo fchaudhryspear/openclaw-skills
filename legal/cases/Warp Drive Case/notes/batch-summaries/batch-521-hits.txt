@@ -1,0 +1,13 @@
+WORKER 6 - Batch 521: 6 hit(s)
+File: WDE002711.pdf
+Date: 2026-03-18T21:01:06Z
+
+=== HITS ===
+12:"Acosta.Nuja" <Acosta.Nuja@ace.aaa.com>, Jacqueline Catala - FORGE <jacqueline@forgeadvisors.io>, Jennifer Robison - FORGE
+13:<jennifer@forgeadvisors.io>
+37:Acosta.Nuja <Acosta.Nuja@ace.aaa.com>; Jacqueline Catala - FORGE <jacqueline@forgeadvisors.io>; Jennifer Robison - FORGE
+38:<jennifer@forgeadvisors.io>
+62:Acosta.Nuja <Acosta.Nuja@ace.aaa.com>; Jacqueline Catala - FORGE < jacqueline@forgeadvisors.io>; Jennifer Robison - FORGE
+63:<jennifer@forgeadvisors.io>
+
+FLAGGED: forgeadvisors/jacqueline@forge match
